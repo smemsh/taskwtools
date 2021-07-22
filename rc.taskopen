@@ -1,0 +1,6 @@
+#
+
+NOTES_FOLDER="$HOME/.task/notes/"
+NOTES_REGEX=^f:
+NOTES_EXT=.rst
+BROWSER_REGEX='@^(https?|ftp)://\[^\s/$.?#\].\[^\s\]*$@i'
