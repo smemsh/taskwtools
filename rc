@@ -1,0 +1,97 @@
+#
+# scott@smemsh.net
+# http://smemsh.net/src/.taskrc
+# http://spdx.org/licenses/GPL-2.0
+#
+##############################################################################
+
+include /usr/local/share/doc/task/rc/dark-blue-256.theme
+
+#alias.myalias		= realname
+
+avoidlastcolumn		= yes
+column.padding		= 2
+hyphenate		= off
+search.case.sensitive	= no
+
+#confirmation		= yes
+verbose			= off
+
+data.location		= ~/.task
+
+date.iso		= yes
+weekstart		= monday
+displayweeknumber	= yes
+color			= on
+fontunderline		= on
+
+# needed for e.g. piping to less
+#
+_forcecolor		= on
+
+# run "task rc.gc=on rc.verbose=nothing // list" every so often to collect
+# TODO make alias for that (above), either in taskw or in shell
+#
+gc			= off
+
+### URGENCIES ################################################################
+
+# mere presence of tags should not alter the urgency calculation, and
+# specific tags can still be selected for with
+# urgency.user.tag.foo.coefficient
+#
+urgency.tags.coefficient = 0
+
+# right now we do not want to alter urgency merely by how old something is;
+# later on this might be more useful
+#
+urgency.age.coefficient = 0
+
+# we have not yet figured out how we use projects in any sense other than
+# taxonomy, and specific projects can still be selected for with
+# urgency.user.project.foo.coefficient
+#
+urgency.project.coefficient = 0
+
+# seriously? presence of annotations alter the urgency? why, because it
+# indicates that maybe we have been working on something? until this is better
+# thought through, better to disable it
+#
+urgency.annotations.coefficient = 0
+
+# the degree to which we want parents in the chain to have trickle-down
+# dependencies
+#
+urgency.inherit.coefficient = 2
+
+urgency.user.tag.job.coefficient	=  6
+urgency.user.tag.future.coefficient	= -3
+urgency.user.tag.maybe.coefficient	= -1
+urgency.user.tag.likely.coefficient	=  2
+
+
+### REPORTS ##################################################################
+
+report.list.columns	= id,depends.indicator,priority,project,label,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,urgency
+report.list.labels	= ID,D,PRI,PROJECT,LABEL,TAGS,R,SCHED,DUE,UNTIL,DESC,URG
+
+report.next.columns	= id,start.age,entry.age,depends,priority,project,label,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency
+report.next.labels	= ID,ACTIVE,AGE,DEPS,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DESC,URG
+
+#
+#dateformat= # most general if none supplied
+#dateformat.report= # default for all reports
+#report.foo.dateformat= # override for specific report
+#
+#dateformat.holiday=
+#dateformat.info=
+#dateformat.edit=
+#dateformat.annotation=
+
+# TODO we don't actually use these, because they don't get included on 'task
+# add', see irc discussion on 20150610 and
+# https://bug.tasktools.org/browse/EX-65
+#
+context.work=+work
+uda.label.type=string
+uda.label.label=label
