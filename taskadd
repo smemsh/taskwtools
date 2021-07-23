@@ -1,0 +1,198 @@
+#!/usr/bin/env bash
+#
+# taskadd
+#   taskwarrior wrapper, templated "task add", path labels, auto flags
+#
+# args
+#   arg1: prj/subprj/.../label
+#   arg?: extra args for taskw
+#   argN: "description"
+#   $TASKADD: additional args for taskw
+#
+# http://smemsh.net/src/taskassoc/
+# http://spdx.org/licenses/GPL-2.0
+# scott@smemsh.net
+#
+##############################################################################
+
+invname=${0##*/}
+setenv () { local v=$1; shift; IFS= eval $v="\$*"; }
+setarr () { local v=$1; shift; eval $v=\(\"\$@\"\); }
+warn   () { echo "$invname: ${FUNCNAME[1]}: $*" >&2; }
+bomb   () { warn "$@"; false; exit; }
+
+# check that a label string has sanity: only alnums, one or more slashes
+assoc_sane ()
+{
+	# at least one slash i.e. project/label (can have any number)
+	if ! [[ $1 =~ / ]]; then
+		false; return; fi
+
+	# only alphanumerics and dashes allowed
+	if [[ $1 =~ [^[:alnum:]-/] ]]; then
+		false; return; fi
+}
+
+assoc_split ()
+{
+	echo -n ${1//\//$'\x20'}
+}
+
+# returns just the label component (last word) of an assoc string
+assoc_label ()
+{
+	local -a assocs
+	local IFS; unset IFS
+
+	(($# == 1)) || bomb "one arg only"
+	assocs=(`assoc_split $1`)
+
+	printf ${assocs[@]: -1: 1} # spaces needed for negative offset
+}
+
+assoc_split_project ()
+{
+	local -a assocs
+	local IFS; unset IFS
+
+	(($# == 1)) || bomb "one arg only"
+	assocs=(`assoc_split $1`)
+	unset "assocs[$((${#assocs[@]} - 1))]"
+
+	echo -n "${assocs[@]}"
+}
+
+task_assoc_exists ()
+{
+	[[ $(task $fqtask _ids) ]]
+}
+
+# we like tasks to fit 80 characters including the label
+desc_sane ()
+{
+	local label=$1
+	local desc="$2"
+	local full="$label: $desc"
+
+	if (($# != 2)); then
+		false; return; fi
+
+	if ((${#full} > 79)); then
+		false; return; fi
+}
+
+usage_exit ()
+{
+	printf %s \
+		"TASKADD='+foo +bar' " \
+		"taskadd " \
+		"prj/subprj/label " \
+		"+baz +qux " \
+		"'description, etc'" \
+	;
+	exit
+}
+
+sanitize_args ()
+{
+	if [[ (($# == 0)) || $1 == '-h' || $1 == '--help' ]]; then
+		usage_exit; fi
+
+	# first arg given is always in the form prj/subprj/.../label
+	assoc_sane $1 || bomb "given assoc '$1' is not sane"
+}
+
+parse_args ()
+{
+	local arg
+
+	sanitize_args "$@"
+	setenv assoc ${1#/}	# remove any initial slash (XXX someday use)
+
+	# last slash-delimited component is the tw uda we call "label" and the
+	# inital ones form the builtin-attr "project" hierarchy
+	#
+	setenv label `assoc_label $assoc`
+	setarr projects `assoc_split_project $assoc`
+
+	# args in the middle are extra args to be added to taskw line
+	for ((arg = 2; arg < $#; arg++)); do
+		extra+=("${!arg}"); done
+
+	# last one is always the description (it will need to be quoted)
+	setenv desc "${!arg}"
+
+	# fully qualified task with project hierarchy and label
+	setenv fqtask \
+		"project:$(IFS=.; printf "${projects[*]}") " \
+		"label:$label"
+
+	# allow injection of additional command line args from user-set
+	# persistent environment variable
+	#
+	extra+=($TASKADD)
+
+	desc_sane $label "$desc" ||
+		bomb "description failed sanity test"
+}
+
+# creates a new taskwarrior task with only uuid and description set
+# returns uuid to the caller as a string on stdout
+#
+task_new_stub ()
+{
+	local uuid
+
+	uuid=`uuid`
+	if ! task import <(
+		printf '[{"uuid":"%s", "description":"-"}]' $uuid
+	) &>/dev/null
+	then false; exit; fi
+
+	printf $uuid
+}
+
+main ()
+{
+	local i uuid
+	local prj pprj
+
+	declare -g assoc label desc fqtask
+	declare -g projects=() extra=()
+
+	parse_args "$@" || bomb "arguments parsed incorrectly"
+
+	task_assoc_exists $assoc &&
+		bomb "association already exists"
+
+	uuid=`task_new_stub` ||
+		bomb "failed stub create (uuid gen or task import failed)"
+	task $uuid modify $fqtask ${extra[@]} -- "$desc" ||
+		bomb "task attribute additions failed, residual: $uuid"
+
+	# XXX TODO
+	#
+	# for the given assoc path, ensure a chain of real tasks with the given
+	# project hierarchy that depend on each other: adding "foo/bar/baz/qux"
+	# makes:
+	#   1: proj:foo.bar.baz label:qux
+	#   2: proj:foo.bar label:baz depends:1
+	#   3: proj:foo label:bar depends:2
+	#   4: label:foo depends:3
+	#
+	#for ((i = ${#projects[@]} - 1; i; i--)); do
+	#	setenv last $prj
+	#	setenv prj  ${projects[i]}
+	#	echo $last
+	#	echo $prj
+	#done
+
+	# if, for an assoc given as 'foo/bar/baz' (project:foo.bar label:baz),
+	# there is an existing exact match project:foo label:bar, then
+	# automatically add ourselves as a child dependency of that task, which
+	# lets us use hierarchy in the given full label identifier to imply
+	# parentage and automatically add dependencies without a manual second
+	# pass and having to figure out what the parent task is
+}
+
+main "$@"
