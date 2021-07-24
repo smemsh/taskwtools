@@ -175,6 +175,8 @@ main ()
 	task $uuid modify $fqtask ${extra[@]} -- "$desc" ||
 		bomb "task attribute additions failed, residual: $uuid"
 
+	task $uuid _unique id
+
 	# XXX TODO
 	#
 	# for the given assoc path, ensure a chain of real tasks with the given
