@@ -8,6 +8,7 @@
 #   arg?: extra args for taskw
 #   argN: "description"
 #   $TASKADD: additional args for taskw
+#   $TASKPRJ: default prj
 #
 # http://smemsh.net/src/taskassoc/
 # http://spdx.org/licenses/GPL-2.0
@@ -106,8 +107,12 @@ parse_args ()
 {
 	local arg
 
-	sanitize_args "$@"
-	setenv assoc ${1#/}	# remove any initial slash (XXX someday use)
+	setenv assoc "${TASKPRJ}/$1"      # project in env var, gets prepended
+	setenv assoc "${assoc//\/\//\/}"  # eliminate dupe slashes from join
+	setenv assoc "${assoc#/}"         # eliminate any initial slash
+	shift
+
+	sanitize_args "$assoc" "$@"
 
 	# last slash-delimited component is the tw uda we call "label" and the
 	# inital ones form the builtin-attr "project" hierarchy
