@@ -89,10 +89,8 @@ report.next.labels	= ID,ACTIVE,AGE,DEPS,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DE
 #dateformat.edit=
 #dateformat.annotation=
 
-# TODO we don't actually use these, because they don't get included on 'task
-# add', see irc discussion on 20150610 and
-# https://bug.tasktools.org/browse/EX-65
-#
-context.work=+work
 uda.label.type=string
 uda.label.label=label
+
+# TODO we don't actually use contexts yet
+context.work=+work
