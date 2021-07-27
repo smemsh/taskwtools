@@ -148,7 +148,7 @@ task_new_stub ()
 {
 	local uuid
 
-	uuid=`uuid`
+	uuid=`uuid -v4`
 	if ! task import <(
 		printf '[{"uuid":"%s", "description":"-"}]' $uuid
 	) &>/dev/null
