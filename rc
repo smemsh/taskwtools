@@ -14,7 +14,7 @@ column.padding		= 2
 hyphenate		= off
 search.case.sensitive	= no
 
-#confirmation		= yes
+confirmation		= no
 verbose			= off
 
 data.location		= ~/.task
