@@ -15,7 +15,7 @@ hyphenate		= off
 search.case.sensitive	= no
 
 confirmation		= no
-verbose			= off
+verbose			= footnote,label
 
 data.location		= ~/.task
 
