@@ -1,4 +1,5 @@
 #
 
 *.data
+task.*.task
 notes/
