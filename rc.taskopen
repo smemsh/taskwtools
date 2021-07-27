@@ -3,4 +3,4 @@
 NOTES_FOLDER="$HOME/.task/notes/"
 NOTES_REGEX=^file:$
 NOTES_EXT=.rst
-BROWSER_REGEX='@^(https?|ftp)://\[^\s/$.?#\].\[^\s\]*$@i'
+BROWSER_REGEX='^https?://'
