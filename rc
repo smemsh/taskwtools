@@ -34,6 +34,11 @@ _forcecolor		= on
 #
 gc			= off
 
+### COLORS ###################################################################
+
+color.tagged            = color247
+color.tag.none          = color247
+
 ### URGENCIES ################################################################
 
 # mere presence of tags should not alter the urgency calculation, and
