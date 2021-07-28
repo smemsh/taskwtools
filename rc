@@ -79,12 +79,12 @@ urgency.user.tag.likely.coefficient	=  2
 
 ### REPORTS ##################################################################
 
-report.list.columns	= id,depends.indicator,priority,project,label,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,urgency
-report.list.labels	= ID,D,PRI,PROJECT,LABEL,TAGS,R,SCHED,DUE,UNTIL,DESC,URG
+report.list.columns	= id,priority,project,label,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,urgency
+report.list.labels	= ID,PRI,PROJECT,LABEL,TAGS,R,SCHED,DUE,UNTIL,DESC,URG
 report.list.sort	= entry+,urgency-,priority-
 
-report.next.columns	= id,start.age,entry.age,depends,priority,project,label,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency
-report.next.labels	= ID,ACTIVE,AGE,DEPS,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DESC,URG
+report.next.columns	= id,start.age,entry.age,priority,project,label,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency
+report.next.labels	= ID,ACTIVE,AGE,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DESC,URG
 
 #
 #dateformat= # most general if none supplied
