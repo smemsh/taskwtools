@@ -106,6 +106,10 @@ sanitize_args ()
 parse_args ()
 {
 	local arg
+	declare -g addfile
+
+	if [[ $1 == '-e' ]]
+	then let addfile++; shift; fi
 
 	setenv assoc "${TASKPRJ}/$1"      # project in env var, gets prepended
 	setenv assoc "${assoc//\/\//\/}"  # eliminate dupe slashes from join
@@ -175,6 +179,11 @@ main ()
 	task $uuid modify $fqtask ${extra[@]} -- "$desc" ||
 		bomb "task attribute additions failed, residual: $uuid"
 
+	# edit the attached .rst file via taskopen if cli arg '-e' given
+	if ((addfile))
+	then task $uuid annotate -- file:; taskopen $uuid; fi
+
+	# display task id to user so they can use it to further manipulate
 	task $uuid _unique id
 
 	# XXX TODO
