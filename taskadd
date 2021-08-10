@@ -125,7 +125,7 @@ parse_args ()
 	setarr projects `assoc_split_project $assoc`
 
 	# args in the middle are extra args to be added to taskw line
-	for ((arg = 2; arg < $#; arg++)); do
+	for ((arg = 1; arg < $#; arg++)); do
 		extra+=("${!arg}"); done
 
 	# last one is always the description (it will need to be quoted)
