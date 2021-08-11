@@ -12,6 +12,7 @@ include /usr/local/share/doc/task/rc/dark-blue-256.theme
 avoidlastcolumn		= yes
 column.padding		= 2
 hyphenate		= off
+nag			= off
 search.case.sensitive	= no
 
 confirmation		= no
