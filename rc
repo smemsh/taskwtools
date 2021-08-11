@@ -72,12 +72,6 @@ urgency.annotations.coefficient = 0
 #
 urgency.inherit.coefficient = 2
 
-urgency.user.tag.job.coefficient	=  6
-urgency.user.tag.future.coefficient	= -3
-urgency.user.tag.maybe.coefficient	= -1
-urgency.user.tag.likely.coefficient	=  2
-
-
 ### REPORTS ##################################################################
 
 report.list.columns	= id,priority,project,label,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,urgency
@@ -100,5 +94,5 @@ report.next.labels	= ID,ACTIVE,AGE,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DESC,UR
 uda.label.type=string
 uda.label.label=label
 
-# TODO we don't actually use contexts yet
-context.work=+work
+#
+include rc.local
