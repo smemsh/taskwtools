@@ -74,11 +74,13 @@ desc_sane ()
 	local label=$1
 	local desc="$2"
 	local full="$label: $desc"
+	local maxchars=79
 
 	if (($# != 2)); then
 		false; return; fi
 
-	if ((${#full} > 79)); then
+	if ((${#full} > maxchars)); then
+		warn "exceeds maxium chars (${#full}/$maxchars)"
 		false; return; fi
 }
 
