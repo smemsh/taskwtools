@@ -67,10 +67,11 @@ urgency.project.coefficient = 0
 #
 urgency.annotations.coefficient = 0
 
-# the degree to which we want parents in the chain to have trickle-down
-# dependencies
+# make blocking tasks inherit from those they block
 #
-urgency.inherit.coefficient = 2
+urgency.inherit = 1
+urgency.blocked.coefficient = 0
+urgency.blocking.coefficient = 0
 
 ### REPORTS ##################################################################
 
