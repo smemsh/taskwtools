@@ -30,8 +30,8 @@ fontunderline		= on
 #
 _forcecolor		= on
 
-# run "task rc.gc=on rc.verbose=nothing // list" every so often to collect
-# TODO make alias for that (above), either in taskw or in shell
+# run "task rc.gc=on rc.verbose=nothing // list >/dev/null" every so often to
+# collect, currently is shell alias 'taskgc'
 #
 gc			= off
 
