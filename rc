@@ -9,20 +9,20 @@ include /usr/local/share/doc/task/rc/dark-blue-256.theme
 
 #alias.myalias		= realname
 
-avoidlastcolumn		= yes
+avoidlastcolumn		= on
 column.padding		= 2
 hyphenate		= off
-search.case.sensitive	= no
+search.case.sensitive	= off
 
-confirmation		= no
+confirmation		= off
 verbose			= footnote,label
 nag			=
 
 data.location		= ~/.task
 
-date.iso		= yes
+date.iso		= on
 weekstart		= monday
-displayweeknumber	= yes
+displayweeknumber	= on
 color			= on
 fontunderline		= on
 
@@ -69,7 +69,7 @@ urgency.annotations.coefficient = 0
 
 # make blocking tasks inherit from those they block
 #
-urgency.inherit = 1
+urgency.inherit = on
 urgency.blocked.coefficient = 0
 urgency.blocking.coefficient = 0
 
