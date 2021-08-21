@@ -13,6 +13,7 @@ avoidlastcolumn		= on
 column.padding		= 2
 hyphenate		= off
 search.case.sensitive	= off
+journal.info		= off
 
 confirmation		= off
 verbose			= footnote,label
