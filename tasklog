@@ -1,0 +1,3 @@
+#!/bin/sh
+
+task rc.defaultwidth=${COLUMNS:-80} rc.journal.info=on "$@"
