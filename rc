@@ -37,10 +37,10 @@ gc			= off
 
 ### COLORS ###################################################################
 
-color.tagged            = color247
-color.tag.none          = color247
-color.blocked           = color249 on rgb001
-color.blocking          = color249 on rgb002
+color.tagged		= color247
+color.tag.none		= color247
+color.blocked		= color249 on rgb001
+color.blocking		= color249 on rgb002
 
 ### URGENCIES ################################################################
 
