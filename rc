@@ -83,6 +83,10 @@ report.list.sort	= entry+,urgency-,priority-
 report.next.columns	= id,start.age,entry.age,priority,project,label,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency
 report.next.labels	= ID,ACTIVE,AGE,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DESC,URG
 
+report.labels.columns	= id,label
+report.labels.labels	= ID,LABEL
+report.labels.sort	= entry+,urgency-,priority-
+
 #
 #dateformat= # most general if none supplied
 #dateformat.report= # default for all reports
