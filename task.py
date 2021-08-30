@@ -3,6 +3,7 @@
 taskwarrior utilities, especially for coordination with timewarrior
 
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
+  - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
 
 deps:
@@ -41,13 +42,28 @@ def exe(cmd):
 
 ###
 
+def _taskone(taskarg):
+    tasks = _taskget(taskarg)
+    if len(tasks) != 1:
+        bomb(f"none or multiple matches for task spec '{taskarg}'")
+    return tasks[0]
+
+#
+
 def __taskfql(task):
     return f"{task['project'].replace('.', '/')}/{task['label']}"
+
+def _taskfql(taskarg):
+    task = _taskone(taskarg)
+    return __taskfql(task)
 
 def _taskfqls(taskarg):
     tasks = _taskget(taskarg)
     if not tasks: return []
     else: return [__taskfql(t) for t in tasks]
+
+def taskfql(taskarg):
+    print(_taskfql(taskarg) or '')
 
 def taskfqls(taskarg):
     for t in _taskfqls(taskarg):
