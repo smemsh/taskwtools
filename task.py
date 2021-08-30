@@ -51,19 +51,19 @@ def _taskget(taskarg):
     # taskid
     try:
         taskarg = int(taskarg)
-        task = taskw.get_task(id=taskarg)
-        if not task:
-            bomb(f"could not find task with integer id {taskarg}")
-        return task
+        tasks = taskw.filter_tasks(dict(id=taskarg))
+        if not tasks: bomb(f"failed to find integer task {taskarg}")
+        if len(tasks) != 1: bomb(f"integer id {taskarg} not unique")
+        return tasks
     except ValueError: pass
 
     # taskuuid
     try:
         taskarg = uuid(taskarg)
-        task = taskw.get_task(uuid=taskarg)
-        if not task:
-            bomb(f"could not find task with uuid {taskarg}")
-        return task
+        tasks = taskw.filter_tasks(dict(uuid=taskarg))
+        if not tasks: bomb(f"failed to find task by uuid: {taskarg}")
+        if len(tasks) != 1: bomb(f"uuid lookup for {taskarg} not unique")
+        return tasks
     except ValueError: pass
 
     # taskuuid-initial
