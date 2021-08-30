@@ -39,8 +39,8 @@ def exe(cmd):
 
 ###
 
-def taskget():
-    tasks = _taskget(args[0])
+def taskget(taskarg):
+    tasks = _taskget(taskarg)
     pp(tasks)
 
 def _taskget(taskarg):
@@ -100,7 +100,7 @@ def _taskget(taskarg):
 
 ###
 
-def main():
+def main(taskarg):
 
     if debug: breakpoint()
 
@@ -108,7 +108,7 @@ def main():
     except (KeyError, TypeError):
         bomb(f"unimplemented command '{invname}'")
 
-    instcnt = subprogram()
+    instcnt = subprogram(taskarg)
 
 ###
 
@@ -129,5 +129,5 @@ if __name__ == "__main__":
     invname = basename(argv[0])
     args = argv[1:]
 
-    try: main()
+    try: main(args[0])
     except BdbQuit: bomb("debug-stop")
