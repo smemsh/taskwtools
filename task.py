@@ -68,33 +68,33 @@ def _taskget(taskarg):
 
     # taskuuid-initial
     if task_as_set.issubset(f"{hexdigits}-"):
-        task = taskw.filter_tasks(dict(uuid=taskarg))
-        if task:
-            return task
+        tasks = taskw.filter_tasks(dict(uuid=taskarg))
+        if tasks:
+            return tasks
 
     # label
     if task_as_set.issubset(f"{lowercase}{digits}-/"):
         if '/' not in task_as_set:
             # label
-            task = taskw.filter_tasks(dict(label=taskarg))
-            if task:
-                return task
+            tasks = taskw.filter_tasks(dict(label=taskarg))
+            if tasks:
+                return tasks
         else:
             # fully qualified label path
             lsegments = taskarg.split('/')
             project = '.'.join(lsegments[0:-1])
             label = lsegments[-1]
-            task = taskw.filter_tasks(dict(project=project, label=label))
-            if task:
-                return task
+            tasks = taskw.filter_tasks(dict(project=project, label=label))
+            if tasks:
+                return tasks
 
     # description substring
-    task = taskw.filter_tasks(dict(description=taskarg))
-    if task: return task
+    tasks = taskw.filter_tasks(dict(description=taskarg))
+    if tasks: return tasks
 
     # description regex
-    task = taskw.filter_tasks({'description.has': taskarg})
-    if task: return task
+    tasks = taskw.filter_tasks({'description.has': taskarg})
+    if tasks: return tasks
 
     return None
 
