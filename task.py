@@ -84,7 +84,7 @@ def _timewtags(task):
         tags.append('/'.join(fqlsegs[0:i]) + ('/' if i < nsegs else ''))
 
     if 'tags' in task:
-        tags.extend(task['tags'])
+        tags.extend([f"+{t}" for t in task['tags']])
 
     return tags
 
