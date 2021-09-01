@@ -46,8 +46,10 @@ def exe(cmd):
 
 def _taskone(taskarg):
     tasks = _taskget(taskarg)
-    if len(tasks) != 1:
-        bomb(f"none or multiple matches for task spec '{taskarg}'")
+    if len(tasks) == 0:
+        bomb("no matches")
+    elif len(tasks) > 1:
+        bomb("multiple matches")
     return tasks[0]
 
 #
