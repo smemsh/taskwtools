@@ -5,6 +5,7 @@ taskwarrior utilities, especially for coordination with timewarrior
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
+  - timewtags: show all tags that a task would be assigned in timewarrior
 
 deps:
   - taskw python library with patch #151
@@ -20,6 +21,7 @@ from pprint import pp
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
 from subprocess import check_output
+
 from os import (
     getenv,
     EX_OK as EXIT_SUCCESS,
@@ -68,6 +70,25 @@ def taskfql(taskarg):
 def taskfqls(taskarg):
     for t in _taskfqls(taskarg):
         print(t or '')
+
+#
+
+def _timewtags(task):
+
+    tags = []
+    fqlsegs = __taskfql(task).split('/')
+
+    for i in range(1, len(fqlsegs) + 1):
+        tags.append('/'.join(fqlsegs[0:i]))
+
+    if 'tags' in task:
+        tags.extend(task['tags'])
+
+    return tags
+
+def timewtags(taskarg):
+    task = _taskone(taskarg)
+    print('\x20'.join(_timewtags(task)))
 
 #
 
