@@ -76,10 +76,12 @@ def taskfqls(taskarg):
 def _timewtags(task):
 
     tags = []
-    fqlsegs = __taskfql(task).split('/')
 
-    for i in range(1, len(fqlsegs) + 1):
-        tags.append('/'.join(fqlsegs[0:i]))
+    fqlsegs = __taskfql(task).split('/')
+    nsegs = len(fqlsegs)
+
+    for i in range(1, nsegs + 1):
+        tags.append('/'.join(fqlsegs[0:i]) + ('/' if i < nsegs else ''))
 
     if 'tags' in task:
         tags.extend(task['tags'])
