@@ -2,6 +2,7 @@
 """
 taskwarrior utilities, especially for coordination with timewarrior
 
+  - taskdo: start task in timew, all taskw fql elements and tags as timew tags
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
@@ -29,6 +30,7 @@ from os import (
 )
 
 from taskw import TaskWarrior
+from timew import TimeWarrior
 
 ###
 
@@ -93,6 +95,22 @@ def _timewtags(task):
 def timewtags(taskarg):
     task = _taskone(taskarg)
     print('\x20'.join(_timewtags(task)))
+
+#
+
+def taskdo(taskarg):
+
+    task = _taskone(taskarg)
+    tags = _timewtags(task)
+
+    if 'end' in task:
+        bomb("cannot proceed on ended task")
+
+    if 'start' not in task:
+        bomb("perform initial start in taskwarrior")
+
+    timew = TimeWarrior()
+    timew.start(tags=tags)
 
 #
 
