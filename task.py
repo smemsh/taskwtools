@@ -113,9 +113,9 @@ def _taskget(taskarg):
                 return tasks
         else:
             # fully qualified label path
-            lsegments = taskarg.split('/')
-            project = '.'.join(lsegments[0:-1])
-            label = lsegments[-1]
+            fqlsegs = taskarg.split('/')
+            project = '.'.join(fqlsegs[0:-1])
+            label = fqlsegs[-1]
             tasks = taskw.filter_tasks(dict(project=project, label=label))
             if tasks:
                 return tasks
