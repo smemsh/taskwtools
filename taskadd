@@ -9,6 +9,7 @@
 #   argN: "description"
 #   $TASKADD: additional args for taskw
 #   $TASKPRJ: default prj
+#   args matching ^https?:// will be added as annotations
 #
 # http://smemsh.net/src/taskassoc/
 # http://spdx.org/licenses/GPL-2.0
@@ -128,7 +129,9 @@ parse_args ()
 
 	# args in the middle are extra args to be added to taskw line
 	for ((arg = 1; arg < $#; arg++)); do
-		extra+=("${!arg}"); done
+		if [[ ${!arg} =~ ^https?:// ]]
+		then urls+=("${!arg}")
+		else extra+=("${!arg}"); fi; done
 
 	# last one is always the description (it will need to be quoted)
 	setenv desc "${!arg}"
@@ -169,7 +172,7 @@ main ()
 	local prj pprj
 
 	declare -g assoc label desc fqtask
-	declare -g projects=() extra=()
+	declare -g projects=() extra=() urls=()
 
 	parse_args "$@" || bomb "arguments parsed incorrectly"
 
@@ -184,6 +187,10 @@ main ()
 	# edit the attached .rst file via taskopen if cli arg '-e' given
 	if ((addfile))
 	then task $uuid annotate -- file:; taskopen $uuid; fi
+
+	# add any urls given before description as annotations
+	for ((i = 0; i < ${#urls[@]}; i++))
+	do task $uuid annotate -- "${urls[i]}"; done
 
 	# display task id to user so they can use it to further manipulate
 	task $uuid _unique id
