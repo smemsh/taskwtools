@@ -108,7 +108,7 @@ sanitize_args ()
 
 parse_args ()
 {
-	local arg
+	local argn
 	declare -g addfile
 
 	if [[ $1 == '-e' ]]
@@ -128,13 +128,18 @@ parse_args ()
 	setarr projects `assoc_split_project $assoc`
 
 	# args in the middle are extra args to be added to taskw line
-	for ((arg = 1; arg < $#; arg++)); do
-		if [[ ${!arg} =~ ^https?:// ]]
-		then urls+=("${!arg}")
-		else extra+=("${!arg}"); fi; done
+	for ((argn = 1; argn < $#; argn++)); do
+		if [[ ${!argn} =~ ^--$ ]]
+		then let argn++; break
+		elif [[ ${!argn} =~ ^https?:// ]]
+		then urls+=("${!argn}")
+		else extra+=("${!argn}")
+		fi
+	done
 
-	# last one is always the description (it will need to be quoted)
-	setenv desc "${!arg}"
+	# last arg is (or all args after '--' are) the description
+	shift $((argn - 1))
+	setenv desc "$*"
 
 	# fully qualified task with project hierarchy and label
 	setenv fqtask \
