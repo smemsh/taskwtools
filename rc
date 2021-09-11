@@ -80,8 +80,8 @@ report.list.columns	= id,priority,project,label,tags,recur.indicator,scheduled.c
 report.list.labels	= ID,PRI,PROJECT,LABEL,TAGS,R,SCHED,DUE,UNTIL,DESC,URG
 report.list.sort	= entry+,urgency-,priority-
 
-report.next.columns	= id,start.age,entry.age,priority,project,label,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency
-report.next.labels	= ID,ACTIVE,AGE,P,PROJECT,LABEL,TAG,RECUR,S,DUE,UNTIL,DESC,URG
+report.next.columns	= id,label,project,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency,priority,start.age,entry.age
+report.next.labels	= ID,LABEL,PROJECT,TAG,RECUR,S,DUE,UNTIL,DESC,URG,P,ACTIVE,AGE
 
 report.labels.columns	= id,label
 report.labels.labels	= ID,LABEL
