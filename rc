@@ -82,6 +82,7 @@ report.list.sort	= entry+,urgency-,priority-
 
 report.next.columns	= id,label,project,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency,priority,start.age,entry.age
 report.next.labels	= ID,LABEL,PROJECT,TAG,RECUR,S,DUE,UNTIL,DESC,URG,P,ACTIVE,AGE
+report.next.filter	= status:pending limit:page -hold
 
 report.labels.columns	= id,label
 report.labels.labels	= ID,LABEL
