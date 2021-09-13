@@ -101,5 +101,11 @@ report.labels.sort	= entry+,urgency-,priority-
 uda.label.type = string
 uda.label.label = label
 
+# low should sort and calculate below no priority
+uda.priority.values			= H,M,,L
+urgency.uda.priority.H.coefficient	= 7.2
+urgency.uda.priority.M.coefficient	= 3.9
+urgency.uda.priority.L.coefficient	= -1.3
+
 #
 include rc.local
