@@ -98,8 +98,8 @@ report.labels.sort	= entry+,urgency-,priority-
 #dateformat.edit=
 #dateformat.annotation=
 
-uda.label.type=string
-uda.label.label=label
+uda.label.type = string
+uda.label.label = label
 
 #
 include rc.local
