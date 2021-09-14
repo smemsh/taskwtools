@@ -88,6 +88,10 @@ report.labels.columns	= id,label
 report.labels.labels	= ID,LABEL
 report.labels.sort	= entry+,urgency-,priority-
 
+report.all.columns	= id,uuid.short,label,project,tags,description,start.active,entry.age,end.age,status.short,depends.indicator,priority,recur.indicator,wait.remaining,scheduled.remaining,due,until.remaining
+report.all.labels	= ID,UUID,LABEL,PROJECT,TAGS,DESC,A,AGE,DONE,ST,D,P,R,WAIT,SCH,DUE,UNTIL
+report.all.sort		= entry+
+
 #
 #dateformat= # most general if none supplied
 #dateformat.report= # default for all reports
