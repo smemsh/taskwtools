@@ -177,7 +177,7 @@ def _taskget(taskarg):
 
 def main(taskarg):
 
-    if debug: breakpoint()
+    if debug == 1: breakpoint()
 
     try: subprogram = globals()[invname]
     except (KeyError, TypeError):
@@ -194,15 +194,13 @@ if __name__ == "__main__":
         bomb("minimum python 3.9")
 
     from bdb import BdbQuit
-    if bool(getenv('DEBUG')):
+    debug = int(getenv('DEBUG') or 0)
+    if debug:
         from pprint import pp
-        debug = True
-        err('debug-mode-enabled')
-    else:
-        debug = False
+        err('debug: enabled')
 
     invname = basename(argv[0])
     args = argv[1:]
 
-    try: main(args[0])
-    except BdbQuit: bomb("debug-stop")
+    try: main()
+    except BdbQuit: bomb("debug: stop")
