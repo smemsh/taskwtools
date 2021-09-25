@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-taskwarrior utilities, especially for coordination with timewarrior
+taskwarrior, timewarrior wrapper utilities for task and time management
 
   - taskdo: start task in timew, all taskw fql elements and tags as timew tags
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
