@@ -4,18 +4,21 @@ taskwarrior, timewarrior wrapper utilities for task and time management
 
   - taskdo: start task in timew, all taskw fql elements and tags as timew tags
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
+  - tasknow: show last started task and whether it's active
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
   - timewtags: show all tags that a task would be assigned in timewarrior
 
 deps:
   - taskw python library with patch #151
+  - timew python library with patches 9-13
 
 """
 __url__     = 'http://smemsh.net/src/.task/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 
+from re import search
 from sys import argv, stdin, stdout, stderr, exit
 from uuid import UUID as uuid
 from pprint import pp
@@ -115,6 +118,30 @@ def taskdo(taskarg):
         bomb("perform initial start in taskwarrior")
 
     timew.start(tags=tags)
+#
+# no way to know tags of @1 besides export all and filter for id
+# number 1; should add this capability to timewarrior itself
+#
+def _tasknow():
+
+    fqlre = r'[0-9a-zA-Z-_]+'
+    timedata = timew.export()
+    fcur = lambda task: task['id'] == 1
+    ffql = lambda fql: search(f"(({fqlre}/)+)({fqlre})$", fql)
+
+    try:
+        curtask = next(filter(fcur, timedata))
+        curtags = curtask.get('tags')
+        fql = next(filter(ffql, curtags))
+    except:
+        bomb("task @1 must exist and have an fql tag")
+
+    active = not bool(curtask.get('end'))
+    return fql, active
+
+def tasknow():
+    current, active = _tasknow()
+    print(current, 'started' if active else 'stopped')
 
 #
 
