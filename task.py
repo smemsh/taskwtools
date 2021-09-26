@@ -156,7 +156,7 @@ def _taskget(taskarg):
     # taskid
     try:
         taskarg = int(taskarg)
-        tasks = taskw.filter_tasks(dict(id=taskarg))
+        tasks = taskw.filter_tasks({'id': taskarg})
         if not tasks: bomb(f"failed to find integer task {taskarg}")
         if len(tasks) != 1: bomb(f"integer id {taskarg} not unique")
         return tasks
@@ -165,7 +165,7 @@ def _taskget(taskarg):
     # taskuuid
     try:
         taskarg = uuid(taskarg)
-        tasks = taskw.filter_tasks(dict(uuid=taskarg))
+        tasks = taskw.filter_tasks({'uuid': taskarg})
         if not tasks: bomb(f"failed to find task by uuid: {taskarg}")
         if len(tasks) != 1: bomb(f"uuid lookup for {taskarg} not unique")
         return tasks
@@ -173,7 +173,7 @@ def _taskget(taskarg):
 
     # taskuuid-initial
     if task_as_set.issubset(f"{hexdigits}-"):
-        tasks = taskw.filter_tasks(dict(uuid=taskarg))
+        tasks = taskw.filter_tasks({'uuid': taskarg})
         if tasks:
             return tasks
 
@@ -181,7 +181,7 @@ def _taskget(taskarg):
     if task_as_set.issubset(f"{lowercase}{digits}-/"):
         if '/' not in task_as_set:
             # label
-            tasks = taskw.filter_tasks(dict(label=taskarg))
+            tasks = taskw.filter_tasks({'label': taskarg})
             if tasks:
                 return tasks
         else:
@@ -189,12 +189,12 @@ def _taskget(taskarg):
             fqlsegs = taskarg.split('/')
             project = '.'.join(fqlsegs[0:-1])
             label = fqlsegs[-1]
-            tasks = taskw.filter_tasks(dict(project=project, label=label))
+            tasks = taskw.filter_tasks({'project': project, 'label': label})
             if tasks:
                 return tasks
 
     # description substring
-    tasks = taskw.filter_tasks(dict(description=taskarg))
+    tasks = taskw.filter_tasks({'description': taskarg})
     if tasks: return tasks
 
     # description regex
