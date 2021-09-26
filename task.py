@@ -110,7 +110,6 @@ def taskdo(taskarg):
     if 'start' not in task:
         bomb("perform initial start in taskwarrior")
 
-    timew = TimeWarrior()
     timew.start(tags=tags)
 
 #
@@ -121,7 +120,6 @@ def taskget(taskarg):
 
 def _taskget(taskarg):
 
-    taskw = TaskWarrior(marshal=True)
     task_as_set = set(taskarg)
 
     # taskid
@@ -202,6 +200,9 @@ if __name__ == "__main__":
 
     invname = basename(argv[0])
     args = argv[1:]
+
+    taskw = TaskWarrior(marshal=True)
+    timew = TimeWarrior()
 
     try: main()
     except BdbQuit: bomb("debug: stop")
