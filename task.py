@@ -57,7 +57,8 @@ def _taskone(taskarg):
 #
 
 def __taskfql(task):
-    return f"{task['project'].replace('.', '/')}/{task['label']}"
+    prj = task.get('project')
+    if prj: return f"{prj.replace('.', '/')}/{task['label']}"
 
 def _taskfql(taskarg):
     task = _taskone(taskarg)
