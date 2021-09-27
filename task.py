@@ -156,8 +156,6 @@ def taskget(taskarg):
 
 def _taskget(taskarg):
 
-    task_as_set = set(taskarg)
-
     # taskid
     try:
         taskarg = int(taskarg)
@@ -177,14 +175,14 @@ def _taskget(taskarg):
     except ValueError: pass
 
     # taskuuid-initial
-    if task_as_set.issubset(f"{hexdigits}-"):
+    if set(taskarg).issubset(f"{hexdigits}-"):
         tasks = taskw.filter_tasks({'uuid': taskarg})
         if tasks:
             return tasks
 
     # label
-    if task_as_set.issubset(f"{lowercase}{digits}-/"):
-        if '/' not in task_as_set:
+    if set(taskarg).issubset(f"{lowercase}{digits}-/"):
+        if '/' not in set(taskarg):
             # label
             tasks = taskw.filter_tasks({'label': taskarg})
             if tasks:
