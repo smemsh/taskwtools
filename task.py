@@ -89,7 +89,12 @@ def _timewtags(task):
 
     tags = []
 
-    fqlsegs = __taskfql(task).split('/')
+    if isinstance(task, str): fql = task
+    elif isinstance(task, dict): fql = __taskfql(task)
+    else: bomb("unsupported type for _timewtags() arg")
+
+    if fql: fqlsegs = fql.split('/')
+    else: fqlsegs = []
     nsegs = len(fqlsegs)
 
     for i in range(1, nsegs + 1):
