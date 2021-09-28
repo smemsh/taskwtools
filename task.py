@@ -111,19 +111,38 @@ def timewtags(taskarg):
 
 #
 
-def taskdo(taskarg):
-
-    task = _taskone(taskarg)
-    tags = _timewtags(task)
-
-    if 'end' in task:
-        bomb("cannot proceed on ended task")
-
-    if 'start' not in task:
-        bomb("perform initial start in taskwarrior")
-
-    timew.start(tags=tags)
+# arg: lookup task, switch to that one if not already
+# noarg: start last task (timew continue)
 #
+def taskdo(taskarg=None):
+    task = _taskone(taskarg) if taskarg else None
+    return _taskdo(task)
+
+def _taskdo(task=None):
+
+    if task:
+        tags = _timewtags(task)
+        tagstr = '\x20'.join(tags)
+        print("timewtags:", tagstr)
+        if 'end' in task: bomb("cannot proceed on ended task")
+        if 'start' not in task: bomb("do initial start in taskwarrior")
+        stdout, stderr = timew.start(tags=tags)
+        print(stdout, stderr)
+
+    else:
+        fql, active = _tasknow()
+        if active:
+            print(f"{fql} already")
+            return
+        else:
+            task = _taskone(fql)
+            if task.get('end'):
+                bomb("cannot restart ended task", fql)
+            stdout, stderr = timew.cont(1)
+            print(stdout, stderr)
+
+#
+
 # no way to know tags of @1 besides export all and filter for id
 # number 1; should add this capability to timewarrior itself
 #
