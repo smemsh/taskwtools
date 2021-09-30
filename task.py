@@ -9,6 +9,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskfqls: print fully qualified labels of several matching tasks
   - timewtags: show all tags that a task would be assigned in timewarrior
   - taskgetid: get exactly one matching id from taskget or fail
+  - taskgetids: get multiple matching ids from taskget algorithm
 
 deps:
   - taskw python library with patch #151
@@ -173,6 +174,10 @@ def tasknow():
 def taskget(taskarg):
     tasks = _taskget(taskarg)
     pp(tasks)
+
+def taskgetids(taskarg):
+    tasks = taskget_(taskarg)
+    pp([t['id'] for t in tasks])
 
 def taskgetid(taskarg):
     task = _taskone(taskarg)
