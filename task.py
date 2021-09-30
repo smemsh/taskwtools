@@ -7,6 +7,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - tasknow: show last started task and whether it's active
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
+  - taskstop: stop the current started task in timewarrior
   - timewtags: show all tags that a task would be assigned in timewarrior
   - taskgetid: get exactly one matching id from taskget or fail
   - taskgetids: get multiple matching ids from taskget algorithm
@@ -168,6 +169,43 @@ def _tasknow():
 def tasknow():
     current, active = _tasknow()
     print(current, 'started' if active else 'stopped')
+
+#
+
+def taskstop(taskarg=None):
+
+    if (taskarg):
+        bomb("taskstop: no args allowed")
+
+    _, active = _tasknow()
+    if active:
+        stdout, stderr = _taskstop()
+        print(stdout, stderr)
+    else:
+        print("already stopped")
+
+def _taskstop(task=None):
+
+    if task:
+        # takes task arg when run from on-modify, but wont from
+        # cli.  from on-modify, 'new' is passed, and we already
+        # know it contains 'end', so 'start' cannot be present
+        # (although see TW#2516 discussion for possible changes
+        # to this later). however it might still be the active timew
+        # task, in which case we have to stop it in timewarrior
+        # before allowing taskwarrior to mark it completed.  for
+        # this we just compare to _tasknow(), this is not done a
+        # second time since taskstop() is not called from
+        # on-modify (and won't pass a 'task' to this function),
+        # but rather _taskstop()
+        #
+        fql, active = _tasknow()
+        if active and __taskfql(task) == fql:
+            return timew.stop()
+        else:
+            print("task already stopped or never started")
+    else:
+        return timew.stop()
 
 #
 
