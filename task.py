@@ -151,15 +151,13 @@ def _taskdo(task=None):
 #
 def _tasknow():
 
-    fqlre = r'[0-9a-zA-Z-_]+'
     timedata = timew.export()
-    fcur = lambda task: task['id'] == 1
-    ffql = lambda fql: search(f"(({fqlre}/)+)({fqlre})$", fql)
+    labelre = r'[0-9a-zA-Z-_]+'
+    fqlre = f"(({labelre}/)+)({labelre})$"
 
     try:
-        curtask = next(filter(fcur, timedata))
-        curtags = curtask.get('tags')
-        fql = next(filter(ffql, curtags))
+        curtask = next(filter(lambda task: task['id'] == 1, timedata))
+        fql = next(filter(lambda fql: search(fqlre, fql), curtask.get('tags')))
     except:
         bomb("task @1 must exist and have an fql tag")
 
