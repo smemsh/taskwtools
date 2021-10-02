@@ -271,7 +271,7 @@ def _taskget(taskarg):
 
 ###
 
-def main(taskarg):
+def main():
 
     if debug == 1: breakpoint()
 
@@ -279,7 +279,7 @@ def main(taskarg):
     except (KeyError, TypeError):
         bomb(f"unimplemented command '{invname}'")
 
-    instcnt = subprogram(taskarg)
+    instcnt = subprogram(*args)
 
 ###
 
