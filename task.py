@@ -11,6 +11,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - timewtags: show all tags that a task would be assigned in timewarrior
   - taskgetid: get exactly one matching id from taskget or fail
   - taskgetids: get multiple matching ids from taskget algorithm
+  - on-modify.timew: hook runs on all task mods (via symlink in hooks/)
 
 deps:
   - taskw python library with patch #151
@@ -24,6 +25,7 @@ __license__ = 'GPL-2.0'
 from re import search
 from sys import argv, stdin, stdout, stderr, exit
 from uuid import UUID as uuid
+from json import loads as jloads, dumps as jdumps
 from pprint import pp
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
@@ -37,6 +39,7 @@ from os import (
 
 from taskw import TaskWarrior
 from timew import TimeWarrior
+from timew.exceptions import TimeWarriorError
 
 ###
 
@@ -271,6 +274,91 @@ def _taskget(taskarg):
 
 ###
 
+def on_modify_timew(*args):
+
+    def timewids(fql):
+        return [ival['id'] for ival in timew.export(tags=[fql])]
+
+    def retimew(oldtask, newtask):
+
+        adds = []
+        removes = []
+
+        old = set(_timewtags(oldtask))
+        new = set(_timewtags(newtask))
+        both = old.union(new)
+        for t in both:
+            if t not in old: adds.append(t)
+            if t not in new: removes.append(t)
+        dprint(f"adds: {adds}")
+        dprint(f"removes: {removes}")
+
+        for timewid in timewids(__taskfql(oldtask)):
+            try:
+                if adds: timew.tag(timewid, adds)
+                if removes: timew.untag(timewid, removes)
+            except TimeWarriorError as e:
+                print(f"returned: {e.code}, stderr: {e.stderr}")
+                raise
+    #
+
+    for i in range(len(args)):
+        dprint(f"${i+1} {args[i]}")
+
+    old = jloads(stdin.readline())
+    new = jloads(stdin.readline())
+    dprint(f"old: {old}")
+    dprint(f"new: {new}")
+
+    keyset = sorted(set(old).union(new))
+    dprint(f"union: {keyset}\x20")
+
+    added = {}; changed = {}; deleted = {}
+    for k in keyset:
+        if k not in old: added.update({k: new[k]})
+        elif k not in new: deleted.update({k: old[k]})
+        elif old[k] != new[k]: changed.update({k: new[k]})
+
+    debugstr = ''
+    for c, d in [('+', added), ('-', deleted), ('*', changed)]:
+        for k, v in d.items():
+            debugstr += f"{c}{k}:{v}\x20"
+    dprint(f"delta: {debugstr}")
+
+    #
+
+    oldtimew = _timewtags(old)
+    newtimew = _timewtags(new)
+    retag = False if set(oldtimew) == set(newtimew) else True
+
+    if 'start' in new:
+
+        if 'start' not in old:
+            _taskdo(new)
+
+        timekeys = set(['start', 'end'])
+        if set(old).intersection(timekeys):
+            if set(changed).intersection(timekeys):
+                attrlist = ',\x20'.join(timekeys)
+                bomb(f"timew propagation not implemented for {attrlist}")
+            if retag:
+                retimew(old, new)
+
+    elif 'start' in old:
+
+        if 'end' in new and 'end' not in old:
+            if retag: retimew(old, new)
+            _taskstop(new)
+
+        if 'end' not in new:
+            print("disallowing pause, use timewarrior until 'done'")
+            exit(EXIT_FAILURE)
+
+    print(jdumps(new))
+
+
+###
+
 def main():
 
     if debug == 1: breakpoint()
@@ -297,6 +385,9 @@ if __name__ == "__main__":
 
     invname = basename(argv[0])
     args = argv[1:]
+
+    # support invocation as taskw trigger symlink
+    invname = invname.replace('-', '_').replace('.', '_')
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
