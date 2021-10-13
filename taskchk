@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+# taskchk
+#   taskwarrior database integrity verify, intended to run out of cron
+#
+# - checks for non-unique first 4 bytes task uuids
+#
+# scott@smemsh.net
+# https://smemsh.net/src/.task/
+# https://spdx.org/licenses/GPL-2.0
+#
+
+matches=$(
+	task _uuids \
+	| awk -F - '{print $1}' \
+	| sort \
+	| uniq -c \
+	| sort -nrk 1,1 \
+	| head -1 \
+	| awk '{print $1}' \
+)
+
+if ! ((matches == 1))
+then echo "non-unique initial 4 bytes task uuid found" >&2; fi
