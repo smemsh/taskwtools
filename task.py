@@ -270,7 +270,7 @@ def _taskget(taskarg):
     tasks = taskw.filter_tasks({'description.has': taskarg})
     if tasks: return tasks
 
-    return None
+    return []
 
 ###
 
