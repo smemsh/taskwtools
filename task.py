@@ -59,13 +59,17 @@ def exe(cmd):
 
 ###
 
-def _taskone(taskarg):
+# fails if not exactly one match from lookup
+def _taskone(taskarg, abort=True):
+
     tasks = _taskget(taskarg)
-    if len(tasks) == 0:
-        bomb("no matches")
-    elif len(tasks) > 1:
-        bomb("multiple matches")
-    return tasks[0]
+    n = len(tasks)
+    if n == 1: return tasks[0]
+    elif n == 0: errmsg = "no matches"
+    elif n > 1: errmsg = "multiple matches"
+
+    if abort: bomb(errmsg)
+    else: err(errmsg); return {}
 
 #
 
@@ -127,6 +131,7 @@ def timewtags(taskarg):
 # noarg: start last task (timew continue)
 #
 def taskdo(taskarg=None):
+    # there's exactly one match if _taskone() returns
     task = _taskone(taskarg) if taskarg else None
     return _taskdo(task)
 
