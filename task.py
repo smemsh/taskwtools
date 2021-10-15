@@ -152,9 +152,21 @@ def _taskdo(task=None):
             print(f"{fql} already")
             return
         else:
-            task = _taskone(fql)
-            if task.get('end'):
+            task = _taskone(fql, abort=False)
+            if task and task.get('end'):
                 bomb("cannot restart ended task", fql)
+            else:
+                # either no task with fql from @1 was found (as
+                # in case of timew-only tags like those in time/
+                # namespace), or task can be worked on, ie not
+                # yet ended, either case we will just try to
+                # continue the last task.
+                #
+                # TODO maybe this whole part can be skipped and
+                # we just always continue on taskdo(None)? it's
+                # idempotent if already started
+                #
+                pass
             stdout, stderr = timew.cont(1)
             print(stdout, stderr)
 
