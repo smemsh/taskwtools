@@ -23,10 +23,7 @@ check_uuid_initial ()
 	)
 
 	if ((matches != 1))
-	then
-		echo "non-unique initial 4 bytes task uuid found" >&2
-		false
-	fi
+	then echo "non-unique initial 4 bytes task uuid found" >&2; false; fi
 }
 
 main ()
