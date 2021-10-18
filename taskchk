@@ -62,13 +62,12 @@ check_all_labeled ()
 	then echo "unlabeled tasks found" >&2; false; fi
 }
 
+###
 
 main ()
 {
-	check_uuid_initial || : $((errors++))
-	check_all_labeled || : $((errors++))
-	check_duplicate_labels || : $((errors++))
-	check_collisions_fql_prj || : $((errors++))
+	for check in `compgen -A function check_`
+	do $check || : $((errors++)); done
 
 	if ((errors))
 	then echo "errors found in task database" >&2; false; exit; fi
