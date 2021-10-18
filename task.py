@@ -241,7 +241,7 @@ def _taskstop(task=None):
 
 #
 
-def taskget(taskarg):
+def taskget(taskarg=None):
     tasks = _taskget(taskarg)
     pp(tasks)
 
@@ -253,7 +253,11 @@ def taskgetid(taskarg):
     task = _taskone(taskarg)
     pp(task['id'])
 
-def _taskget(taskarg):
+def _taskget(taskarg=None):
+
+    # all tasks if nothing specific requested
+    if not taskarg:
+        return taskw.filter_tasks({'status.any': ''})
 
     # taskid
     try:
