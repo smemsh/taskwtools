@@ -8,6 +8,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
   - taskstop: stop the current started task in timewarrior
+  - taskline: show output suitable for conferring status to window manager
   - timewtags: show all tags that a task would be assigned in timewarrior
   - taskgetid: get exactly one matching id from taskget or fail
   - taskgetids: get multiple matching ids from taskget algorithm
@@ -29,6 +30,7 @@ from json import loads as jloads, dumps as jdumps
 from pprint import pp
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
+from datetime import datetime
 from subprocess import check_output
 
 from os import (
@@ -195,6 +197,12 @@ def tasknow():
     print(current, 'started' if active else 'stopped')
 
 #
+
+def taskline():
+    nowtimefmt = datetime.now().strftime("%Y%m%d%H%M%S")
+    fql, active = _tasknow()
+    active = '*' if active else '-'
+    print(fql, active, nowtimefmt)
 
 def taskstop(taskarg=None):
 
