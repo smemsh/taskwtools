@@ -97,7 +97,7 @@ def _fqltask(fql):
 def taskfql(taskarg):
     print(_taskfql(taskarg) or '')
 
-def taskfqls(taskarg):
+def taskfqls(taskarg=None):
     for t in _taskfqls(taskarg):
         print(t or '')
 
