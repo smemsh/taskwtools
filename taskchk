@@ -10,15 +10,29 @@
 # https://spdx.org/licenses/GPL-2.0
 #
 
-matches=$(
-	task _uuids \
-	| awk -F - '{print $1}' \
-	| sort \
-	| uniq -c \
-	| sort -nrk 1,1 \
-	| head -1 \
-	| awk '{print $1}' \
-)
+check_uuid_initial ()
+{
+	matches=$(
+		task _uuids \
+		| awk -F - '{print $1}' \
+		| sort \
+		| uniq -c \
+		| sort -nrk 1,1 \
+		| head -1 \
+		| awk '{print $1}' \
+	)
 
-if ! ((matches == 1))
-then echo "non-unique initial 4 bytes task uuid found" >&2; fi
+	if ! ((matches == 1))
+	then
+		echo "non-unique initial 4 bytes task uuid found" >&2
+		false
+	fi
+}
+
+main ()
+{
+	check_uuid_initial || : $((errors++))
+	if ((errors)); then bomb "errors found in task database"; fi
+}
+
+main "$@"
