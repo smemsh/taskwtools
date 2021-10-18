@@ -5,6 +5,7 @@
 #
 # - checks for non-unique first 4 bytes task uuids
 # - no duplicate labels
+# - no fql same as any slashified project
 #
 # scott@smemsh.net
 # https://smemsh.net/src/.task/
@@ -40,10 +41,25 @@ check_duplicate_labels ()
 	then echo "duplicate labels"$'\n'"$duplicates" >&2; false; fi
 }
 
+check_collisions_fql_prj ()
+{
+	collisions="$(
+		cat \
+		<(task _unique project | sed s,\\.,/,g) \
+		<(taskfqls) \
+		| sort \
+		| uniq -d \
+	)"
+
+	if [[ $collisions ]]
+	then echo "fql-project collisions"$'\n'"$collisions" >&2; false; fi
+}
+
 main ()
 {
 	check_uuid_initial || : $((errors++))
 	check_duplicate_labels || : $((errors++))
+	check_collisions_fql_prj || : $((errors++))
 
 	if ((errors))
 	then echo "errors found in task database" >&2; false; exit; fi
