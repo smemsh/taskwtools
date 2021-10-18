@@ -4,6 +4,7 @@
 #   taskwarrior database integrity verify, intended to run out of cron
 #
 # - checks for non-unique first 4 bytes task uuids
+# - no duplicate labels
 #
 # scott@smemsh.net
 # https://smemsh.net/src/.task/
@@ -26,10 +27,26 @@ check_uuid_initial ()
 	then echo "non-unique initial 4 bytes task uuid found" >&2; false; fi
 }
 
+# todo this should say what the duplicate labels are
+check_duplicate_labels ()
+{
+	duplicates="$(
+		task export \
+		| jq -rc '.[] | {"label"} | join("")' \
+		| sort \
+		| uniq -d \
+	)"
+	if [[ $duplicates ]]
+	then echo "duplicate labels"$'\n'"$duplicates" >&2; false; fi
+}
+
 main ()
 {
 	check_uuid_initial || : $((errors++))
-	if ((errors)); then bomb "errors found in task database"; fi
+	check_duplicate_labels || : $((errors++))
+
+	if ((errors))
+	then echo "errors found in task database" >&2; false; exit; fi
 }
 
 main "$@"
