@@ -6,6 +6,7 @@
 # - checks for non-unique first 4 bytes task uuids
 # - no duplicate labels
 # - no fql same as any slashified project
+# - all projects have labels
 #
 # scott@smemsh.net
 # https://smemsh.net/src/.task/
@@ -55,9 +56,17 @@ check_collisions_fql_prj ()
 	then echo "fql-project collisions"$'\n'"$collisions" >&2; false; fi
 }
 
+check_all_labeled ()
+{
+	if (($(task label: export | jq '. | length')))
+	then echo "unlabeled tasks found" >&2; false; fi
+}
+
+
 main ()
 {
 	check_uuid_initial || : $((errors++))
+	check_all_labeled || : $((errors++))
 	check_duplicate_labels || : $((errors++))
 	check_collisions_fql_prj || : $((errors++))
 
