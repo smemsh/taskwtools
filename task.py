@@ -3,6 +3,8 @@
 taskwarrior, timewarrior wrapper utilities for task and time management
 
   - taskdo: start task in timew, all taskw fql elements and tags as timew tags
+  - taskid: get exactly one matching id from taskget or fail
+  - taskids: get multiple matching ids from taskget algorithm
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
   - tasknow: show last started task and whether it's active
   - taskfql: print fully qualified label of uniquely matching task
@@ -10,8 +12,6 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskstop: stop the current started task in timewarrior
   - taskline: show output suitable for conferring status to window manager
   - timewtags: show all tags that a task would be assigned in timewarrior
-  - taskgetid: get exactly one matching id from taskget or fail
-  - taskgetids: get multiple matching ids from taskget algorithm
   - on-modify.timew: hook runs on all task mods (via symlink in hooks/)
 
 deps:
@@ -245,11 +245,11 @@ def taskget(taskarg=None):
     tasks = _taskget(taskarg)
     pp(tasks)
 
-def taskgetids(taskarg):
+def taskids(taskarg):
     tasks = taskget_(taskarg)
     pp([t['id'] for t in tasks])
 
-def taskgetid(taskarg):
+def taskid(taskarg):
     task = _taskone(taskarg)
     pp(task['id'])
 
