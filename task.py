@@ -174,18 +174,21 @@ def _taskdo(task=None):
 
 #
 
+def isfql(s):
+    labelre = r'[0-9a-zA-Z-_]+'
+    fqlre = f"(({labelre}/)+)({labelre})$"
+    return bool(search(fqlre, s))
+
 # no way to know tags of @1 besides export all and filter for id
 # number 1; should add this capability to timewarrior itself
 #
 def _tasknow():
 
     timedata = timew.export()
-    labelre = r'[0-9a-zA-Z-_]+'
-    fqlre = f"(({labelre}/)+)({labelre})$"
 
     try:
         curtask = next(filter(lambda task: task['id'] == 1, timedata))
-        fql = next(filter(lambda fql: search(fqlre, fql), curtask.get('tags')))
+        fql = next(filter(isfql, curtask.get('tags')))
     except:
         bomb("task @1 must exist and have an fql tag")
 
