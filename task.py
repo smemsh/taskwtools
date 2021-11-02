@@ -7,7 +7,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskids: get multiple matching ids from taskget algorithm
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
   - tasknow: show last started task and whether it's active
-  - taskday: show fqls of tasks from last 24 hours
+  - taskday: show labels of tasks from last 24 hours
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
   - taskstop: stop the current started task in timewarrior
@@ -212,17 +212,24 @@ def taskline():
 
 def taskday():
 
-    def return_fql_among_tags(task):
+    def fql_among_tags(task):
         filtered = list(filter(isfql, task['tags']))
         if len(filtered) != 1:
-            bomb("filtered more than one task in taskday list")
+            bomb("filtered more than one fql tag for task")
         return filtered[0]
+
+    def label_from_tags(task):
+        fql = fql_among_tags(task)
+        label = fql.split('/')[-1]
+        return label
+
+    filterfn = label_from_tags
 
     dayago = datetime.now() - timedelta(days=1)
     tasks = timew.export(start_time=dayago)
-    fqls = set([return_fql_among_tags(task) for task in tasks])
+    labels = set([filterfn(task) for task in tasks])
 
-    print('\x20'.join(fqls))
+    print('\x20'.join(labels))
 
 #
 
