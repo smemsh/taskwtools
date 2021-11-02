@@ -210,7 +210,7 @@ def taskline():
 
 #
 
-def taskday():
+def taskday(ndays=1):
 
     def fql_among_tags(task):
         filtered = list(filter(isfql, task['tags']))
@@ -225,8 +225,8 @@ def taskday():
 
     filterfn = label_from_tags
 
-    dayago = datetime.now() - timedelta(days=1)
-    tasks = timew.export(start_time=dayago)
+    ago = datetime.now() - timedelta(days=int(ndays))
+    tasks = timew.export(start_time=ago)
     labels = set([filterfn(task) for task in tasks])
 
     print('\x20'.join(labels))
