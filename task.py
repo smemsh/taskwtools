@@ -235,6 +235,7 @@ def taskday(ndays=1):
     labels = reversed(list(dict.fromkeys(
         [filterfn(task) for task in tasks])))
 
+    print('' if tasks[-1].get('end') else '*', end='')
     print('\x20'.join(labels))
 
 #
