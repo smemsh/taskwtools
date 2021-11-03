@@ -229,7 +229,10 @@ def taskday(ndays=1):
 
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
-    labels = set([filterfn(task) for task in tasks])
+
+    # set would work but loses order
+    labels = reversed(list(dict.fromkeys(
+        [filterfn(task) for task in tasks])))
 
     print('\x20'.join(labels))
 
