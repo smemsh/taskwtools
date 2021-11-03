@@ -211,6 +211,7 @@ def taskline():
 
 #
 
+def tasks(): taskweek()
 def taskweek(): taskday(7)
 def taskday(ndays=1):
 
