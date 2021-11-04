@@ -33,6 +33,7 @@ from pprint import pp
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
 from datetime import datetime, timedelta
+from argparse import ArgumentParser, RawTextHelpFormatter
 from subprocess import check_output
 
 from os import (
@@ -60,6 +61,15 @@ def dprint(*args, **kwargs):
 
 def exe(cmd):
     return check_output(cmd.split()).splitlines()
+
+#
+
+def addflag(p, flagchar, longopt, help=None, /, **kwargs):
+    options = list(("-%s --%s" % (flagchar, longopt)).split())
+    p.add_argument(*options, action='store_true', help=help, **kwargs)
+
+def addarg(p, vname, vdesc, help=None, /, **kwargs):
+    p.add_argument(vname, nargs='?', metavar=vdesc, help=help, **kwargs)
 
 ###
 
@@ -449,10 +459,13 @@ if __name__ == "__main__":
         err('debug: enabled')
 
     invname = basename(argv[0])
+    invname = invname.replace('-', '_').replace('.', '_') # for triggers
     args = argv[1:]
-
-    # support invocation as taskw trigger symlink
-    invname = invname.replace('-', '_').replace('.', '_')
+    argp = ArgumentParser(
+        prog            = invname,
+        description     = __doc__.strip(),
+        allow_abbrev    = False,
+        formatter_class = RawTextHelpFormatter)
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
