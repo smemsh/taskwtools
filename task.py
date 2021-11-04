@@ -223,7 +223,7 @@ def taskline():
 
 def tasks(): taskweek()
 def taskweek(): taskday(7)
-def taskday(ndays=1):
+def taskday(*args):
 
     def fql_among_tags(task):
         filtered = list(filter(isfql, task['tags']))
@@ -236,7 +236,12 @@ def taskday(ndays=1):
         label = fql.split('/')[-1]
         return label
 
-    filterfn = label_from_tags
+    addflag(argp, 'f', 'fql', dest='showfql')
+    addarg(argp, 'ndays', 'days of history [1]')
+    args = argp.parse_args(args)
+
+    filterfn = fql_among_tags if args.showfql else label_from_tags
+    ndays = args.ndays if args.ndays else 1
 
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
