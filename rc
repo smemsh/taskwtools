@@ -88,6 +88,12 @@ report.next.columns	= id,label,project,tags,recur,scheduled.countdown,due.remain
 report.next.labels	= ID,LABEL,PROJECT,TAGS,RECUR,S,DUE,UNTIL,DESC,URG,P,ACTIVE,AGE
 report.next.filter	= status:pending limit:page -hold
 
+# duplicates next, but with different filter
+#report.active.columns	= id,	label,	project,	tags,	recur,	scheduled.countdown,	due.remaining,	until.remaining,	description,	urgency,	priority,	start.age,	entry.age
+#report.active.labels	= ID,	LABEL,	PROJECT,	TAGS,	RECUR,	S,			DUE,		UNTIL,			DESC,		URG,		P,		ACTIVE,		AGE
+report.active.columns	= id,label,project,tags,recur,scheduled.countdown,due.remaining,until.remaining,description,urgency,priority,start.age,entry.age
+report.active.labels	= ID,LABEL,PROJECT,TAGS,RECUR,S,DUE,UNTIL,DESC,URG,P,ACTIVE,AGE
+
 report.labels.columns	= id,label
 report.labels.labels	= ID,LABEL
 report.labels.sort	= entry+,urgency-,priority-
@@ -97,6 +103,7 @@ report.labels.sort	= entry+,urgency-,priority-
 report.all.columns	= id,uuid.short,label,project,tags,description,start.active,entry.age,end.age,status.short,depends.indicator,priority,recur.indicator,wait.remaining,scheduled.remaining,due,until.remaining
 report.all.labels	= ID,UUID,LABEL,PROJECT,TAGS,DESC,A,AGE,DONE,ST,D,P,R,WAIT,SCH,DUE,UNTIL
 report.all.sort		= entry+
+
 
 #
 #dateformat= # most general if none supplied
