@@ -222,7 +222,7 @@ def taskline():
 #
 
 def tasks(): taskweek()
-def taskweek(): taskday(7)
+def taskweek(): taskday('7')
 def taskday(*args):
 
     def fql_among_tags(task):
