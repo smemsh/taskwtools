@@ -105,17 +105,10 @@ report.all.columns	= id,uuid.short,label,project,tags,description.count,start.ac
 report.all.labels	= ID,UUID,LABEL,PROJECT,TAGS,DESC,A,AGE,DONE,ST,D,P,R,WAIT,SCH,DUE,UNTIL
 report.all.sort		= entry+
 
+#
+dateformat=YMD
 
 #
-#dateformat= # most general if none supplied
-#dateformat.report= # default for all reports
-#report.foo.dateformat= # override for specific report
-#
-#dateformat.holiday=
-#dateformat.info=
-#dateformat.edit=
-#dateformat.annotation=
-
 uda.label.type = string
 uda.label.label = label
 
