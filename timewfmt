@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# convert from a $HISTTIMEFORMAT to an iso8601 (less tz) time for taskw
+# todo: should this have a newline? it's normally in a subshell with other
+# args on the command line, not used standalone
+#
+: ${1:?}
+printf ${1:0:4}-${1:4:2}-${1:6:2}T${1:8:2}:${1:10:2}:${1:12:2}
