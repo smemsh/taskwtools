@@ -5,4 +5,12 @@
 # args on the command line, not used standalone
 #
 : ${1:?}
-printf ${1:0:4}-${1:4:2}-${1:6:2}T${1:8:2}:${1:10:2}:${1:12:2}
+case ${#1} in
+(14) t=$1;;
+(10) t=$(date +%Y)$1;;
+ (8) t=$(date +%Y%m)$1;;
+ (6) t=$(date +%Y%m%d)$1;;
+ (4) t=$(date +%Y%m%d%H)$1;;
+ (*) echo "need to supply at least minute and second" >&2; false; exit;;
+esac
+printf ${t:0:4}-${t:4:2}-${t:6:2}T${t:8:2}:${t:10:2}:${t:12:2}
