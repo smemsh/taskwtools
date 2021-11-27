@@ -241,7 +241,7 @@ def taskday(*args):
     args = argp.parse_args(args)
 
     filterfn = fql_among_tags if args.showfql else label_from_tags
-    ndays = args.ndays if args.ndays else 1
+    ndays = args.ndays if args.ndays else '1'
 
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
