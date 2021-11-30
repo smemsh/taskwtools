@@ -247,7 +247,7 @@ def taskday(*args):
     tasks = timew.export(start_time=ago)
 
     # set would work but loses order
-    labels = reversed(list(dict.fromkeys(
+    labels = list(dict.fromkeys(reversed(
         [filterfn(task) for task in tasks])))
 
     print('' if tasks[-1].get('end') else '*', end='')
