@@ -237,7 +237,7 @@ def taskday(*args):
         return label
 
     addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
-    addarg(argp, 'ndays', 'days of history [1]')
+    addarg(argp, 'ndays', 'days of history (default 1)')
     args = argp.parse_args(args)
 
     filterfn = fql_among_tags if args.showfql else label_from_tags
