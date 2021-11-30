@@ -250,7 +250,9 @@ def taskday(*args):
     labels = list(dict.fromkeys(reversed(
         [filterfn(task) for task in tasks])))
 
-    print('' if tasks[-1].get('end') else '*', end='')
+    if len(labels) and not tasks[-1].get('end'):
+        labels[0] = f"*{labels[0]}"
+
     print(('\n' if args.column else '\x20').join(labels))
 
 #
