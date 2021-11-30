@@ -236,6 +236,7 @@ def taskday(*args):
         label = fql.split('/')[-1]
         return label
 
+    addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
     addarg(argp, 'ndays', 'days of history (default 1)')
     args = argp.parse_args(args)
@@ -250,7 +251,7 @@ def taskday(*args):
         [filterfn(task) for task in tasks])))
 
     print('' if tasks[-1].get('end') else '*', end='')
-    print('\x20'.join(labels))
+    print(('\n' if args.column else '\x20').join(labels))
 
 #
 
