@@ -236,7 +236,7 @@ def taskday(*args):
         label = fql.split('/')[-1]
         return label
 
-    addflag(argp, 'f', 'fql', dest='showfql')
+    addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
     addarg(argp, 'ndays', 'days of history [1]')
     args = argp.parse_args(args)
 
