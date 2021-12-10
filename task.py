@@ -3,7 +3,7 @@
 taskwarrior, timewarrior wrapper utilities for task and time management
 
   - taskdo: start task in timew, all taskw fql elements and tags as timew tags
-  - taskid: print exactly one matching id from taskget or fail
+  - taskid: print exactly one matching id (uuid if done) from taskget or fail
   - taskids: print multiple matching ids from taskget algorithm
   - taskget: search tasks as ids, uuids, labels or from descriptions, and print
   - tasknow: show last started task and whether it's active
@@ -300,11 +300,11 @@ def taskget(taskarg=None):
 
 def taskids(taskarg):
     tasks = taskget_(taskarg)
-    print([t['id'] for t in tasks])
+    print([t['id'] if t['id'] else t['uuid'] for t in tasks])
 
 def taskid(taskarg):
     task = _taskone(taskarg)
-    print(task['id'])
+    print(task['id'] if task['id'] else task['uuid'])
 
 def _taskget(taskarg=None):
 
