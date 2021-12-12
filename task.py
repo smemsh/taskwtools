@@ -89,7 +89,10 @@ def _taskone(taskarg, abort=True):
 
 def __taskfql(task):
     prj = task.get('project')
-    if prj: return f"{prj.replace('.', '/')}/{task['label']}"
+    try:
+        if prj: return f"{prj.replace('.', '/')}/{task['label']}"
+    except KeyError:
+        bomb("at least one task does not have a label")
 
 def _taskfql(taskarg):
     task = _taskone(taskarg)
