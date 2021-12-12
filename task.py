@@ -348,7 +348,7 @@ def _taskget(taskarg=None):
             return tasks
 
     # description substring
-    tasks = taskw.filter_tasks({'description': taskarg})
+    tasks = taskw.filter_tasks({'description.contains': taskarg})
     if tasks: return tasks
 
     # description regex
