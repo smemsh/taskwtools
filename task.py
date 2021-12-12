@@ -302,7 +302,7 @@ def taskget(taskarg=None):
     pp(tasks)
 
 def taskids(taskarg):
-    tasks = taskget_(taskarg)
+    tasks = _taskget(taskarg)
     print([t['id'] if t['id'] else t['uuid'] for t in tasks])
 
 def taskid(taskarg):
