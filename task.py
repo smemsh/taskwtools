@@ -297,10 +297,6 @@ def _taskstop(task=None):
 
 #
 
-def taskget(taskarg=None):
-    tasks = _taskget(taskarg)
-    pp(tasks)
-
 def taskids(taskarg):
     tasks = _taskget(taskarg)
     taskids = [task['id'] if task['id'] else task['uuid'] for task in tasks]
@@ -309,6 +305,12 @@ def taskids(taskarg):
 def taskid(taskarg):
     task = _taskone(taskarg)
     print(task['id'] if task['id'] else task['uuid'])
+
+#
+
+def taskget(taskarg=None):
+    tasks = _taskget(taskarg)
+    pp(tasks)
 
 def _taskget(taskarg=None):
 
