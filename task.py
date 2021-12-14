@@ -297,14 +297,16 @@ def _taskstop(task=None):
 
 #
 
-def taskids(taskarg):
-    tasks = _taskget(taskarg)
+def _taskids(taskarg, onlyone=False):
+    tasks = [_taskone(taskarg)] if onlyone else _taskget(taskarg)
     taskids = [task['id'] if task['id'] else task['uuid'] for task in tasks]
     print("\x20".join(str(t) for t in taskids))
 
 def taskid(taskarg):
-    task = _taskone(taskarg)
-    print(task['id'] if task['id'] else task['uuid'])
+    _taskids(taskarg, onlyone=True)
+
+def taskids(taskarg):
+    _taskids(taskarg)
 
 #
 
