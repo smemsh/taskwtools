@@ -79,8 +79,9 @@ def _taskone(taskarg, abort=True):
     tasks = _taskget(taskarg)
     n = len(tasks)
     if n == 1: return tasks[0]
-    elif n == 0: errmsg = "no matches"
-    elif n > 1: errmsg = "multiple matches"
+    # return something valid that won't match anything
+    elif n == 0: errmsg = "0fffffff-ffff-ffff-ffff-ffffffffffff"  # no matches
+    elif n > 1: errmsg =  "1fffffff-ffff-ffff-ffff-ffffffffffff"  # multiple
 
     if abort: bomb(errmsg)
     else: err(errmsg); return {}
