@@ -353,13 +353,13 @@ def _taskget(taskarg=None):
         if tasks:
             return tasks
 
-    # description substring
-    tasks = taskw.filter_tasks({'description.contains': taskarg})
-    if tasks: return tasks
-
-    # description regex
-    tasks = taskw.filter_tasks({'description.has': taskarg})
-    if tasks: return tasks
+    # for description, label, project try substring, then regex
+    for fltr in [
+        field + clause for clause in ['.contains', '.has']
+        for field in ['description', 'label', 'project']
+    ]:
+        tasks = taskw.filter_tasks({fltr: taskarg})
+        if tasks: return tasks
 
     return []
 
