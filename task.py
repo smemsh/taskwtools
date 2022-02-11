@@ -86,7 +86,7 @@ def _taskone(taskarg, abort=True):
     n = len(tasks)
     if n == 1: return tasks[0]
     # return something valid that won't match anything
-    else errmsg = dummy_match(n)
+    else: errmsg = dummy_match(n)
 
     if abort: bomb(errmsg)
     else: err(errmsg); return {}
@@ -415,11 +415,12 @@ def on_modify_timew(*args):
         elif k not in new: deleted.update({k: old[k]})
         elif old[k] != new[k]: changed.update({k: new[k]})
 
-    debugstr = ''
-    for c, d in [('+', added), ('-', deleted), ('*', changed)]:
-        for k, v in d.items():
-            debugstr += f"{c}{k}:{v}\x20"
-    dprint(f"delta: {debugstr}")
+    if debug:
+        debugstr = ''
+        for c, d in [('+', added), ('-', deleted), ('*', changed)]:
+            for k, v in d.items():
+                debugstr += f"{c}{k}:{v}\x20"
+        dprint(f"delta: {debugstr}")
 
     #
 
