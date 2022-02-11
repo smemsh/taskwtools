@@ -104,8 +104,8 @@ def _taskfql(taskarg):
     task = _taskone(taskarg)
     return __taskfql(task)
 
-def _taskfqls(taskarg):
-    tasks = _taskget(taskarg)
+def _taskfqls(*args):
+    tasks = _taskget(*args)
     if not tasks: return []
     else: return [__taskfql(t) for t in tasks]
 
@@ -118,8 +118,8 @@ def _fqltask(fql):
 def taskfql(taskarg):
     print(_taskfql(taskarg) or '')
 
-def taskfqls(taskarg=None):
-    for t in _taskfqls(taskarg):
+def taskfqls(*args):
+    for t in _taskfqls(*args):
         print(t or '')
 
 #
@@ -303,24 +303,36 @@ def _taskstop(task=None):
 
 #
 
-def _taskids(taskarg, onlyone=False):
-    tasks = [_taskone(taskarg)] if onlyone else _taskget(taskarg)
-    taskids = [task['id'] if task['id'] else task['uuid'] for task in tasks]
+def _taskids(*args, onlyone=False):
+
+    if onlyone:
+        if len(args) != 1: bomb("should not use multiple args")
+        else: tasks = [_taskone(args[0])]
+    else: tasks = _taskget(*args)
+
+    taskids = [task.get('id', task['uuid']) for task in tasks]
     print("\x20".join(str(t) for t in taskids))
 
 def taskid(taskarg):
     _taskids(taskarg, onlyone=True)
 
-def taskids(taskarg):
-    _taskids(taskarg)
+def taskids(*args):
+    _taskids(*args)
 
 #
 
-def taskget(taskarg=None):
-    tasks = _taskget(taskarg)
+def taskget(*args):
+    tasks = _taskget(*args)
     pp(tasks)
 
-def _taskget(taskarg=None):
+def _taskget(*args):
+
+    tasks = []
+
+    addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
+    addarg(argp, 'taskarg', 'task lookup argument', default=None)
+    args = argp.parse_args(args)
+    taskarg = args.taskarg
 
     # all tasks if nothing specific requested
     if not taskarg:
@@ -346,27 +358,31 @@ def _taskget(taskarg=None):
 
     # taskuuid-initial
     if set(taskarg).issubset(f"{hexdigits}-"):
-        tasks = taskw.filter_tasks({'uuid': taskarg})
-        if tasks:
-            return tasks
+        uutasks = taskw.filter_tasks({'uuid': taskarg})
+        if uutasks:
+            if args.matchall: tasks += uutasks
+            else: return uutasks
 
     # label
     if set(taskarg).issubset(f"{lowercase}{digits}-/"):
         if '/' in taskarg: f = _fqltask(taskarg) # fql
         else: f = {'label': taskarg} # label
-        tasks = taskw.filter_tasks(f)
-        if tasks:
-            return tasks
+        ltasks = taskw.filter_tasks(f)
+        if ltasks:
+            if args.matchall: tasks += ltasks
+            else: return ltasks
 
     # for description, label, project try substring, then regex
     for fltr in [
         field + clause for clause in ['.contains', '.has']
         for field in ['description', 'label', 'project']
     ]:
-        tasks = taskw.filter_tasks({fltr: taskarg})
-        if tasks: return tasks
+        ftasks = taskw.filter_tasks({fltr: taskarg})
+        if ftasks:
+            if args.matchall: tasks += ftasks
+            else: return ftasks
 
-    return []
+    return tasks
 
 ###
 
