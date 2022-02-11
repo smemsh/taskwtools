@@ -382,7 +382,16 @@ def _taskget(*args):
             if args.matchall: tasks += ftasks
             else: return ftasks
 
-    return tasks
+    # todo: probably a single comprehension can do this
+    seen = {}
+    deduped = []
+    for t in tasks:
+        uu = t['uuid']
+        if not seen.get(uu):
+            seen[uu] = True
+            deduped.append(t)
+
+    return deduped
 
 ###
 
