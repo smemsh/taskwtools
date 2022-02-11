@@ -310,7 +310,7 @@ def _taskids(*args, onlyone=False):
         else: tasks = [_taskone(args[0])]
     else: tasks = _taskget(*args)
 
-    taskids = [task.get('id', task['uuid']) for task in tasks]
+    taskids = [task['id'] if task['id'] else task['uuid'] for task in tasks]
     print("\x20".join(str(t) for t in taskids))
 
 def taskid(taskarg):
