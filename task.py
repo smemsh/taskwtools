@@ -73,6 +73,12 @@ def addarg(p, vname, vdesc, help=None, /, **kwargs):
 
 ###
 
+def dummy_match(n):
+    if n == 0: errmsg = "0fffffff-ffff-ffff-ffff-ffffffffffff"  # no matches
+    elif n > 1: errmsg =  "1fffffff-ffff-ffff-ffff-ffffffffffff"  # multiple
+    else: bomb("n less than 0??? aborting")
+    return errmsg
+
 # fails if not exactly one match from lookup
 def _taskone(taskarg, abort=True):
 
@@ -80,8 +86,7 @@ def _taskone(taskarg, abort=True):
     n = len(tasks)
     if n == 1: return tasks[0]
     # return something valid that won't match anything
-    elif n == 0: errmsg = "0fffffff-ffff-ffff-ffff-ffffffffffff"  # no matches
-    elif n > 1: errmsg =  "1fffffff-ffff-ffff-ffff-ffffffffffff"  # multiple
+    else errmsg = dummy_match(n)
 
     if abort: bomb(errmsg)
     else: err(errmsg); return {}
