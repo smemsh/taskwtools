@@ -512,7 +512,11 @@ def main():
     except (KeyError, TypeError):
         bomb(f"unimplemented command '{invname}'")
 
-    instcnt = subprogram(*args)
+    try: instcnt = subprogram(*args)
+    except BrokenPipeError:
+        # todo: for some reason exit code doesn't work? always zero.
+        # is it because we're already in exception handler?
+        exit(EXIT_FAILURE)
 
 ###
 
