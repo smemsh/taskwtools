@@ -331,59 +331,79 @@ def taskget(*args):
 def _taskget(*args):
 
     tasks = []
+    ran = False
 
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
-    addarg(argp, 'taskarg', 'task lookup argument', default=None)
+    addargs(argp, 'taskargs', 'task lookup argument', default=[None])
     args = argp.parse_args(args)
-    taskarg = args.taskarg
+    multi = args.matchall
 
-    # all tasks if nothing specific requested
-    if not taskarg:
-        return taskw.filter_tasks({'status.any': ''})
+    for taskarg in args.taskargs:
 
-    # taskid
-    try:
-        taskarg = int(taskarg)
-        tasks = taskw.filter_tasks({'id': taskarg})
-        if not tasks: bomb(f"failed to find integer task {taskarg}")
-        if len(tasks) != 1: bomb(f"integer id {taskarg} not unique")
-        return tasks
-    except ValueError: pass
+        # make sure loop runs at least once
+        if ran and not multi: return tasks
+        else: ran = True
 
-    # taskuuid
-    try:
-        taskarg = uuid(taskarg)
-        tasks = taskw.filter_tasks({'uuid': taskarg})
-        if not tasks: bomb(f"failed to find task by uuid: {taskarg}")
-        if len(tasks) != 1: bomb(f"uuid lookup for {taskarg} not unique")
-        return tasks
-    except ValueError: pass
+        # all tasks if nothing specific requested
+        if not taskarg:
+            tasks += taskw.filter_tasks({'status.any': ''})
+            break
 
-    # taskuuid-initial
-    if set(taskarg).issubset(f"{hexdigits}-"):
-        uutasks = taskw.filter_tasks({'uuid': taskarg})
-        if uutasks:
-            if args.matchall: tasks += uutasks
-            else: return uutasks
+        # taskid
+        try:
+            taskarg = int(taskarg)
+            matches = taskw.filter_tasks({'id': taskarg})
+            if not matches: bomb(f"failed to find integer task {taskarg}")
+            if len(matches) != 1: bomb(f"integer id {taskarg} not unique")
+            tasks += matches
+            if multi: continue
+            else: break
+        except ValueError: pass
 
-    # label
-    if set(taskarg).issubset(f"{lowercase}{digits}-/"):
-        if '/' in taskarg: f = _fqltask(taskarg) # fql
-        else: f = {'label': taskarg} # label
-        ltasks = taskw.filter_tasks(f)
-        if ltasks:
-            if args.matchall: tasks += ltasks
-            else: return ltasks
+        # taskuuid
+        try:
+            taskarg = uuid(taskarg)
+            matches = taskw.filter_tasks({'uuid': taskarg})
+            if not matches: bomb(f"failed to find task by uuid: {taskarg}")
+            if len(matches) != 1: bomb(f"uuid lookup for {taskarg} not unique")
+            tasks += matches
+            if multi: continue
+            else: break
+        except ValueError: pass
 
-    # for description, label, project try substring, then regex
-    for fltr in [
-        field + clause for clause in ['.contains', '.has']
-        for field in ['description', 'label', 'project']
-    ]:
-        ftasks = taskw.filter_tasks({fltr: taskarg})
-        if ftasks:
-            if args.matchall: tasks += ftasks
-            else: return ftasks
+        # taskuuid-initial
+        if set(taskarg).issubset(f"{hexdigits}-"):
+            matches = taskw.filter_tasks({'uuid': taskarg})
+            if len(matches):
+                tasks += matches
+                if multi: continue
+                else: break
+
+        # label
+        if set(taskarg).issubset(f"{lowercase}{digits}-/"):
+            if '/' in taskarg: f = _fqltask(taskarg) # fql
+            else: f = {'label': taskarg} # label
+            matches = taskw.filter_tasks(f)
+            if len(matches):
+                tasks += matches
+                if multi: continue
+                else: break
+
+        # for description, label, project try substring, then regex
+        ftasks = []
+        for fltr in [
+            field + clause for clause in ['.contains', '.has']
+            for field in ['description', 'label', 'project']
+        ]:
+            fftasks = taskw.filter_tasks({fltr: taskarg})
+            if len(fftasks):
+                ftasks += fftasks
+                if not multi: continue
+                else: break
+        tasks += ftasks
+
+        if len(tasks) and not multi:
+            break
 
     # todo: probably a single comprehension can do this
     seen = {}
