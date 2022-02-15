@@ -250,11 +250,11 @@ def taskday(*args):
 
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
-    addarg(argp, 'ndays', 'days of history (default 1)')
+    addarg(argp, 'ndays', 'days of history (default 1)', nargs='?')
     args = argp.parse_args(args)
 
     filterfn = fql_among_tags if args.showfql else label_from_tags
-    ndays = args.ndays if args.ndays else '1'
+    ndays = args.ndays[0] if args.ndays else '1'
 
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
