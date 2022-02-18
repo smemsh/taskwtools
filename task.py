@@ -330,8 +330,19 @@ def taskget(*args):
 
 def _taskget(*args):
 
-    tasks = []
     ran = False
+    tasks = set()
+
+    # TaskWarrior.filter_tasks() returns a list of dicts (tasks) that will all
+    # have a 'uuid' member, so we can add them in sets -- and thus deduplicate
+    # results from multiple filters -- by hashing the dicts' uuids
+    #
+    class UUIDHashableDict(dict):
+        def __hash__(self):
+            return hash(self['uuid'])
+
+    def taskfilter(filterdict):
+        return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
 
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
     addargs(argp, 'taskargs', 'task lookup argument', default=[None])
@@ -346,16 +357,16 @@ def _taskget(*args):
 
         # all tasks if nothing specific requested
         if not taskarg:
-            tasks += taskw.filter_tasks({'status.any': ''})
+            tasks.update(taskfilter({'status.any': ''}))
             break
 
         # taskid
         try:
             taskarg = int(taskarg)
-            matches = taskw.filter_tasks({'id': taskarg})
+            matches = taskfilter({'id': taskarg})
             if not matches: bomb(f"failed to find integer task {taskarg}")
             if len(matches) != 1: bomb(f"integer id {taskarg} not unique")
-            tasks += matches
+            tasks.update(matches)
             if multi: continue
             else: break
         except ValueError: pass
@@ -363,19 +374,19 @@ def _taskget(*args):
         # taskuuid
         try:
             taskarg = uuid(taskarg)
-            matches = taskw.filter_tasks({'uuid': taskarg})
+            matches = taskfilter({'uuid': taskarg})
             if not matches: bomb(f"failed to find task by uuid: {taskarg}")
             if len(matches) != 1: bomb(f"uuid lookup for {taskarg} not unique")
-            tasks += matches
+            tasks.update(matches)
             if multi: continue
             else: break
         except ValueError: pass
 
         # taskuuid-initial
         if set(taskarg).issubset(f"{hexdigits}-"):
-            matches = taskw.filter_tasks({'uuid': taskarg})
+            matches = taskfilter({'uuid': taskarg})
             if len(matches):
-                tasks += matches
+                tasks.update(matches)
                 if multi: continue
                 else: break
 
@@ -383,36 +394,27 @@ def _taskget(*args):
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
             if '/' in taskarg: f = _fqltask(taskarg) # fql
             else: f = {'label': taskarg} # label
-            matches = taskw.filter_tasks(f)
+            matches = taskfilter(f)
             if len(matches):
-                tasks += matches
+                tasks.update(matches)
                 if not multi: break
 
         # for description, label, project try substring, then regex
-        ftasks = []
+        ftasks = set()
         for fltr in [
             field + clause for clause in ['.contains', '.has']
             for field in ['description', 'label', 'project']
         ]:
-            fftasks = taskw.filter_tasks({fltr: taskarg})
+            fftasks = taskfilter({fltr: taskarg})
             if len(fftasks):
-                ftasks += fftasks
+                ftasks.update(fftasks)
                 if not multi: break
-        tasks += ftasks
+        tasks.update(ftasks)
 
         if len(tasks) and not multi:
             break
 
-    # todo: probably a single comprehension can do this
-    seen = {}
-    deduped = []
-    for t in tasks:
-        uu = t['uuid']
-        if not seen.get(uu):
-            seen[uu] = True
-            deduped.append(t)
-
-    return deduped
+    return tasks
 
 ###
 
