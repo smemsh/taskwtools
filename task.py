@@ -386,8 +386,7 @@ def _taskget(*args):
             matches = taskw.filter_tasks(f)
             if len(matches):
                 tasks += matches
-                if multi: continue
-                else: break
+                if not multi: break
 
         # for description, label, project try substring, then regex
         ftasks = []
@@ -398,8 +397,7 @@ def _taskget(*args):
             fftasks = taskw.filter_tasks({fltr: taskarg})
             if len(fftasks):
                 ftasks += fftasks
-                if not multi: continue
-                else: break
+                if not multi: break
         tasks += ftasks
 
         if len(tasks) and not multi:
