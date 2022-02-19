@@ -401,11 +401,11 @@ def _taskget(*args):
 
         # for description, label, project try substring, then regex
         ftasks = set()
-        for fltr in [
+        for filt in [
             field + clause for clause in ['.contains', '.has']
             for field in ['description', 'label', 'project']
         ]:
-            fftasks = taskfilter({fltr: taskarg})
+            fftasks = taskfilter({filt: taskarg})
             if len(fftasks):
                 ftasks.update(fftasks)
                 if not multi: break
