@@ -87,7 +87,7 @@ def _taskone(taskarg, abort=True):
 
     tasks = _taskget(taskarg)
     n = len(tasks)
-    if n == 1: return tasks[0]
+    if n == 1: return tasks.pop()
     # return something valid that won't match anything
     else: errmsg = dummy_match(n)
 
