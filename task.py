@@ -64,12 +64,18 @@ def exe(cmd):
 
 #
 
-def addflag(p, flagchar, longopt, help=None, /, **kwargs):
+def addopt(p, flagchar, longopt, help=None, /, **kwargs):
     options = list(("-%s --%s" % (flagchar, longopt)).split())
-    p.add_argument(*options, action='store_true', help=help, **kwargs)
+    p.add_argument(*options, help=help, **kwargs)
 
 def addarg(p, vname, vdesc, help=None, /, **kwargs):
     p.add_argument(vname, metavar=vdesc, help=help, **kwargs)
+
+def addflag(*args, **kwargs):
+    addopt(*args, action='store_true', **kwargs)
+
+def addopts(*args, **kwargs):
+    addopt(*args, action='store', **kwargs)
 
 def addargs(*args, **kwargs):
     addarg(*args, nargs='*', **kwargs)
