@@ -351,6 +351,7 @@ def _taskget(*args):
         return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
 
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
+    addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
     addargs(argp, 'taskargs', 'task lookup argument', default=[None])
     args = argp.parse_args(args)
     multi = args.matchall
@@ -420,7 +421,10 @@ def _taskget(*args):
         if len(tasks) and not multi:
             break
 
-    return tasks
+    if len(tasks) == 0:
+        if args.zero: return [dict(id=0, uuid=dummy_match(0))]
+        else: return []
+    else: return tasks
 
 ###
 
