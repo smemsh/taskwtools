@@ -384,7 +384,9 @@ def _taskget(*args):
         try:
             arg = int(taskarg)
             matches = taskfilter({'id': arg})
-            if not matches: bomb(f"failed to find integer task {arg}")
+            if not matches:
+                if not multi: bomb(f"failed to find integer task {arg}")
+                else: continue
             if len(matches) != 1: bomb(f"integer id {arg} not unique")
             tasks.update(matches)
             if multi: continue
@@ -395,7 +397,9 @@ def _taskget(*args):
         try:
             arg = uuid(taskarg)
             matches = taskfilter({'uuid': arg})
-            if not matches: bomb(f"failed to find task by uuid: {arg}")
+            if not matches:
+                if not multi: bomb(f"failed to find task by uuid: {arg}")
+                else: continue
             if len(matches) != 1: bomb(f"uuid lookup for {arg} not unique")
             tasks.update(matches)
             if multi: continue
