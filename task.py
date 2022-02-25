@@ -348,6 +348,7 @@ def _taskget(*args):
             return hash(self['uuid'])
 
     def taskfilter(filterdict):
+        filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
         return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
 
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
@@ -356,7 +357,19 @@ def _taskget(*args):
     args = argp.parse_args(args)
     multi = args.matchall
 
+    taskargs = []
+    tagfilters = {}; tags_yes = []; tags_no = []
+
     for taskarg in args.taskargs:
+        for var, char in [(tags_yes, '+'), (tags_no, '-')]:
+            if taskarg[0] == char:
+                var.append(taskarg[1:]); break
+        else: taskargs.append(taskarg)
+
+    for var, key in [(tags_yes, 'tags.word'), (tags_no, 'tags.noword')]:
+        if len(var): tagfilters.update({key: ','.join(var)})
+
+    for taskarg in taskargs:
 
         # make sure loop runs at least once
         if ran and not multi: return tasks
@@ -369,10 +382,10 @@ def _taskget(*args):
 
         # taskid
         try:
-            taskarg = int(taskarg)
-            matches = taskfilter({'id': taskarg})
-            if not matches: bomb(f"failed to find integer task {taskarg}")
-            if len(matches) != 1: bomb(f"integer id {taskarg} not unique")
+            arg = int(taskarg)
+            matches = taskfilter({'id': arg})
+            if not matches: bomb(f"failed to find integer task {arg}")
+            if len(matches) != 1: bomb(f"integer id {arg} not unique")
             tasks.update(matches)
             if multi: continue
             else: break
@@ -380,10 +393,10 @@ def _taskget(*args):
 
         # taskuuid
         try:
-            taskarg = uuid(taskarg)
-            matches = taskfilter({'uuid': taskarg})
-            if not matches: bomb(f"failed to find task by uuid: {taskarg}")
-            if len(matches) != 1: bomb(f"uuid lookup for {taskarg} not unique")
+            arg = uuid(taskarg)
+            matches = taskfilter({'uuid': arg})
+            if not matches: bomb(f"failed to find task by uuid: {arg}")
+            if len(matches) != 1: bomb(f"uuid lookup for {arg} not unique")
             tasks.update(matches)
             if multi: continue
             else: break
