@@ -362,7 +362,7 @@ def _taskget(*args):
 
     for taskarg in args.taskargs:
         for var, char in [(tags_yes, '+'), (tags_no, '-')]:
-            if taskarg[0] == char:
+            if taskarg is not None and taskarg[0] == char:
                 var.append(taskarg[1:]); break
         else: taskargs.append(taskarg)
 
