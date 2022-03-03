@@ -499,10 +499,6 @@ def on_modify_timew(*args):
 
     #
 
-    oldtimew = _timewtags(old)
-    newtimew = _timewtags(new)
-    retag = False if set(oldtimew) == set(newtimew) else True
-
     if 'start' in new:
 
         if 'start' not in old:
@@ -513,18 +509,18 @@ def on_modify_timew(*args):
             if set(changed).intersection(timekeys):
                 attrlist = ',\x20'.join(timekeys)
                 bomb(f"timew propagation not implemented for {attrlist}")
-            if retag:
-                retimew(old, new)
 
     elif 'start' in old:
 
         if 'end' in new and 'end' not in old:
-            if retag: retimew(old, new)
             _taskstop(new)
 
         if 'end' not in new:
             print("disallowing pause, use timewarrior until 'done'")
             exit(EXIT_FAILURE)
+
+    if set(_timewtags(old)) != set(_timewtags(new)):
+        retimew(old, new)
 
     print(jdumps(new))
 
