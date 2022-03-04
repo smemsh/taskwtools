@@ -520,7 +520,8 @@ def on_modify_timew(*args):
             exit(EXIT_FAILURE)
 
     if set(_timewtags(old)) != set(_timewtags(new)):
-        retimew(old, new)
+        if old.get('label'): # skip new taskadd with no label yet
+            retimew(old, new)
 
     print(jdumps(new))
 
