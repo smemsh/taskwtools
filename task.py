@@ -83,10 +83,10 @@ def addargs(*args, **kwargs):
 ###
 
 def dummy_match(n):
-    if n == 0: errmsg = "0fffffff-ffff-ffff-ffff-ffffffffffff"  # no matches
-    elif n > 1: errmsg =  "1fffffff-ffff-ffff-ffff-ffffffffffff"  # multiple
+    if n == 0: dummy = "0fffffff-ffff-ffff-ffff-ffffffffffff"  # no matches
+    elif n > 1: dummy =  "1fffffff-ffff-ffff-ffff-ffffffffffff"  # multiple
     else: bomb("n less than 0??? aborting")
-    return errmsg
+    return dummy
 
 # fails if not exactly one match from lookup
 def _taskone(taskarg, abort=True):
