@@ -95,10 +95,10 @@ def _taskone(taskarg, abort=True):
     n = len(tasks)
     if n == 1: return tasks.pop()
     # return something valid that won't match anything
-    else: errmsg = dummy_match(n)
+    else: print(dummy_match(n))
 
-    if abort: bomb(errmsg)
-    else: err(errmsg); return {}
+    if abort: exit(EXIT_FAILURE)
+    else: return {}
 
 #
 
