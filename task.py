@@ -13,6 +13,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskfqls: print fully qualified labels of several matching tasks
   - taskstop: stop the current started task in timewarrior
   - taskline: show output suitable for conferring status to window manager
+  - tasknotes: display formatted list of all the annotations of a task
   - timewtags: show all tags that a task would be assigned in timewarrior
   - on-modify.timew: hook runs on all task mods (via symlink in hooks/)
 
@@ -33,6 +34,7 @@ from pprint import pp
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
 from datetime import datetime, timedelta
+from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter
 from subprocess import check_output
 
@@ -237,6 +239,25 @@ def taskline():
     active = '*' if active else '-'
     print(fql, active, nowtimefmt)
 
+def tasknotes(taskarg=None):
+    if not taskarg: taskarg = _tasknow()[0]
+    task = _taskone(taskarg)
+    desc = task['description']
+    notes = task.get('annotations')
+    fillargs = {
+        'initial_indent': "-\x20",
+        'subsequent_indent': "\x20\x20",
+        'drop_whitespace': False,
+        'break_on_hyphens': False,
+        'break_long_words': False,
+        'replace_whitespace': False,
+        'width': 79,
+    }
+    if notes:
+        print('+', desc)
+        print("\n".join([fill(note, **fillargs) for note in notes]))
+    else:
+        print(desc)
 #
 
 def tasks(*args): taskweek(*args)
