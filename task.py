@@ -341,13 +341,15 @@ def _taskids(*args, onlyone=False):
     else: tasks = _taskget(*args)
 
     taskids = [task['id'] if task['id'] else task['uuid'] for task in tasks]
-    if taskids: print("\x20".join(str(t) for t in taskids))
+    if taskids:
+        if onlyone: return taskids[0]
+        else: return [str(t) for t in taskids]
 
 def taskid(taskarg):
-    _taskids(taskarg, onlyone=True)
+    print(_taskids(taskarg, onlyone=True))
 
 def taskids(*args):
-    _taskids(*args)
+    print('\x20'.join(_taskids(*args)))
 
 #
 
