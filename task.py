@@ -530,7 +530,7 @@ def on_modify_timew(*args):
         timekeys = set(['start', 'end'])
         if set(old).intersection(timekeys):
             if set(changed).intersection(timekeys):
-                attrlist = ',\x20'.join(timekeys)
+                attrlist = ",\x20".join(timekeys)
                 bomb(f"timew propagation not implemented for {attrlist}")
 
     elif 'start' in old:
