@@ -22,7 +22,7 @@ deps:
   - timew python library with patches 9-13
 
 """
-__url__     = 'http://smemsh.net/src/.task/'
+__url__     = 'https://github.com/smemsh/.task/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 
