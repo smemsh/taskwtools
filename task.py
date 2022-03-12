@@ -345,7 +345,8 @@ def _taskids(*args, onlyone=False):
         if onlyone: return taskids[0]
         else: return [str(t) for t in taskids]
 
-def taskid(taskarg):
+def taskid(taskarg=None):
+    if not taskarg: taskarg, _ = _tasknow()
     print(_taskids(taskarg, onlyone=True))
 
 def taskids(*args):
