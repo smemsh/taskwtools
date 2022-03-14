@@ -227,9 +227,40 @@ def _tasknow():
     active = not bool(curtask.get('end'))
     return fql, active
 
-def tasknow():
+def tasknow(*args):
+
+    for short, long, desc in [
+        (short, long, f"show {long} of current task")
+        for short, long in [
+            ('i', 'id'), ('u', 'uuid'), # call taskid/taskuuid
+            ('f', 'fql') # default behavior
+        ]
+    ]: addflag(argp, short, long, desc)
+    args = argp.parse_args(args)
+
     current, active = _tasknow()
-    print(current, 'started' if active else 'stopped')
+
+    # if user specified an output format (besides fql, the default), we
+    # just print the requested format only, by jumping to _taskids()
+    # and using kwargs in the call to specify requested output format
+    #
+    usefmt = False
+    ofmts = ['uuid', 'id']
+    kwargs = {f"use{k}": False for k in ofmts}
+    for fmt in ofmts:
+        if getattr(args, fmt, None):
+            usefmt = True
+            kwargs.update({f"use{fmt}": True})
+
+    if usefmt:
+        print(_taskids(current, onlyone=True, **kwargs))
+    else:
+        output = current
+        if not usefmt and not args.fql:
+            # user didnt specify format so we use one that includes status
+            output = [output] + ['started'] if active else ['stopped']
+            output = '\x20'.join(output)
+        print(output)
 
 #
 
