@@ -368,7 +368,7 @@ def _taskids(*args, onlyone=False, useid=True, useuuid=False):
 
     if onlyone:
         if len(args) != 1: bomb("should not use multiple args")
-        else: tasks = [_taskone(args[0])]
+        tasks = [_taskone(args[0])]
     else: tasks = _taskget(*args)
 
     taskids = [
