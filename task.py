@@ -285,7 +285,7 @@ def tasknotes(taskarg=None):
         'width': 79,
     }
     if notes:
-        print('+', desc)
+        print('=', desc)
         print("\n".join([fill(note, **fillargs) for note in notes]))
     else:
         print(desc)
