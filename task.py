@@ -35,7 +35,7 @@ from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
 from datetime import datetime, timedelta
 from textwrap import fill
-from argparse import ArgumentParser, RawTextHelpFormatter
+from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 from subprocess import check_output
 
 from os import (
@@ -81,6 +81,38 @@ def addopts(*args, **kwargs):
 
 def addargs(*args, **kwargs):
     addarg(*args, nargs='*', **kwargs)
+
+# allow cumulative option parsing.  the resulting Namespace() will be a
+# union of all flag/option processing with later calls to addfoo()
+# overriding earlier-specified attribute values with the same name
+# (TODO: wrong, actually later *new* ones can join, but overrides won't
+# occur, see comments when a Namespace is given as arg)
+#
+def optparse(name, argp, *args):
+
+    global argns
+    global argslast
+    global argsall
+
+    nsarg = None
+    if len(args) and isinstance(args[0], Namespace):
+        # we got a Namespace, which means args already got processed
+        # once, which means any leftover (unrecognized from last time)
+        # are in argslast. the Namespace given has what we parsed so
+        # far.  we'll pass this namespace to parse_args so it can
+        # override and/or append new members upon re-parsing the
+        # leftovers.  then we'll again leave the still-leftovers in
+        # there for any still-later arg parsing.  TODO this means first
+        # use wins and the parsed flags will never be seen again by
+        # later uses, which also means override isn't possible
+        #
+        nsarg = args[0]
+        args = argslast
+    ns = nsarg if nsarg else argns
+    argns, argslast = argp.parse_known_args(*args, ns)
+    if len(argslast): err(f"skipping unknown args: {argslast}")
+
+    return argns
 
 ###
 
@@ -227,8 +259,16 @@ def _tasknow():
     active = not bool(curtask.get('end'))
     return fql, active
 
+def mkargs():
+    return ArgumentParser(
+        prog            = invname,
+        description     = __doc__.strip(),
+        allow_abbrev    = False,
+        formatter_class = RawTextHelpFormatter)
+
 def tasknow(*args):
 
+    argp = mkargs()
     for short, long, desc in [
         (short, long, f"show {long} of current task")
         for short, long in [
@@ -236,7 +276,7 @@ def tasknow(*args):
             ('f', 'fql') # default behavior
         ]
     ]: addflag(argp, short, long, desc)
-    args = argp.parse_args(args)
+    args = optparse('tasknow', argp, args)
 
     current, active = _tasknow()
 
@@ -306,10 +346,11 @@ def taskday(*args):
         label = fql.split('/')[-1]
         return label
 
+    argp = mkargs()
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
     addarg(argp, 'ndays', 'days of history (default 1)', nargs='?')
-    args = argp.parse_args(args)
+    args = optparse('taskday', argp, args)
 
     filterfn = fql_among_tags if args.showfql else label_from_tags
     ndays = args.ndays if args.ndays is not None else 1
@@ -418,10 +459,11 @@ def _taskget(*args):
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
         return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
 
+    argp = mkargs()
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
     addargs(argp, 'taskargs', 'task lookup argument', default=[None])
-    args = argp.parse_args(args)
+    args = optparse('taskget', argp, args)
     multi = args.matchall
 
     taskargs = []
@@ -625,12 +667,9 @@ if __name__ == "__main__":
 
     invname = basename(argv[0])
     invname = invname.replace('-', '_').replace('.', '_') # for triggers
+    argslast = list()
+    argns = Namespace()
     args = argv[1:]
-    argp = ArgumentParser(
-        prog            = invname,
-        description     = __doc__.strip(),
-        allow_abbrev    = False,
-        formatter_class = RawTextHelpFormatter)
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
