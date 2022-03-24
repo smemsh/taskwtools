@@ -123,9 +123,9 @@ def dummy_match(n):
     return dummy
 
 # fails if not exactly one match from lookup
-def _taskone(taskarg, abort=True):
-
-    tasks = _taskget(taskarg)
+def _taskone(*args, **kwargs):
+    abort = kwargs.get('abort', True)
+    tasks = _taskget(*args, **kwargs)
     n = len(tasks)
     if n == 1: return tasks.pop()
     # return something valid that won't match anything
@@ -442,7 +442,7 @@ def taskget(*args):
     tasks = _taskget(*args)
     pp(tasks)
 
-def _taskget(*args):
+def _taskget(*args, **kwargs):
 
     ran = False
     tasks = set()
