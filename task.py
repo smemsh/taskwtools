@@ -123,16 +123,19 @@ def dummy_match(n):
     return dummy
 
 # fails if not exactly one match from lookup
-def _taskone(*args, **kwargs):
-    abort = kwargs.get('abort', True)
+def __taskone(*args, **kwargs):
     tasks = _taskget(*args, **kwargs)
     n = len(tasks)
-    if n == 1: return tasks.pop()
-    # return something valid that won't match anything
-    else: print(dummy_match(n))
+    if n == 1: return True, tasks.pop()
+    else: return False, {'uuid': dummy_match(n)}
 
-    if abort: exit(EXIT_FAILURE)
-    else: return {}
+def _taskone(*args, **kwargs):
+    abort = kwargs.get('abort', True)
+    success, match = __taskone(*args, **kwargs)
+    if not success and abort:
+        print(match['uuid']) # cannot go to stderr because used in subshell
+        exit(EXIT_FAILURE)
+    return match
 
 #
 
