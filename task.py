@@ -424,20 +424,20 @@ def _taskids(*args, onlyone=False, useid=True, useuuid=False):
         if onlyone: return taskids[0]
         else: return [str(t) for t in taskids]
 
-def taskid(*args):
+def _taskid(*args, **kwargs):
     if len(args) == 0:
         args, _ = _tasknow()
         args = [args]
-    print(_taskids(*args, onlyone=True))
+    print(_taskids(*args, onlyone=True, **kwargs))
+
+def taskid(*args):
+    return _taskid(*args)
+
+def taskuuid(*args):
+    return _taskid(*args, useuuid=True)
 
 def taskids(*args):
     print('\x20'.join(_taskids(*args)))
-
-def taskuuid(*args):
-    if len(args) == 0:
-        args, _ = _tasknow()
-        args = [args]
-    print(_taskids(*args, useuuid=True, onlyone=True))
 
 def taskuuids(*args):
     print('\x20'.join(_taskids(*args, useuuid=True)))
