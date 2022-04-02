@@ -408,12 +408,12 @@ def _taskstop(task=None):
 
 #
 
-def _taskids(*args, onlyone=False, useid=True, useuuid=False):
+def _taskids(*args, onlyone=False, useid=True, useuuid=False, idonly=False):
 
     if onlyone:
         if len(args) != 1: bomb("should not use multiple args")
-        tasks = [_taskone(*args)]
-    else: tasks = _taskget(*args)
+        tasks = [_taskone(*args, idonly=idonly)]
+    else: tasks = _taskget(*args, idonly=idonly)
 
     taskids = [
         task['id']
@@ -428,7 +428,7 @@ def _taskid(*args, **kwargs):
     if len(args) == 0:
         args, _ = _tasknow()
         args = [args]
-    print(_taskids(*args, onlyone=True, **kwargs))
+    print(_taskids(*args, onlyone=True, idonly=True, **kwargs))
 
 def taskid(*args):
     return _taskid(*args)
