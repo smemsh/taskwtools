@@ -453,6 +453,7 @@ def _taskget(*args, **kwargs):
 
     ran = False
     tasks = set()
+    idonly = kwargs.get('idonly', False)
 
     # TaskWarrior.filter_tasks() returns a list of dicts (tasks) that will all
     # have a 'uuid' member, so we can add them in sets -- and thus deduplicate
@@ -534,7 +535,7 @@ def _taskget(*args, **kwargs):
                 if multi: continue
                 else: break
 
-        # label
+        # label or fql
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
             if '/' in taskarg: f = _fqltask(taskarg) # fql
             else: f = {'label': taskarg} # label
@@ -542,6 +543,10 @@ def _taskget(*args, **kwargs):
             if len(matches):
                 tasks.update(matches)
                 if not multi: break
+
+        # don't look beyond fql, label, id, uuid if requested
+        if idonly:
+            break
 
         # for description, label, project try substring, then regex
         ftasks = set()
