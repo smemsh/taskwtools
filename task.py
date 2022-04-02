@@ -485,6 +485,10 @@ def _taskget(*args, **kwargs):
     for var, key in [(tags_yes, 'tags.word'), (tags_no, 'tags.noword')]:
         if len(var): tagfilters.update({key: ','.join(var)})
 
+    if not taskargs:
+        # still need to enter taskargs loop so we need an item
+        taskargs = [None]
+
     for taskarg in taskargs:
 
         # make sure loop runs at least once
