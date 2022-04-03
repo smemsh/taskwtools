@@ -338,20 +338,38 @@ def tasks(*args): taskweek(*args)
 def taskweek(*args): taskday(*args, '7')
 def taskday(*args):
 
-    def fql_among_tags(task):
+    def get_status_char(fql, status):
+        if not status:
+            return ''
+        statmap = {
+            'completed': '-',
+            'pending': '',
+            'deleted': '!',
+        }
+        success, task = __taskone(fql, idonly=True)
+        if success: taskstat = task.get('status')
+        else: return '^'
+        if not taskstat: bomb("no status: ", task, sep='\n')
+        if taskstat in statmap: return statmap[taskstat]
+        else: return '?'
+
+    def fql_among_tags(task, status=False):
         filtered = list(filter(isfql, task['tags']))
         if len(filtered) != 1:
             bomb("filtered more than one fql tag for task")
-        return filtered[0]
+        fql = filtered[0]
+        stchar = get_status_char(fql, status)
+        return f"{fql}{stchar}"
 
-    def label_from_tags(task):
-        fql = fql_among_tags(task)
+    def label_from_tags(task, status=False):
+        fql = fql_among_tags(task, status=status)
         label = fql.split('/')[-1]
         return label
 
     argp = mkargs()
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
+    addflag(argp, 's', 'status', 'show status characters')
     addarg(argp, 'ndays', 'days of history (default 1)', nargs='?')
     args = optparse('taskday', argp, args)
 
@@ -362,9 +380,9 @@ def taskday(*args):
     tasks = timew.export(start_time=ago)
 
     labels = list(dict.fromkeys(reversed(
-        [filterfn(task) for task in tasks])))
+        [filterfn(task, status=args.status) for task in tasks])))
 
-    if len(labels) and not tasks[-1].get('end'):
+    if len(labels) and not tasks[-1].get('end') and args.status:
         labels[0] = f"*{labels[0]}"
 
     print(('\n' if args.column else '\x20').join(labels))
