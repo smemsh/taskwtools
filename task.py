@@ -368,12 +368,12 @@ def taskday(*args):
 
     argp = mkargs()
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
-    addflag(argp, 'f', 'fql', 'show fully qualified labels', dest='showfql')
     addflag(argp, 's', 'status', 'show status characters')
+    addflag(argp, 'f', 'fql', 'show fully qualified labels')
     addarg(argp, 'ndays', 'days of history (default 1)', nargs='?')
     args = optparse('taskday', argp, args)
 
-    filterfn = fql_among_tags if args.showfql else label_from_tags
+    filterfn = fql_among_tags if args.fql else label_from_tags
     ndays = args.ndays if args.ndays is not None else 1
 
     ago = datetime.now() - timedelta(days=int(ndays))
