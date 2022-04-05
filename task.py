@@ -28,6 +28,7 @@ __license__ = 'GPL-2.0'
 
 from re import search
 from sys import argv, stdin, stdout, stderr, exit
+from copy import copy
 from uuid import UUID as uuid
 from json import loads as jloads, dumps as jdumps
 from pprint import pp
@@ -469,9 +470,28 @@ def taskget(*args):
 
 def _taskget(*args, **kwargs):
 
+    global getcache
+
     ran = False
     tasks = set()
     idonly = kwargs.get('idonly', False)
+
+    def cache_index(args):
+        return hash(tuple(args))
+
+    def cache_insert(args, value):
+        global getcache
+        hashedargs = cache_index(args)
+        # copy required for proper function (todo: why?)
+        getcache.update({hashedargs: copy(value)})
+        return value
+
+    def cache_get(args):
+        global getcache
+        hashedargs = cache_index(args)
+        # copy required for proper function (todo: why?)
+        got = copy(getcache.get(hashedargs))
+        return got
 
     # TaskWarrior.filter_tasks() returns a list of dicts (tasks) that will all
     # have a 'uuid' member, so we can add them in sets -- and thus deduplicate
@@ -504,6 +524,12 @@ def _taskget(*args, **kwargs):
     for var, key in [(tags_yes, 'tags.word'), (tags_no, 'tags.noword')]:
         if len(var): tagfilters.update({key: ','.join(var)})
 
+    taskkey = taskargs + list(tagfilters.items())
+
+    cacheval = cache_get(taskkey)
+    if cacheval is not None:
+        return cacheval
+
     if not taskargs:
         # still need to enter taskargs loop so we need an item
         taskargs = [None]
@@ -511,7 +537,9 @@ def _taskget(*args, **kwargs):
     for taskarg in taskargs:
 
         # make sure loop runs at least once
-        if ran and not multi: return tasks
+        if ran and not multi:
+            cached = cache_insert(taskkey, tasks)
+            return cached
         else: ran = True
 
         # all tasks if nothing specific requested
@@ -582,9 +610,17 @@ def _taskget(*args, **kwargs):
             break
 
     if len(tasks) == 0:
-        if args.zero: return [dict(id=0, uuid=dummy_match(0))]
-        else: return []
-    else: return tasks
+        if args.zero:
+            dummy = [dict(id=0, uuid=dummy_match(0))]
+            cached = cache_insert(taskkey, dummy)
+            return cached
+        else:
+            noresult = []
+            cached = cache_insert(taskkey, noresult)
+            return noresult
+    else:
+        cached = cache_insert(taskkey, tasks)
+        return cached
 
 ###
 
@@ -704,6 +740,7 @@ if __name__ == "__main__":
     argslast = list()
     argns = Namespace()
     args = argv[1:]
+    getcache = {}
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
