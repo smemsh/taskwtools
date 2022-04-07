@@ -5,7 +5,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskdo: start task in timew, all taskw fql elements and tags as timew tags
   - taskid: print exactly one matching id (uuid if done) from taskget or fail
   - taskids: print multiple matching ids from taskget algorithm
-  - taskget: search tasks as ids, uuids, labels or from descriptions, and print
+  - taskget: search tasks as ids, uuids, labels or from descs, and print
   - tasknow: show last started task and whether it's active
   - taskday: show labels of tasks from last 24 hours
   - taskweek: show labels of tasks from last 168 hours
