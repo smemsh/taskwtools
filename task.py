@@ -83,6 +83,13 @@ def addopts(*args, **kwargs):
 def addargs(*args, **kwargs):
     addarg(*args, nargs='*', **kwargs)
 
+def mkargs():
+    return ArgumentParser(
+        prog            = invname,
+        description     = __doc__.strip(),
+        allow_abbrev    = False,
+        formatter_class = RawTextHelpFormatter)
+
 # allow cumulative option parsing.  the resulting Namespace() will be a
 # union of all flag/option processing with later calls to addfoo()
 # overriding earlier-specified attribute values with the same name
@@ -262,13 +269,6 @@ def _tasknow():
 
     active = not bool(curtask.get('end'))
     return fql, active
-
-def mkargs():
-    return ArgumentParser(
-        prog            = invname,
-        description     = __doc__.strip(),
-        allow_abbrev    = False,
-        formatter_class = RawTextHelpFormatter)
 
 def tasknow(*args):
 
