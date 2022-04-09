@@ -130,12 +130,15 @@ def dummy_match(n):
     else: bomb("n less than 0??? aborting")
     return dummy
 
+def dummy_task(n):
+    return {'id': 0, 'uuid': dummy_match(n)}
+
 # fails if not exactly one match from lookup
 def __taskone(*args, **kwargs):
     tasks = _taskget(*args, **kwargs)
     n = len(tasks)
     if n == 1: return True, tasks.pop()
-    else: return False, {'uuid': dummy_match(n)}
+    else: return False, dummy_task(n)
 
 def _taskone(*args, **kwargs):
     abort = kwargs.get('abort', True)
@@ -611,7 +614,7 @@ def _taskget(*args, **kwargs):
 
     if len(tasks) == 0:
         if args.zero:
-            dummy = [dict(id=0, uuid=dummy_match(0))]
+            dummy = [dummy_task(0)]
             cached = cache_insert(taskkey, dummy)
             return cached
         else:
