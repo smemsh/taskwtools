@@ -170,7 +170,7 @@ def _fqltask(fql):
     segs = fql.split('/')
     project = '.'.join(segs[0:-1])
     label = segs[-1]
-    return {'project': project, 'label': label}
+    return {'project.is': project, 'label.is': label}
 
 def taskfql(taskarg):
     print(_taskfql(taskarg) or '')
@@ -587,7 +587,7 @@ def _taskget(*args, **kwargs):
         # label or fql
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
             if '/' in taskarg: f = _fqltask(taskarg) # fql
-            else: f = {'label': taskarg} # label
+            else: f = {'label.is': taskarg} # label
             matches = taskfilter(f)
             if len(matches):
                 tasks.update(matches)
