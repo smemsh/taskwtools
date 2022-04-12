@@ -270,7 +270,7 @@ def _tasknow():
     except:
         bomb("task @1 must exist and have an fql tag")
 
-    active = not bool(curtask.get('end'))
+    active = not 'end' in curtask
     return fql, active
 
 def tasknow(*args):
