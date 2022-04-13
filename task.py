@@ -511,7 +511,7 @@ def _taskget(*args, **kwargs):
     argp = mkargs()
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
-    addargs(argp, 'taskargs', 'task lookup argument', default=[None])
+    addargs(argp, 'taskargs', 'task lookup argument', default=[])
     args = optparse('taskget', argp, args)
     multi = args.matchall
 
@@ -534,8 +534,9 @@ def _taskget(*args, **kwargs):
         return cacheval
 
     if not taskargs:
-        # still need to enter taskargs loop so we need an item
-        taskargs = [None]
+        # default to the current task
+        t, _ = _tasknow()
+        taskargs = [t]
 
     for taskarg in taskargs:
 
@@ -545,7 +546,7 @@ def _taskget(*args, **kwargs):
             return cached
         else: ran = True
 
-        # all tasks if nothing specific requested
+        # should not happen anymore TODO delete after a while
         if not taskarg:
             tasks.update(taskfilter({'status.any': ''}))
             break
