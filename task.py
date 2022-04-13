@@ -210,12 +210,16 @@ def timewtags(taskarg):
 # arg: lookup task, switch to that one if not already
 # noarg: start last task (timew continue)
 #
-def taskdo(taskarg=None):
+def taskdo(*args):
     # there's exactly one match if _taskone() returns
-    task = _taskone(taskarg) if taskarg else None
+    task = _taskone(*args)
     return _taskdo(task)
 
-def _taskdo(task=None):
+# if called from the modify hook (only other entrance besides taskdo()),
+# arg is the new task struct.  otherwise it's the one retrieved by
+# _taskone() given the cli argument
+#
+def _taskdo(task):
 
     if task:
         tags = _timewtags(task)
