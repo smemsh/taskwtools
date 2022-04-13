@@ -221,38 +221,28 @@ def taskdo(*args):
 #
 def _taskdo(task):
 
-    if task:
+    if 'end' in task: bomb("cannot proceed on ended task")
+    if 'start' not in task: bomb("do initial start in taskwarrior")
+
+    # we must do our own _tasknow() even if the task we got came
+    # from noargs _taskget() (which calls _tasknow()) since we
+    # do not know if passed-in task is current task TODO refactor
+    #
+    curfql, active = _tasknow()
+    rqfql = __taskfql(task)
+
+    if curfql == rqfql:
+        if active:
+            print(f"{curfql} already")
+            return
+        stdout, stderr = timew.cont(1)
+    else:
         tags = _timewtags(task)
         tagstr = '\x20'.join(tags)
         print("timewtags:", tagstr)
-        if 'end' in task: bomb("cannot proceed on ended task")
-        if 'start' not in task: bomb("do initial start in taskwarrior")
         stdout, stderr = timew.start(tags=tags)
-        print(stdout, stderr)
 
-    else:
-        fql, active = _tasknow()
-        if active:
-            print(f"{fql} already")
-            return
-        else:
-            task = _taskone(fql, abort=False)
-            if task and task.get('end'):
-                bomb("cannot restart ended task", fql)
-            else:
-                # either no task with fql from @1 was found (as
-                # in case of timew-only tags like those in time/
-                # namespace), or task can be worked on, ie not
-                # yet ended, either case we will just try to
-                # continue the last task.
-                #
-                # TODO maybe this whole part can be skipped and
-                # we just always continue on taskdo(None)? it's
-                # idempotent if already started
-                #
-                pass
-            stdout, stderr = timew.cont(1)
-            print(stdout, stderr)
+    print(stdout, stderr)
 
 #
 
