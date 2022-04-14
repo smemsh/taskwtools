@@ -313,8 +313,12 @@ def taskline():
 
 def tasknotes(*args):
     task = _taskone(*args)
+    output = ""
     desc = task['description']
     notes = task.get('annotations')
+    label = task.get('label')
+    project = task.get('project')
+    output += f"/{project.replace('.', '/')}/{label}\n"
     fillargs = {
         'initial_indent': "-\x20",
         'subsequent_indent': "\x20\x20",
@@ -325,10 +329,13 @@ def tasknotes(*args):
         'width': 79,
     }
     if notes:
-        print('=', desc)
-        print("\n".join([fill(note, **fillargs) for note in notes]))
+        output += f"= {desc}\n"
+        output += "\n".join([fill(note, **fillargs) for note in notes])
     else:
-        print(desc)
+        output += desc
+
+    print(output)
+
 #
 
 def tasks(*args): taskweek(*args)
