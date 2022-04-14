@@ -311,9 +311,8 @@ def taskline():
     active = '*' if active else '-'
     print(fql, active, nowtimefmt)
 
-def tasknotes(taskarg=None):
-    if not taskarg: taskarg = _tasknow()[0]
-    task = _taskone(taskarg)
+def tasknotes(*args):
+    task = _taskone(*args)
     desc = task['description']
     notes = task.get('annotations')
     fillargs = {
