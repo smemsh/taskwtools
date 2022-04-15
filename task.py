@@ -312,6 +312,7 @@ def taskline():
     print(fql, active, nowtimefmt)
 
 def tasknotes(*args):
+    headchar = '='
     task = _taskone(*args)
     output = ""
     desc = task['description']
@@ -329,7 +330,7 @@ def tasknotes(*args):
         'width': 79,
     }
     if notes:
-        output += f"= {desc}\n"
+        output += f"{headchar} {desc}\n"
         output += "\n".join([fill(note, **fillargs) for note in notes])
     else:
         output += desc
