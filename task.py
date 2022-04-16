@@ -514,12 +514,30 @@ def _taskget(*args, **kwargs):
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
         return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
 
+    def fromargs(name, args1, args2, default):
+
+        # let caller specify kwargs vs args precedence by parameter order
+        def bytype(arg, name):
+            if isinstance(arg, Namespace): return bool(getattr(arg, name))
+            elif isinstance(arg, dict): return bool(arg[name])
+            else: bomb("fromargs: bytype: unknown type")
+
+        for argset in [args1, args2]:
+            if name in argset:
+                return bytype(argset, name)
+
+        return default
+
+    ##
+
     argp = mkargs()
     addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
     addargs(argp, 'taskargs', 'task lookup argument', default=[])
     args = optparse('taskget', argp, args)
-    multi = args.matchall
+
+    multi = fromargs('matchall', args, kwargs, True)
+    zero = fromargs('zero', args, {}, False)
 
     taskargs = []
     tagfilters = {}; tags_yes = []; tags_no = []
@@ -620,7 +638,7 @@ def _taskget(*args, **kwargs):
             break
 
     if len(tasks) == 0:
-        if args.zero:
+        if zero:
             dummy = [dummy_task(0)]
             cached = cache_insert(taskkey, dummy)
             return cached
