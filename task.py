@@ -312,30 +312,35 @@ def taskline():
     print(fql, active, nowtimefmt)
 
 def tasknotes(*args):
-    headchar = '='
-    task = _taskone(*args)
-    output = ""
-    desc = task['description']
-    notes = task.get('annotations')
-    label = task.get('label')
-    project = task.get('project')
-    output += f"/{project.replace('.', '/')}/{label}\n"
-    fillargs = {
-        'initial_indent': "-\x20",
-        'subsequent_indent': "\x20\x20",
-        'drop_whitespace': False,
-        'break_on_hyphens': False,
-        'break_long_words': False,
-        'replace_whitespace': False,
-        'width': 79,
-    }
-    if notes:
-        output += f"{headchar} {desc}\n"
-        output += "\n".join([fill(note, **fillargs) for note in notes])
-    else:
-        output += desc
 
-    print(output)
+    headchar = '='
+    outputs = []
+
+    tasks = _taskget(*args)
+    for task in tasks:
+        output = ""
+        desc = task['description']
+        notes = task.get('annotations')
+        label = task.get('label')
+        project = task.get('project')
+        output += f"/{project.replace('.', '/')}/{label}\n"
+        fillargs = {
+            'initial_indent': "-\x20",
+            'subsequent_indent': "\x20\x20",
+            'drop_whitespace': False,
+            'break_on_hyphens': False,
+            'break_long_words': False,
+            'replace_whitespace': False,
+            'width': 79,
+        }
+        if notes:
+            output += f"{headchar} {desc}\n"
+            output += "\n".join([fill(note, **fillargs) for note in notes])
+        else:
+            output += desc
+        outputs += [output]
+
+    print(("\n\n" if len(outputs) > 1 else "\n").join(outputs))
 
 #
 
