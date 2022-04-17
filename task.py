@@ -531,12 +531,15 @@ def _taskget(*args, **kwargs):
     ##
 
     argp = mkargs()
-    addflag(argp, 'a', 'all', 'show most possible matches', dest='matchall')
+    addflag(argp, 'a', 'all', 'show all matches', default=True, dest='matchall')
+    addflag(argp, 'o', 'one', 'only show first match', dest='matchone')
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
     addargs(argp, 'taskargs', 'task lookup argument', default=[])
     args = optparse('taskget', argp, args)
 
-    multi = fromargs('matchall', args, kwargs, True)
+    multi = False \
+        if fromargs('matchone', args, kwargs, False) \
+        else fromargs('matchall', args, kwargs, True)
     zero = fromargs('zero', args, {}, False)
 
     taskargs = []
@@ -615,12 +618,13 @@ def _taskget(*args, **kwargs):
             else: f = {'label.is': taskarg} # label
             matches = taskfilter(f)
             if len(matches):
-                tasks.update(matches)
+                taskupdate(matches)
                 if not multi: break
 
         # don't look beyond fql, label, id, uuid if requested
         if idonly:
-            break
+            if multi: continue
+            else: break
 
         # for description, label, project try substring, then regex
         ftasks = set()
