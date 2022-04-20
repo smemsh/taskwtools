@@ -353,14 +353,23 @@ def taskday(*args):
             return ''
         statmap = {
             'completed': '-',
-            'pending': '',
+            'started': '', # pseudo-status we inject for started
+            'pending': '+', # real status we use for not yet started
             'deleted': '!',
         }
         success, task = __taskone(fql, idonly=True)
-        if success: taskstat = task.get('status')
-        else: return '^'
-        if not taskstat: bomb("no status: ", task, sep='\n')
-        if taskstat in statmap: return statmap[taskstat]
+        if success:
+            taskstat = task.get('status')
+            taskstart = task.get('start')
+        else:
+            return '^' # not "real" task, ie timew tag not backed by taskw
+        if not taskstat:
+            bomb("no status: ", task, sep='\n')
+        if taskstat in statmap:
+            if taskstat == 'pending':
+                if taskstart:
+                    taskstat = 'started' # synthetic status we inject
+            return statmap[taskstat]
         else: return '?'
 
     def fql_among_tags(task, status=False):
