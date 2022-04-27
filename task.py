@@ -447,11 +447,10 @@ def _taskstop(task=None):
 
 def _taskids(*args, onlyone=False, useid=True, useuuid=False, idonly=False):
 
-    if onlyone:
-        if len(args) != 1: bomb("should not use multiple args")
-        tasks = [_taskone(*args, idonly=idonly)]
-    else: tasks = _taskget(*args, idonly=idonly)
+    matchall = False if onlyone else True
+    abort = False if onlyone else True
 
+    tasks = _taskget(*args, idonly=idonly, matchall=matchall, abort=abort)
     taskids = [
         task['id']
         if task['id'] and not useuuid
