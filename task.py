@@ -467,13 +467,13 @@ def _taskid(*args, **kwargs):
     if len(args) == 0:
         args, _ = _tasknow()
         args = [args]
-    print(_taskids(*args, onlyone=True, idonly=True, **kwargs))
+    return _taskids(*args, onlyone=True, idonly=True, **kwargs)
 
 def taskid(*args):
-    return _taskid(*args)
+    print(_taskid(*args))
 
 def taskuuid(*args):
-    return _taskid(*args, useuuid=True)
+    print(_taskid(*args, useuuid=True))
 
 def taskids(*args):
     print('\x20'.join(_taskids(*args)))
