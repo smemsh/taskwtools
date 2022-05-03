@@ -464,9 +464,6 @@ def _taskids(*args, onlyone=False, useid=True, useuuid=False, idonly=False):
         return dummy if onlyone else [dummy]
 
 def _taskid(*args, **kwargs):
-    if len(args) == 0:
-        args, _ = _tasknow()
-        args = [args]
     return _taskids(*args, onlyone=True, idonly=True, **kwargs)
 
 def taskid(*args):
