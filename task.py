@@ -492,6 +492,7 @@ def _taskget(*args, **kwargs):
     ran = False
     tasks = set()
     idonly = kwargs.get('idonly', False)
+    firstmatch = None
 
     def cache_index(args):
         return hash(tuple(args))
@@ -521,6 +522,17 @@ def _taskget(*args, **kwargs):
     def taskfilter(filterdict):
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
         return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
+
+    def taskupdate(matches):
+        nonlocal firstmatch
+        nonlocal tasks
+        # save the first match because if we got --one we will be
+        # printing it, and often the first one found following
+        # taskget search flow is the one we want anyways
+        if firstmatch is None:
+            # if an id-types match this will be a one-match list anyways
+            firstmatch = list(matches)[0] if len(matches) else []
+        tasks.update(matches)
 
     def fromargs(name, args1, args2, default):
 
@@ -583,7 +595,7 @@ def _taskget(*args, **kwargs):
 
         # should not happen anymore TODO delete after a while
         if not taskarg:
-            tasks.update(taskfilter({'status.any': ''}))
+            taskupdate(taskfilter({'status.any': ''}))
             break
 
         # taskid
@@ -594,7 +606,7 @@ def _taskget(*args, **kwargs):
                 if not multi: bomb(f"failed to find integer task {arg}")
                 else: continue
             if len(matches) != 1: bomb(f"integer id {arg} not unique")
-            tasks.update(matches)
+            taskupdate(matches)
             if multi: continue
             else: break
         except ValueError: pass
@@ -607,7 +619,7 @@ def _taskget(*args, **kwargs):
                 if not multi: bomb(f"failed to find task by uuid: {arg}")
                 else: continue
             if len(matches) != 1: bomb(f"uuid lookup for {arg} not unique")
-            tasks.update(matches)
+            taskupdate(matches)
             if multi: continue
             else: break
         except ValueError: pass
@@ -616,7 +628,7 @@ def _taskget(*args, **kwargs):
         if set(taskarg).issubset(f"{hexdigits}-"):
             matches = taskfilter({'uuid': taskarg})
             if len(matches):
-                tasks.update(matches)
+                taskupdate(matches)
                 if multi: continue
                 else: break
 
@@ -644,7 +656,7 @@ def _taskget(*args, **kwargs):
             if len(fftasks):
                 ftasks.update(fftasks)
                 if not multi: break
-        tasks.update(ftasks)
+        taskupdate(ftasks)
 
         if len(tasks) and not multi:
             break
@@ -659,6 +671,13 @@ def _taskget(*args, **kwargs):
             cached = cache_insert(taskkey, noresult)
             return noresult
     else:
+        if len(tasks) > 1 and not multi:
+            # tasks are in a set, which doesn't have order.  when we can
+            # only return one result, we want the first match found
+            # because it's typically right, so we have saved it
+            #
+            tasks = [firstmatch]
+
         cached = cache_insert(taskkey, tasks)
         return cached
 
