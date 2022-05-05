@@ -36,7 +36,7 @@ from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
 from datetime import datetime, timedelta
 from textwrap import fill
-from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
+from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
 from subprocess import check_output
 
 from os import (
@@ -212,7 +212,7 @@ def timewtags(taskarg):
 #
 def taskdo(*args):
     # there's exactly one match if _taskone() returns
-    task = _taskone(*args)
+    task = _taskone(*args, idonly=True)
     return _taskdo(task)
 
 # if called from the modify hook (only other entrance besides taskdo()),
@@ -491,7 +491,6 @@ def _taskget(*args, **kwargs):
 
     ran = False
     tasks = set()
-    idonly = kwargs.get('idonly', False)
     firstmatch = None
 
     def cache_index(args):
@@ -554,12 +553,14 @@ def _taskget(*args, **kwargs):
     addflag(argp, 'a', 'all', 'show all matches', default=True, dest='matchall')
     addflag(argp, 'o', 'one', 'only show first match', dest='matchone')
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
+    addflag(argp, 'n', 'idonly', 'just fql, label, id, uuid', default=SUPPRESS)
     addargs(argp, 'taskargs', 'task lookup argument', default=[])
     args = optparse('taskget', argp, args)
 
     multi = False \
         if fromargs('matchone', args, kwargs, False) \
         else fromargs('matchall', args, kwargs, True)
+    idonly = fromargs('idonly', args, kwargs, False)
     zero = fromargs('zero', args, {}, False)
 
     taskargs = []
