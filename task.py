@@ -588,10 +588,8 @@ def _taskget(*args, **kwargs):
 
     for taskarg in taskargs:
 
-        # make sure loop runs at least once
-        if ran and not multi:
-            cached = cache_insert(taskkey, tasks)
-            return cached
+        # more taskargs, but we already matched and no more were requested
+        if ran and not multi: break
         else: ran = True
 
         # should not happen anymore TODO delete after a while
