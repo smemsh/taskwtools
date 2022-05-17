@@ -594,6 +594,9 @@ def _taskget(*args, **kwargs):
 
         # should not happen anymore TODO delete after a while
         if not taskarg:
+            bomb("impossible: encountered pruned codepath: empty arg")
+            # TODO: implement flag where we dump all tasks if
+            # nothing specific requested, see task 3c01a357
             taskupdate(taskfilter({'status.any': ''}))
             break
 
