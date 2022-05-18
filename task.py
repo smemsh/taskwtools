@@ -212,12 +212,12 @@ def timewtags(taskarg):
 #
 def taskdo(*args):
     # there's exactly one match if _taskone() returns
-    task = _taskone(*args, idonly=True)
+    task = _taskone(*args, matchone=True, idonly=True, abort=True)
     return _taskdo(task)
 
 # if called from the modify hook (only other entrance besides taskdo()),
 # arg is the new task struct.  otherwise it's the one retrieved by
-# _taskone() given the cli argument
+# _taskone() given the cli argument, and it already failed if invalid
 #
 def _taskdo(task):
 
