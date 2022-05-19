@@ -671,7 +671,7 @@ def _taskget(*args, **kwargs):
         else:
             noresult = []
             cached = cache_insert(taskkey, noresult)
-            return noresult
+            return cached
     else:
         if len(tasks) > 1 and not multi:
             # tasks are in a set, which doesn't have order.  when we can
