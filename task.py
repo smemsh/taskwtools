@@ -29,6 +29,7 @@ __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 
 from re import search
+from os import getenv, EX_OK as EXIT_SUCCESS, EX_SOFTWARE as EXIT_FAILURE
 from sys import argv, stdin, stdout, stderr, exit
 from copy import copy
 from uuid import UUID as uuid
@@ -40,12 +41,6 @@ from datetime import datetime, timedelta
 from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
 from subprocess import check_output
-
-from os import (
-    getenv,
-    EX_OK as EXIT_SUCCESS,
-    EX_SOFTWARE as EXIT_FAILURE
-)
 
 from taskw import TaskWarrior
 from timew import TimeWarrior
