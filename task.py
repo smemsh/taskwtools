@@ -10,7 +10,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskget: search tasks as ids, uuids, labels or from descs, and print
   - tasknow: show last started task and whether it's active
   - taskday: show labels of tasks from last 24 hours
-  - taskweek: show labels of tasks from last 168 hours
+  - taskweek: show labels of tasks from last 168 hours (syn: 'tasks')
   - taskfql: print fully qualified label of uniquely matching task
   - taskfqls: print fully qualified labels of several matching tasks
   - taskstop: stop the current started task in timewarrior
