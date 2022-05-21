@@ -3,7 +3,7 @@
 taskwarrior, timewarrior wrapper utilities for task and time management
 
   - taskdo: start in timew, all taskw fql elements and tags as timew tags
-  - taskid: print exactly one matching id (uuid if done) from taskget or fail
+  - taskid: print exactly one matching id or completed uuid from taskget
   - taskids: print multiple matching ids from taskget algorithm
   - taskget: search tasks as ids, uuids, labels or from descs, and print
   - tasknow: show last started task and whether it's active
