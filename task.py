@@ -557,7 +557,10 @@ def _taskget(*args, **kwargs):
     multi = False \
         if fromargs('matchone', args, kwargs, False) \
         else fromargs('matchall', args, kwargs, True)
-    idonly = fromargs('idonly', args, kwargs, False)
+    idonly = True \
+        if not args.taskargs \
+        else fromargs('idonly', args, kwargs, False)
+        # ^^^ if no args, we will just tasknow(), so skip extra checks
     zero = fromargs('zero', args, {}, False)
 
     taskargs = []
