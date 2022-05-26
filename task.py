@@ -296,8 +296,8 @@ def tasknow(*args):
         output = current
         if not usefmt and not args.fql:
             # user didnt specify format so we use one that includes status
-            output = [output] + ['started'] if active else ['stopped']
-            output = '\x20'.join(output)
+            output += "\x20"
+            output += 'started' if active else 'stopped'
         print(output)
 
 #
