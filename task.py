@@ -253,16 +253,22 @@ def isfql(s):
 #
 def _tasknow():
 
-    timedata = timew.export()
+    global nowcache # only run once, return cached value thereafter
+    cachevals = ['fql', 'active']
 
-    try:
-        curtask = next(filter(lambda task: task['id'] == 1, timedata))
-        fql = next(filter(isfql, curtask.get('tags')))
-    except:
-        bomb("task @1 must exist and have an fql tag")
+    if not nowcache:
+        timedata = timew.export()
+        try:
+            curtask = next(filter(lambda task: task['id'] == 1, timedata))
+            fql = next(filter(isfql, curtask.get('tags')))
+        except:
+            bomb("task @1 must exist and have an fql tag")
+        active = not 'end' in curtask
 
-    active = not 'end' in curtask
-    return fql, active
+        for v in cachevals: nowcache[v] = copy(vars()[v])
+
+    return (nowcache[v] for v in cachevals)
+
 
 def tasknow(*args):
 
@@ -802,7 +808,9 @@ if __name__ == "__main__":
     argslast = list()
     argns = Namespace()
     args = argv[1:]
+
     getcache = {}
+    nowcache = {}
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
