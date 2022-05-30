@@ -661,7 +661,7 @@ def _taskget(*args, **kwargs):
         # for description, label, project try substring, then regex
         ftasks = set()
         for filt in [
-            field + clause for clause in ['.contains', '.has']
+            field + clause for clause in ['.has']
             for field in ['description', 'label', 'project']
         ]:
             fftasks = taskfilter({filt: taskarg})
