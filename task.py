@@ -551,6 +551,7 @@ def _taskget(*args, **kwargs):
     addflag(argp, 'a', 'all', 'show all matches', default=True, dest='matchall')
     addflag(argp, 'o', 'one', 'only show first match', dest='matchone')
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
+    addflag(argp, 'x', 'exact', 'exact (not substring) project/label match')
     addflag(argp, 'n', 'idonly', 'just fql, label, id, uuid', default=SUPPRESS)
     addargs(argp, 'taskargs', 'task lookup argument', default=[])
     args = optparse('taskget', argp, args)
@@ -563,6 +564,7 @@ def _taskget(*args, **kwargs):
         else fromargs('idonly', args, kwargs, False)
         # ^^^ if no args, we will just tasknow(), so skip extra checks
     zero = fromargs('zero', args, {}, False)
+    exact = fromargs('exact', args, {}, False)
 
     taskargs = []
     tagfilters = {}; tags_yes = []; tags_no = []
@@ -637,14 +639,15 @@ def _taskget(*args, **kwargs):
 
         # label or fql
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
+            matchop = 'is' if exact else 'has'
             if '/' in taskarg:
                 segs = taskarg.split('/')
                 project = '.'.join(segs[0:-1])
                 label = segs[-1]
-                f = {'project.is': project,
-                     'label.is': label}
+                f = {f"project.{matchop}": project,
+                     f"label.{matchop}": label}
             else:
-                f = {'label.is': taskarg}
+                f = {f"label.{matchop}": taskarg}
             matches = taskfilter(f)
             if len(matches):
                 taskupdate(matches)
