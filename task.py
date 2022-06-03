@@ -33,6 +33,7 @@ from os import getenv, EX_OK as EXIT_SUCCESS, EX_SOFTWARE as EXIT_FAILURE
 from sys import argv, stdin, stdout, stderr, exit
 from copy import copy
 from uuid import UUID as uuid
+from enum import IntEnum as enum
 from json import loads as jloads, dumps as jdumps
 from pprint import pp
 from string import digits, hexdigits, ascii_lowercase as lowercase
@@ -121,9 +122,15 @@ def optparse(name, argp, *args):
 
 ###
 
+def failuuid(maskenum):
+    return uuid(int=((1 << getattr(FailMask, maskenum)) - 1))
+
+def isfailuuid(uuidstr):
+    return uuid(uuidstr) >= FAILUUID
+
 def dummy_match(n):
-    if n == 0: dummy = "0fffffff-ffff-ffff-ffff-ffffffffffff"  # no matches
-    elif n > 1: dummy =  "1fffffff-ffff-ffff-ffff-ffffffffffff"  # multiple
+    if n == 0: dummy = str(failuuid('NONE'))
+    elif n > 1: dummy = str(failuuid('MULTI'))
     else: bomb("n less than 0??? aborting")
     return dummy
 
@@ -814,6 +821,11 @@ if __name__ == "__main__":
 
     getcache = {}
     nowcache = {}
+
+    FAILBASE = 124
+    failures = ['NONE', 'MULTI']
+    FailMask = enum('', failures, start=FAILBASE)
+    FAILUUID = failuuid(FailMask(FAILBASE).name)
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
