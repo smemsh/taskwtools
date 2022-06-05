@@ -137,18 +137,25 @@ def dummy_match(n):
 def dummy_task(n):
     return {'id': 0, 'uuid': dummy_match(n)}
 
-# fails if not exactly one match from lookup
+# fails if not exactly one match from lookup, or the lookup
+# result is a failure
+#
 def __taskone(*args, **kwargs):
     tasks = _taskget(*args, **kwargs)
-    n = len(tasks)
-    if n == 1: return True, tasks.pop()
-    else: return False, dummy_task(n)
+    ntasks = len(tasks)
+    success = False
+    onetask = tasks.pop() if tasks else {}
+    if ntasks == 1:
+        if not isfailuuid(onetask['uuid']):
+            success = True # only possible success case
+    return success, onetask
 
 def _taskone(*args, **kwargs):
     abort = kwargs.get('abort', True)
     success, match = __taskone(*args, **kwargs)
     if not success and abort:
-        print(match['uuid']) # cannot go to stderr because used in subshell
+        m = match.get('uuid')
+        if m: print(m)
         exit(EXIT_FAILURE)
     return match
 
