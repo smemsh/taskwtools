@@ -98,7 +98,6 @@ def optparse(name, argp, *args):
 
     global argns
     global argslast
-    global argsall
 
     nsarg = None
     if len(args) and isinstance(args[0], Namespace):
