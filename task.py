@@ -130,7 +130,7 @@ def isfailuuid(uuidstr):
 def dummy_match(n):
     if n == 0: dummy = str(failuuid('NONE'))
     elif n > 1: dummy = str(failuuid('MULTI'))
-    else: bomb("n less than 0??? aborting")
+    else: bomb("n < 0 should never happen")
     return dummy
 
 def dummy_task(n):
