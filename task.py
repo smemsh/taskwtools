@@ -130,6 +130,7 @@ def isfailuuid(uuidstr):
 def dummy_match(n):
     if n == 0: dummy = str(failuuid('NONE'))
     elif n > 1: dummy = str(failuuid('MULTI'))
+    elif n == 1: dummy = str(failuuid('WRONG'))
     else: bomb("n < 0 should never happen")
     return dummy
 
@@ -829,7 +830,7 @@ if __name__ == "__main__":
     nowcache = {}
 
     FAILBASE = 124
-    failures = ['NONE', 'MULTI']
+    failures = ['NONE', 'WRONG', 'MULTI']
     FailMask = enum('', failures, start=FAILBASE)
     FAILUUID = failuuid(FailMask(FAILBASE).name)
 
