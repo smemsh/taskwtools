@@ -210,7 +210,7 @@ def _timewtags(task):
 
 def timewtags(taskarg):
     task = _taskone(taskarg)
-    print('\x20'.join(_timewtags(task)))
+    print("\x20".join(_timewtags(task)))
 
 #
 
