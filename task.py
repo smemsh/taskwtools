@@ -209,7 +209,7 @@ def _timewtags(task):
     return tags
 
 def timewtags(*args):
-    task = _taskone(*args, idonly=True)
+    task = _taskone(*args, idonly=True, zero=False)
     print("\x20".join(_timewtags(task)))
 
 #
