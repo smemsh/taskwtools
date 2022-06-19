@@ -689,25 +689,17 @@ def _taskget(*args, **kwargs):
         if len(tasks) and not multi:
             break
 
-    if len(tasks) == 0:
-        if zero:
-            dummy = [dummy_task(0)]
-            cached = cache_insert(taskkey, dummy)
-            return cached
-        else:
-            noresult = []
-            cached = cache_insert(taskkey, noresult)
-            return cached
+    taskn = len(tasks)
+    if taskn == 0:
+        if zero: items = [dummy_task(0)]
+        else: items = []
     else:
-        if len(tasks) > 1 and not multi:
-            # tasks are in a set, which doesn't have order.  when we can
-            # only return one result, we want the first match found
-            # because it's typically right, so we have saved it
-            #
+        if taskn > 1 and not multi:
+            # first match typically best if one result requested
             tasks = [firstmatch]
+        items = tasks
 
-        cached = cache_insert(taskkey, tasks)
-        return cached
+    return cache_insert(taskkey, items)
 
 ###
 
