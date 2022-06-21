@@ -124,10 +124,10 @@ def optparse(name, argp, *args):
 def failuuid(maskenum):
     return uuid(int=((1 << getattr(FailMask, maskenum)) - 1))
 
-def isfailuuid(u):
-    if type(u) is str: u = uuid(u)
-    if type(u) is not uuid: bomb("isfailuuid")
-    return u >= FAILUUID
+def isfailuuid(arg):
+    if type(arg) is str: arg = uuid(arg)
+    if type(arg) is not uuid: bomb("isfailuuid")
+    return arg.int & FAILUUID.int == FAILUUID.int
 
 def dummy_match(n):
     if n == 0: dummy = str(failuuid('NONE'))
