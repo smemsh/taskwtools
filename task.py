@@ -172,20 +172,20 @@ def __taskfql(task):
     except KeyError:
         bomb("at least one task does not have a label")
 
-def _taskfql(*args):
-    task = _taskone(*args)
-    return __taskfql(task)
+def _taskfql(*args, **kwargs):
+    task = _taskone(*args, **kwargs)
+    return __taskfql(task, **kwargs)
 
-def _taskfqls(*args):
-    tasks = _taskget(*args)
+def _taskfqls(*args, **kwargs):
+    tasks = _taskget(*args, **kwargs)
     if not tasks: return []
-    else: return [__taskfql(t) for t in tasks]
+    else: return [__taskfql(t, **kwargs) for t in tasks]
 
-def taskfql(*args):
-    print(_taskfql(*args))
+def taskfql(*args, **kwargs):
+    print(_taskfql(*args, **kwargs))
 
-def taskfqls(*args):
-    for t in _taskfqls(*args):
+def taskfqls(*args, **kwargs):
+    for t in _taskfqls(*args, **kwargs):
         print(t or '')
 
 #
