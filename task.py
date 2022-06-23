@@ -165,12 +165,15 @@ def _taskone(*args, **kwargs):
 
 #
 
-def __taskfql(task):
+def __taskfql(task, labelonly=False):
     prj = task.get('project')
-    try:
-        if prj: return f"{prj.replace('.', '/')}/{task['label']}"
-    except KeyError:
-        bomb("at least one task does not have a label")
+    label = task.get('label')
+    if not prj or not label:
+        bomb("at least one task does not have a project or label")
+    if labelonly:
+        return label
+    else:
+        return f"{prj.replace('.', '/')}/{label}"
 
 def _taskfql(*args, **kwargs):
     task = _taskone(*args, **kwargs)
@@ -187,6 +190,12 @@ def taskfql(*args, **kwargs):
 def taskfqls(*args, **kwargs):
     for t in _taskfqls(*args, **kwargs):
         print(t or '')
+
+def tasklabels(*args):
+    taskfqls(*args, labelonly=True)
+
+def tasklabel(*args):
+    taskfql(*args, labelonly=True)
 
 #
 
