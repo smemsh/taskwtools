@@ -28,9 +28,10 @@ __url__     = 'https://github.com/smemsh/.task/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 
+import sys
+
 from re import search
 from os import getenv, EX_OK as EXIT_SUCCESS, EX_SOFTWARE as EXIT_FAILURE
-from sys import argv, stdin, stdout, stderr, exit
 from copy import copy
 from uuid import UUID as uuid
 from enum import IntEnum as enum
@@ -50,11 +51,11 @@ from timew.exceptions import TimeWarriorError
 ###
 
 def err(*args, **kwargs):
-    print(*args, file=stderr, **kwargs)
+    print(*args, file=sys.stderr, **kwargs)
 
 def bomb(*args):
     err(*args)
-    exit(EXIT_FAILURE)
+    sys.exit(EXIT_FAILURE)
 
 def dprint(*args, **kwargs):
     if not debug: return
@@ -160,7 +161,7 @@ def _taskone(*args, **kwargs):
     if not success and abort:
         m = match.get('uuid')
         if m: print(m)
-        exit(EXIT_FAILURE)
+        sys.exit(EXIT_FAILURE)
     return match
 
 #
@@ -786,7 +787,7 @@ def on_modify_timew(*args):
 
         if 'end' not in new:
             print("disallowing pause, use timewarrior until 'done'")
-            exit(EXIT_FAILURE)
+            sys.exit(EXIT_FAILURE)
 
     if set(_timewtags(old)) != set(_timewtags(new)):
         if old.get('label'): # skip new taskadd with no label yet
@@ -809,14 +810,13 @@ def main():
     except BrokenPipeError:
         # todo: for some reason exit code doesn't work? always zero.
         # is it because we're already in exception handler?
-        exit(EXIT_FAILURE)
+        sys.exit(EXIT_FAILURE)
 
 ###
 
 if __name__ == "__main__":
 
-    from sys import hexversion
-    if hexversion < 0x03090000:
+    if sys.hexversion < 0x03090000:
         bomb("minimum python 3.9")
 
     from bdb import BdbQuit
@@ -825,11 +825,11 @@ if __name__ == "__main__":
         from pprint import pp
         err('debug: enabled')
 
-    invname = basename(argv[0])
+    invname = basename(sys.argv[0])
     invname = invname.replace('-', '_').replace('.', '_') # for triggers
     argslast = list()
     argns = Namespace()
-    args = argv[1:]
+    args = sys.argv[1:]
 
     getcache = {}
     nowcache = {}
