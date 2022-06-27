@@ -746,8 +746,8 @@ def on_modify_timew(*args):
     for i in range(len(args)):
         dprint(f"${i+1} {args[i]}")
 
-    old = jloads(stdin.readline())
-    new = jloads(stdin.readline())
+    old = jloads(inlines[0])
+    new = jloads(inlines[1])
     dprint(f"old: {old}")
     dprint(f"new: {new}")
 
@@ -818,6 +818,11 @@ if __name__ == "__main__":
 
     if sys.hexversion < 0x03090000:
         bomb("minimum python 3.9")
+
+    # save stdin if we're used as a hook, then pdb needs stdio
+    inlines = sys.stdin.readlines()
+    try: sys.stdin = open('/dev/tty')
+    except: pass # no ctty, but then pdb would not be in use
 
     from bdb import BdbQuit
     debug = int(getenv('DEBUG') or 0)
