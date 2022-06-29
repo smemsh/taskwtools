@@ -169,12 +169,9 @@ def _taskone(*args, **kwargs):
 def __taskfql(task, labelonly=False):
     prj = task.get('project')
     label = task.get('label')
-    if not prj or not label:
-        bomb("at least one task does not have a project or label")
-    if labelonly:
-        return label
-    else:
-        return f"{prj.replace('.', '/')}/{label}"
+    if not prj or not label: return # taskadd or nonconforming
+    if labelonly: return label
+    return f"{prj.replace('.', '/')}/{label}"
 
 def _taskfql(*args, **kwargs):
     task = _taskone(*args, **kwargs)
