@@ -3,7 +3,7 @@
 # taskchk
 #   taskwarrior database integrity verify, intended to run out of cron
 #
-# - checks for non-unique first 4 bytes task uuids
+# - first 4 bytes of task uuids are globally unique
 # - no duplicate labels
 # - no fql same as any slashified project
 # - all projects have labels
