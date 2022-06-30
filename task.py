@@ -37,6 +37,7 @@ from uuid import UUID as uuid
 from enum import IntEnum as enum
 from json import loads as jloads, dumps as jdumps
 from pprint import pp
+from select import select
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
 from datetime import datetime, timedelta
@@ -816,10 +817,11 @@ if __name__ == "__main__":
     if sys.hexversion < 0x03090000:
         bomb("minimum python 3.9")
 
-    # save stdin if we're used as a hook, then pdb needs stdio
-    inlines = sys.stdin.readlines()
-    try: sys.stdin = open('/dev/tty')
-    except: pass # no ctty, but then pdb would not be in use
+    if select([sys.stdin], [], [], 0)[0]:
+        # save stdin if given, pdb needs stdio fds itself
+        inlines = sys.stdin.readlines()
+        try: sys.stdin = open('/dev/tty')
+        except: pass # no ctty, but then pdb would not be in use
 
     from bdb import BdbQuit
     debug = int(getenv('DEBUG') or 0)
