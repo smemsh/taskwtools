@@ -7,6 +7,7 @@
 # - no duplicate labels
 # - no fql same as any slashified project
 # - all projects have labels
+# - description lengths of all pending tasks are sane
 #
 # scott@smemsh.net
 # https://smemsh.net/src/.task/
@@ -60,6 +61,13 @@ check_all_labeled ()
 {
 	if (($(task label: export | jq '. | length')))
 	then echo "unlabeled tasks found" >&2; false; fi
+}
+
+check_desclens ()
+{
+	task status:pending export |
+	jq -r '.[] | .uuid, .description' |
+	awk '{uuid = $0; getline; if (length > 78) print uuid, length}'
 }
 
 ###
