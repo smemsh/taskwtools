@@ -54,8 +54,8 @@ from timew.exceptions import TimeWarriorError
 def err(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
-def bomb(*args):
-    err(*args)
+def bomb(*args, **kwargs):
+    err(*args, **kwargs)
     sys.exit(EXIT_FAILURE)
 
 def dprint(*args, **kwargs):
