@@ -422,13 +422,13 @@ def taskday(*args):
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
 
-    labels = list(dict.fromkeys(reversed(
+    outputs = list(dict.fromkeys(reversed(
         [filterfn(task, status=args.status) for task in tasks])))
 
-    if labels and not tasks[-1].get('end') and args.status:
-        labels[0] = f"*{labels[0]}"
+    if outputs and not tasks[-1].get('end') and args.status:
+        outputs[0] = f"*{outputs[0]}"
 
-    print(('\n' if args.column else '\x20').join(labels))
+    print(('\n' if args.column else '\x20').join(outputs))
 
 #
 
