@@ -413,13 +413,13 @@ def taskday(*args):
         return fql
 
     argp = mkargs()
-    addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
-    addflag(argp, 's', 'status', 'show status characters')
     addflag(argp, 'f', 'fql', 'show fully qualified labels')
     addflag(argp, 'd', 'done', 'include completed tasks')
-    addflag(argp, 't', 'timetasks', 'include timew-only tasks')
+    addflag(argp, 's', 'status', 'show status characters')
+    addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'T', 'alltasks', 'pending, completed and timew-only')
-    addarg(argp, 'ndays', 'days of history (default 1)', nargs='?')
+    addflag(argp, 't', 'timetasks', 'include timew-only tasks')
+    addarg (argp, 'ndays', 'days of history (default 1)', nargs='?')
     args = optparse('taskday', argp, args)
 
     selectfn = fql_among_tags if args.fql else label_from_tags
