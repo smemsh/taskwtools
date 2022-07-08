@@ -372,9 +372,7 @@ def taskweek(*args): taskday(*args, '7')
 def taskmonth(*args): taskday(*args, '30')
 def taskday(*args):
 
-    def get_status_char(fql, status):
-        if not status:
-            return ''
+    def get_status(fql):
         statmap = {
             'completed': '-',
             'started': '', # pseudo-status we inject for started
@@ -382,48 +380,62 @@ def taskday(*args):
             'deleted': '!',
         }
         success, task = __taskone(fql, idonly=True)
-        if success:
-            taskstat = task.get('status')
-            taskstart = task.get('start')
-        else:
-            return '^' # not "real" task, ie timew tag not backed by taskw
-        if not taskstat:
-            bomb("no status: ", task, sep='\n')
+        taskstat = task.get('status')
+        taskstart = task.get('start')
+        if not args.status: return taskstat, ''
+        if not success: return taskstat, '^' # timew-only tag
+        if not taskstat: bomb("no status: ", task, sep='\n')
         if taskstat in statmap:
             if taskstat == 'pending':
                 if taskstart:
                     taskstat = 'started' # synthetic status we inject
-            return statmap[taskstat]
-        else: return '?'
+            return taskstat, statmap[taskstat]
+        else: return None, '?'
 
-    def fql_among_tags(task, status=False):
-        filtered = list(filter(isfql, task['tags']))
-        if len(filtered) != 1:
-            bomb("filtered more than one fql tag for task")
-        fql = filtered[0]
-        stchar = get_status_char(fql, status)
-        return f"{fql}{stchar}"
+    # selectfn
+    def fql_among_tags(task, statuses):
 
-    def label_from_tags(task, status=False):
-        fql = fql_among_tags(task, status=status)
-        label = fql.split('/')[-1]
-        return label
+        selected = list(filter(isfql, task['tags']))
+        if len(selected) != 1:
+            bomb("selected more than one fql tag for task")
+        fql = selected[0]
+
+        status, stchar = get_status(fql)
+        if status not in statuses: fql = None
+        else: fql += stchar
+
+        return fql
+
+    # selectfn
+    def label_from_tags(task, statuses):
+        fql = fql_among_tags(task, statuses)
+        if fql: fql = fql.split('/')[-1]
+        return fql
 
     argp = mkargs()
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 's', 'status', 'show status characters')
     addflag(argp, 'f', 'fql', 'show fully qualified labels')
+    addflag(argp, 'd', 'done', 'include completed tasks')
+    addflag(argp, 't', 'timetasks', 'include timew-only tasks')
+    addflag(argp, 'T', 'alltasks', 'pending, completed and timew-only')
     addarg(argp, 'ndays', 'days of history (default 1)', nargs='?')
     args = optparse('taskday', argp, args)
 
-    filterfn = fql_among_tags if args.fql else label_from_tags
-    ndays = args.ndays if args.ndays is not None else 1
+    selectfn = fql_among_tags if args.fql else label_from_tags
 
+    statuses = set(['pending', 'started'])
+    if args.alltasks: args.timetasks = True; args.done = True
+    if args.timetasks: statuses.update([None]) # timew-only task
+    if args.done: statuses.update(['completed'])
+
+    ndays = args.ndays if args.ndays is not None else 1
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
 
-    outputs = list(dict.fromkeys(reversed(
-        [filterfn(task, status=args.status) for task in tasks])))
+    selected = [selectfn(task, statuses) for task in tasks] # by status
+    filtered = list(filter(bool, selected)) # filter None, ie non-matches
+    outputs = list(dict.fromkeys(reversed(filtered)))
 
     if outputs and not tasks[-1].get('end') and args.status:
         outputs[0] = f"*{outputs[0]}"
