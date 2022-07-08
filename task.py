@@ -591,6 +591,7 @@ def _taskget(*args, **kwargs):
     addflag(argp, 'z', 'zero', 'show non-existent uuid on zero matches')
     addflag(argp, 'x', 'exact', 'exact (not substring) project/label match')
     addflag(argp, 'n', 'idonly', 'just fql, label, id, uuid', default=SUPPRESS)
+    addflag(argp, 'i', 'idstrings', 'match ids in strings if no id match')
     addargs(argp, 'taskargs', 'task lookup argument', default=[])
     args = optparse('taskget', argp, args)
 
@@ -601,8 +602,10 @@ def _taskget(*args, **kwargs):
         if not args.taskargs \
         else fromargs('idonly', args, kwargs, False)
         # ^^^ if no args, we will just tasknow(), so skip extra checks
+
     zero = fromargs('zero', args, {}, False)
     exact = fromargs('exact', args, {}, False)
+    idstrings = fromargs('idstrings', args, {}, False)
 
     taskargs = []
     tagfilters = {}; tags_yes = []; tags_no = []
@@ -647,11 +650,13 @@ def _taskget(*args, **kwargs):
             matches = taskfilter({'id': arg})
             if not matches:
                 if not multi: bomb(f"failed to find integer task {arg}")
-                else: continue
-            if len(matches) != 1: bomb(f"integer id {arg} not unique")
-            taskupdate(matches)
-            if multi: continue
-            else: break
+                elif not idstrings: continue
+            else:
+                if len(matches) != 1:
+                    bomb(f"integer id {arg} not unique")
+                taskupdate(matches)
+                if multi: continue
+                else: break
         except ValueError: pass
 
         # taskuuid
@@ -660,11 +665,13 @@ def _taskget(*args, **kwargs):
             matches = taskfilter({'uuid': arg})
             if not matches:
                 if not multi: bomb(f"failed to find task by uuid: {arg}")
-                else: continue
-            if len(matches) != 1: bomb(f"uuid lookup for {arg} not unique")
-            taskupdate(matches)
-            if multi: continue
-            else: break
+                elif not idstrings: continue
+            else:
+                if len(matches) != 1:
+                    bomb(f"uuid lookup for {arg} not unique")
+                taskupdate(matches)
+                if multi: continue
+                else: break
         except ValueError: pass
 
         # taskuuid-initial
@@ -672,7 +679,8 @@ def _taskget(*args, **kwargs):
             matches = taskfilter({'uuid': taskarg})
             if matches:
                 taskupdate(matches)
-                if multi: continue
+                if multi:
+                    if not idstrings: continue
                 else: break
 
         # label or fql
