@@ -102,7 +102,7 @@ def optparse(name, argp, *args):
     global argslast
 
     nsarg = None
-    if len(args) and isinstance(args[0], Namespace):
+    if args and isinstance(args[0], Namespace):
         # we got a Namespace, which means args already got processed
         # once, which means any leftover (unrecognized from last time)
         # are in argslast. the Namespace given has what we parsed so
@@ -117,7 +117,7 @@ def optparse(name, argp, *args):
         args = argslast
     ns = nsarg if nsarg else argns
     argns, argslast = argp.parse_known_args(*args, ns)
-    if len(argslast): err(f"skipping unknown args: {argslast}")
+    if argslast: err(f"skipping unknown args: {argslast}")
 
     return argns
 
@@ -425,7 +425,7 @@ def taskday(*args):
     labels = list(dict.fromkeys(reversed(
         [filterfn(task, status=args.status) for task in tasks])))
 
-    if len(labels) and not tasks[-1].get('end') and args.status:
+    if labels and not tasks[-1].get('end') and args.status:
         labels[0] = f"*{labels[0]}"
 
     print(('\n' if args.column else '\x20').join(labels))
@@ -554,7 +554,7 @@ def _taskget(*args, **kwargs):
         # taskget search flow is the one we want anyways
         if firstmatch is None:
             # if an id-types match this will be a one-match list anyways
-            firstmatch = list(matches)[0] if len(matches) else []
+            firstmatch = list(matches)[0] if matches else []
         tasks.update(matches)
 
     def fromargs(name, args1, args2, default):
@@ -602,7 +602,7 @@ def _taskget(*args, **kwargs):
         else: taskargs.append(taskarg)
 
     for var, key in [(tags_yes, 'tags.word'), (tags_no, 'tags.noword')]:
-        if len(var): tagfilters.update({key: ','.join(var)})
+        if var: tagfilters.update({key: ','.join(var)})
 
     taskkey = taskargs + list(tagfilters.items())
 
@@ -658,7 +658,7 @@ def _taskget(*args, **kwargs):
         # taskuuid-initial
         if set(taskarg).issubset(f"{hexdigits}-"):
             matches = taskfilter({'uuid': taskarg})
-            if len(matches):
+            if matches:
                 taskupdate(matches)
                 if multi: continue
                 else: break
@@ -675,7 +675,7 @@ def _taskget(*args, **kwargs):
             else:
                 f = {f"label.{matchop}": taskarg}
             matches = taskfilter(f)
-            if len(matches):
+            if matches:
                 taskupdate(matches)
                 if not multi: break
 
@@ -691,12 +691,12 @@ def _taskget(*args, **kwargs):
             for field in ['description', 'label', 'project']
         ]:
             fftasks = taskfilter({filt: taskarg})
-            if len(fftasks):
+            if fftasks:
                 ftasks.update(fftasks)
                 if not multi: break
         taskupdate(ftasks)
 
-        if len(tasks) and not multi:
+        if tasks and not multi:
             break
 
     taskn = len(tasks)
