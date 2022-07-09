@@ -648,30 +648,30 @@ def _taskget(*args, **kwargs):
         try:
             arg = int(taskarg)
             matches = taskfilter({'id': arg})
-            if not matches:
-                if not multi: bomb(f"failed to find integer task {arg}")
-                elif not idstrings: continue
-            else:
+            if matches:
                 if len(matches) != 1:
                     bomb(f"integer id {arg} not unique")
                 taskupdate(matches)
                 if multi: continue
                 else: break
+            if not multi:
+                bomb(f"failed to find integer task {arg}")
+            elif not idstrings: continue
         except ValueError: pass
 
         # taskuuid
         try:
             arg = uuid(taskarg)
             matches = taskfilter({'uuid': arg})
-            if not matches:
-                if not multi: bomb(f"failed to find task by uuid: {arg}")
-                elif not idstrings: continue
-            else:
+            if matches:
                 if len(matches) != 1:
                     bomb(f"uuid lookup for {arg} not unique")
                 taskupdate(matches)
                 if multi: continue
                 else: break
+            if not multi:
+                bomb(f"failed to find task by uuid: {arg}")
+            elif not idstrings: continue
         except ValueError: pass
 
         # taskuuid-initial
