@@ -678,10 +678,14 @@ def _taskget(*args, **kwargs):
         if set(taskarg).issubset(f"{hexdigits}-"):
             matches = taskfilter({'uuid': taskarg})
             if matches:
+                if len(matches) != 1:
+                    bomb(f"uuid lookup for {taskarg} not unique")
                 taskupdate(matches)
-                if multi:
-                    if not idstrings: continue
+                if multi: continue
                 else: break
+            if not multi:
+                bomb(f"failed to find task by uuid: {taskarg}")
+            elif not idstrings: continue
 
         # label or fql
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
