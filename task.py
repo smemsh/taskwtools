@@ -583,6 +583,23 @@ def _taskget(*args, **kwargs):
 
         return default
 
+    # try out match as an id and insert into caller's 'matches'
+    # dictionary if found.  returns whether to loop again (True), stop
+    # (False), or fallthrough (None).
+    #
+    def update_matches(idtype, arg):
+        nonlocal matches
+        matches = taskfilter({idtype: arg})
+        if matches:
+            if len(matches) != 1:
+                bomb(f"{idtype} lookup for {arg} not unique")
+            taskupdate(matches)
+            if multi: return True
+            else: return False
+        if not multi:
+            bomb(f"failed to resolve id: {arg}")
+        elif not idstrings: return True
+
     ##
 
     argp = mkargs()
@@ -646,46 +663,33 @@ def _taskget(*args, **kwargs):
 
         # taskid
         try:
+            idkey = 'id'
             arg = int(taskarg)
-            matches = taskfilter({'id': arg})
-            if matches:
-                if len(matches) != 1:
-                    bomb(f"integer id {arg} not unique")
-                taskupdate(matches)
-                if multi: continue
+            matches = taskfilter({idkey: arg})
+            loopagain = update_matches(idkey, arg)
+            if loopagain is not None:
+                if loopagain: continue
                 else: break
-            if not multi:
-                bomb(f"failed to find integer task {arg}")
-            elif not idstrings: continue
         except ValueError: pass
 
         # taskuuid
         try:
+            idkey = 'uuid'
             arg = uuid(taskarg)
-            matches = taskfilter({'uuid': arg})
-            if matches:
-                if len(matches) != 1:
-                    bomb(f"uuid lookup for {arg} not unique")
-                taskupdate(matches)
-                if multi: continue
+            loopagain = update_matches(idkey, arg)
+            if loopagain is not None:
+                if loopagain: continue
                 else: break
-            if not multi:
-                bomb(f"failed to find task by uuid: {arg}")
-            elif not idstrings: continue
         except ValueError: pass
 
         # taskuuid-initial
         if set(taskarg).issubset(f"{hexdigits}-"):
-            matches = taskfilter({'uuid': taskarg})
-            if matches:
-                if len(matches) != 1:
-                    bomb(f"uuid lookup for {taskarg} not unique")
-                taskupdate(matches)
-                if multi: continue
+            idkey = 'uuid'
+            arg = taskarg
+            loopagain = update_matches(idkey, arg)
+            if loopagain is not None:
+                if loopagain: continue
                 else: break
-            if not multi:
-                bomb(f"failed to find task by uuid: {taskarg}")
-            elif not idstrings: continue
 
         # label or fql
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
