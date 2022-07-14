@@ -1,3 +1,37 @@
 #!/usr/bin/env bash
 
-task rc.defaultwidth=${COLUMNS:-80} rc.journal.info=on "$@"
+`type -P task` \
+rc._forcecolor=0 \
+rc.color=0 \
+rc.detection=0 \
+rc.defaultwidth=0 \
+rc.journal.info=1 \
+"$@" \
+2>&1 \
+| tac \
+| grep -m1 -B$(((2 << 31) - 1)) ^---- \
+| tac \
+| tail -n +2 \
+| grep -v ^$ \
+| gawk -r '
+BEGIN {
+	FS = "\n"
+	RS = "(^|\n)[[:digit:]-]{10} [[:digit:]:]{8} "
+	lasttime = ""
+}
+{
+	sub("^[[:space:]]+", "", RT)
+	sub("[[:space:]]+$", "", RT)
+	time = lasttime  # RT of previous is timestamp for this line
+	lasttime = RT
+	if (!NF) next  # input begins with RT so first $0 is empty
+}
+{
+	for (i = 1; i <= NF; i++) {
+		changeline = $i
+		if (!changeline) continue # last RT does not consume newline
+		sub("^[[:space:]]+", "", changeline)
+		printf("%s %s\n", time, changeline)
+	}
+}
+'
