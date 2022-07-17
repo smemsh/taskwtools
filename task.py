@@ -196,6 +196,18 @@ def tasklabels(*args):
 def tasklabel(*args):
     taskfql(*args, labelonly=True)
 
+def fqlcolor(fql):
+    output = ''
+    segments = fql[1:].split('/')
+    label = segments.pop(-1)
+    sep = f"{C.GREEN}/{C.DEFAULT}"
+    for s in segments:
+        output += sep
+        output += f"{C.WHITE}{s}{C.DEFAULT}"
+    output += sep
+    output += f"{C.YELLOW}{label}{C.DEFAULT}"
+    return output
+
 #
 
 def _timewtags(task):
@@ -346,18 +358,20 @@ def tasknotes(*args):
         notes = task.get('annotations')
         label = task.get('label')
         project = task.get('project')
-        output += f"/{project.replace('.', '/')}/{label}\n"
+        fqlabel = f"/{project.replace('.', '/')}/{label}\n"
+        output += fqlcolor(fqlabel)
         fillargs = {
-            'initial_indent': "-\x20",
+            'initial_indent': f"{C.MAGENTA}-\x20{C.DEFAULT}",
             'subsequent_indent': "\x20\x20",
-            'drop_whitespace': False,
+            'drop_whitespace': True,
             'break_on_hyphens': False,
             'break_long_words': False,
             'replace_whitespace': False,
             'width': 79,
         }
         if notes:
-            output += f"{headchar} {desc}\n"
+            output += f"{C.RED}{headchar}{C.DEFAULT}\x20"
+            output += f"{C.WHIGREY}{desc}{C.DEFAULT}\n"
             output += "\n".join([fill(note, **fillargs) for note in notes])
         else:
             output += desc
@@ -870,6 +884,19 @@ if __name__ == "__main__":
     failures = ['NONE', 'WRONG', 'MULTI']
     FailMask = enum('', failures, start=FAILBASE)
     FAILUUID = failuuid(FailMask(FAILBASE).name)
+
+    class C:
+       YELLOW   = "\033[93m"
+       CYAN     = "\033[96m"
+       MAGENTA  = "\033[95m"
+       GREEN    = "\033[92m"
+       RED      = "\033[91m"
+       WHITE    = "\033[97m"
+       CYBLUE   = "\033[96;44m"
+       WHIGREY  = "\033[100;97;3m"
+       INVERT   = "\033[100m"
+       UNDERLN  = "\033[4m"
+       DEFAULT  = "\033[0m"
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
