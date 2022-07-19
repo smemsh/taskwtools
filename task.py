@@ -196,18 +196,6 @@ def tasklabels(*args):
 def tasklabel(*args):
     taskfql(*args, labelonly=True)
 
-def fqlcolor(fql):
-    output = ''
-    segments = fql[1:].split('/')
-    label = segments.pop(-1)
-    sep = f"{C.GREEN}/{C.DEFAULT}"
-    for s in segments:
-        output += sep
-        output += f"{C.WHITE}{s}{C.DEFAULT}"
-    output += sep
-    output += f"{C.YELLOW}{label}{C.DEFAULT}"
-    return output
-
 #
 
 def _timewtags(task):
@@ -350,6 +338,31 @@ def tasknotes(*args):
 
     headchar = '='
     outputs = []
+
+    class C:
+        YELLOW      = "\033[93m"
+        CYAN        = "\033[96m"
+        MAGENTA     = "\033[95m"
+        GREEN       = "\033[92m"
+        RED         = "\033[91m"
+        WHITE       = "\033[97m"
+        CYBLUE      = "\033[96;44m"
+        WHIGREY     = "\033[100;97;3m"
+        INVERT      = "\033[100m"
+        UNDERLN     = "\033[4m"
+        DEFAULT     = "\033[0m"
+
+    def fqlcolor(fql):
+        output = ''
+        segments = fql[1:].split('/')
+        label = segments.pop(-1)
+        sep = f"{C.GREEN}/{C.DEFAULT}"
+        for s in segments:
+            output += sep
+            output += f"{C.WHITE}{s}{C.DEFAULT}"
+        output += sep
+        output += f"{C.YELLOW}{label}{C.DEFAULT}"
+        return output
 
     tasks = _taskget(*args)
     for task in tasks:
@@ -884,19 +897,6 @@ if __name__ == "__main__":
     failures = ['NONE', 'WRONG', 'MULTI']
     FailMask = enum('', failures, start=FAILBASE)
     FAILUUID = failuuid(FailMask(FAILBASE).name)
-
-    class C:
-       YELLOW   = "\033[93m"
-       CYAN     = "\033[96m"
-       MAGENTA  = "\033[95m"
-       GREEN    = "\033[92m"
-       RED      = "\033[91m"
-       WHITE    = "\033[97m"
-       CYBLUE   = "\033[96;44m"
-       WHIGREY  = "\033[100;97;3m"
-       INVERT   = "\033[100m"
-       UNDERLN  = "\033[4m"
-       DEFAULT  = "\033[0m"
 
     taskw = TaskWarrior(marshal=True)
     timew = TimeWarrior()
