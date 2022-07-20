@@ -338,19 +338,25 @@ def tasknotes(*args):
 
     headchar = '='
     outputs = []
+    interactive = sys.stdout.isatty()
+
+    colordict = {
+        'YELLOW':     "\033[93m",
+        'CYAN':       "\033[96m",
+        'MAGENTA':    "\033[95m",
+        'GREEN':      "\033[92m",
+        'RED':        "\033[91m",
+        'WHITE':      "\033[97m",
+        'CYBLUE':     "\033[96;44m",
+        'WHIGREY':    "\033[100;97;3m",
+        'INVERT':     "\033[100m",
+        'UNDERLN':    "\033[4m",
+        'DEFAULT':    "\033[0m",
+    }
 
     class C:
-        YELLOW      = "\033[93m"
-        CYAN        = "\033[96m"
-        MAGENTA     = "\033[95m"
-        GREEN       = "\033[92m"
-        RED         = "\033[91m"
-        WHITE       = "\033[97m"
-        CYBLUE      = "\033[96;44m"
-        WHIGREY     = "\033[100;97;3m"
-        INVERT      = "\033[100m"
-        UNDERLN     = "\033[4m"
-        DEFAULT     = "\033[0m"
+        for k, v in colordict.items():
+            vars()[k] = v if interactive else ''
 
     def fqlcolor(fql):
         output = ''
