@@ -388,12 +388,12 @@ def tasknotes(*args):
             'replace_whitespace': False,
             'width': 79,
         }
+        colordesc = f"{C.WHIGREY}{desc}{C.DEFAULT}"
         if notes:
-            output += f"{C.RED}{headchar}{C.DEFAULT}\x20"
-            output += f"{C.WHIGREY}{desc}{C.DEFAULT}\n"
+            output += f"{C.RED}{headchar}{C.DEFAULT}\x20{colordesc}\n"
             output += "\n".join([fill(note, **fillargs) for note in notes])
         else:
-            output += desc
+            output += colordesc
         outputs += [output]
 
     print(("\n\n" if len(outputs) > 1 else "\n").join(outputs))
