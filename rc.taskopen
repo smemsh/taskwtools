@@ -1,6 +1,6 @@
 #
 
 NOTES_FOLDER="$HOME/.task/notes/"
-NOTES_REGEX=^file:$
+NOTES_REGEX=file:
 NOTES_EXT=.rst
-BROWSER_REGEX='^https?://'
+BROWSER_REGEX='https?://'
