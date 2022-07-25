@@ -602,7 +602,7 @@ def _taskget(*args, **kwargs):
             firstmatch = list(matches)[0] if matches else []
         tasks.update(matches)
 
-    def fromargs(name, args1, args2, default):
+    def fromargs(name, default, *args):
 
         # let caller specify kwargs vs args precedence by parameter order
         def bytype(arg, name):
@@ -610,7 +610,7 @@ def _taskget(*args, **kwargs):
             elif isinstance(arg, dict): return bool(arg[name])
             else: bomb("fromargs: bytype: unknown type")
 
-        for argset in [args1, args2]:
+        for argset in args:
             if name in argset:
                 return bytype(argset, name)
 
@@ -646,16 +646,16 @@ def _taskget(*args, **kwargs):
     args = optparse('taskget', argp, args)
 
     multi = False \
-        if fromargs('matchone', args, kwargs, False) \
-        else fromargs('matchall', args, kwargs, True)
+        if fromargs('matchone', False, args, kwargs) \
+        else fromargs('matchall', True, args, kwargs)
     idonly = True \
         if not args.taskargs \
-        else fromargs('idonly', args, kwargs, False)
+        else fromargs('idonly', False, args, kwargs)
         # ^^^ if no args, we will just tasknow(), so skip extra checks
 
-    zero = fromargs('zero', args, {}, False)
-    exact = fromargs('exact', args, {}, False)
-    idstrings = fromargs('idstrings', args, {}, False)
+    zero = fromargs('zero', False, args)
+    exact = fromargs('exact', False, args)
+    idstrings = fromargs('idstrings', False, args)
 
     taskargs = []
     tagfilters = {}; tags_yes = []; tags_no = []
