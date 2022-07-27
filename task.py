@@ -412,7 +412,7 @@ def taskday(*args):
             'pending': '+', # real status we use for not yet started
             'deleted': '!',
         }
-        success, task = __taskone(fql, idonly=True)
+        success, task = __taskone(fql, idonly=True, held=args.held)
         taskstat = task.get('status')
         taskstart = task.get('start')
         if not args.status: return taskstat, ''
@@ -448,6 +448,7 @@ def taskday(*args):
     argp = mkargs()
     addflag(argp, 'f', 'fql', 'show fully qualified labels')
     addflag(argp, 'd', 'done', 'include completed tasks')
+    addflag(argp, 'H', 'held', 'only match waiting tasks')
     addflag(argp, 's', 'status', 'show status characters')
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'T', 'alltasks', 'pending, completed and timew-only')
@@ -588,7 +589,9 @@ def _taskget(*args, **kwargs):
             return hash(self['uuid'])
 
     def taskfilter(filterdict):
+        nonlocal held
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
+        filterdict.update({'wait.after': 'now'} if held else {'wait.none': ''})
         return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
 
     def taskupdate(matches):
@@ -653,6 +656,7 @@ def _taskget(*args, **kwargs):
         else fromargs('idonly', False, args, kwargs)
         # ^^^ if no args, we will just tasknow(), so skip extra checks
 
+    held = fromargs('held', False, kwargs)
     zero = fromargs('zero', False, args)
     exact = fromargs('exact', False, args)
     idstrings = fromargs('idstrings', False, args)
