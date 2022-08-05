@@ -20,7 +20,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - on-modify.timew: hook runs on all task mods (via symlink in hooks/)
 
 deps:
-  - taskw python library with patch #151 and #159
+  - tasklib python library with patch #117 and #119
   - timew python library with patches 9-13
 
 """
@@ -45,7 +45,7 @@ from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
 from subprocess import check_output
 
-from taskw import TaskWarrior
+from tasklib import TaskWarrior
 from timew import TimeWarrior
 from timew.exceptions import TimeWarriorError
 
@@ -160,7 +160,7 @@ def _taskone(*args, **kwargs):
     abort = kwargs.get('abort', True)
     success, match = __taskone(*args, **kwargs)
     if not success and abort:
-        m = match.get('uuid')
+        m = match['uuid']
         if m: print(m)
         sys.exit(EXIT_FAILURE)
     return match
@@ -168,8 +168,8 @@ def _taskone(*args, **kwargs):
 #
 
 def __taskfql(task, labelonly=False):
-    prj = task.get('project')
-    label = task.get('label')
+    prj = task['project']
+    label = task['label']
     if not prj or not label: return # taskadd or nonconforming
     if labelonly: return label
     return f"{prj.replace('.', '/')}/{label}"
@@ -374,9 +374,9 @@ def tasknotes(*args):
     for task in tasks:
         output = ""
         desc = task['description']
-        notes = task.get('annotations')
-        label = task.get('label')
-        project = task.get('project')
+        notes = task['annotations']
+        label = task['label']
+        project = task['project']
         fqlabel = f"/{project.replace('.', '/')}/{label}\n"
         output += fqlcolor(fqlabel)
         fillargs = {
@@ -412,18 +412,21 @@ def taskday(*args):
             'pending': '+', # real status we use for not yet started
             'deleted': '!',
         }
+        status = None
         success, task = __taskone(fql, idonly=True, held=args.held)
-        taskstat = task.get('status')
-        taskstart = task.get('start')
-        if not args.status: return taskstat, ''
-        if not success: return taskstat, '^' # timew-only tag
-        if not taskstat: bomb("no status: ", task, sep='\n')
-        if taskstat in statmap:
-            if taskstat == 'pending':
-                if taskstart:
-                    taskstat = 'started' # synthetic status we inject
-            return taskstat, statmap[taskstat]
-        else: return None, '?'
+        if success:
+            taskstat = task['status']
+            taskstart = task['start']
+            if not taskstat: bomb("no status: ", task, sep='\n')
+            if taskstat in statmap:
+                if taskstat == 'pending':
+                    if taskstart: taskstat = 'started' # synthetic status
+                status = taskstat
+                retchar = statmap[taskstat]
+            else: retchar = '?'
+        else: retchar = '^' # likely a timew-only tag
+
+        return status, retchar if args.status else ''
 
     # selectfn
     def fql_among_tags(task, statuses):
@@ -584,6 +587,12 @@ def _taskget(*args, **kwargs):
     # have a 'uuid' member, so we can add them in sets -- and thus deduplicate
     # results from multiple filters -- by hashing the dicts' uuids
     #
+    # UPDATE: taskfilter doesn't need to use this class anymore because it
+    # already provides __hash__() method for objects it contains which
+    # works off uuid, and provides set methods, so we can treat taskw.filter()
+    # object the same as a set of tasklib.task.Tasks (ie dict-like) objects,
+    # that all have uuid member and are __hash__-able thereby
+    #
     class UUIDHashableDict(dict):
         def __hash__(self):
             return hash(self['uuid'])
@@ -591,8 +600,11 @@ def _taskget(*args, **kwargs):
     def taskfilter(filterdict):
         nonlocal held
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
-        filterdict.update({'wait.after': 'now'} if held else {'wait.none': ''})
-        return [UUIDHashableDict(d) for d in taskw.filter_tasks(filterdict)]
+        filterdict.update({'wait__after': 'now'} if held else {'wait__none': ''})
+        filtered = taskw.filter(**filterdict)
+        #filtered = [f._data for f in filtered]
+        #filtered = [UUIDHashableDict(d) for d in filtered]
+        return filtered
 
     def taskupdate(matches):
         nonlocal firstmatch
@@ -670,7 +682,7 @@ def _taskget(*args, **kwargs):
                 var.append(taskarg[1:]); break
         else: taskargs.append(taskarg)
 
-    for var, key in [(tags_yes, 'tags.word'), (tags_no, 'tags.noword')]:
+    for var, key in [(tags_yes, 'tags__word'), (tags_no, 'tags__noword')]:
         if var: tagfilters.update({key: ','.join(var)})
 
     taskkey = taskargs + list(tagfilters.items())
@@ -695,7 +707,7 @@ def _taskget(*args, **kwargs):
             bomb("impossible: encountered pruned codepath: empty arg")
             # TODO: implement flag where we dump all tasks if
             # nothing specific requested, see task 3c01a357
-            taskupdate(taskfilter({'status.any': ''}))
+            taskupdate(taskfilter({'status__any': ''}))
             break
 
         # taskid
@@ -735,10 +747,10 @@ def _taskget(*args, **kwargs):
                 segs = taskarg.split('/')
                 project = '.'.join(segs[0:-1])
                 label = segs[-1]
-                f = {f"project.{matchop}": project,
-                     f"label.{matchop}": label}
+                f = {f"project__{matchop}": project,
+                     f"label__{matchop}": label}
             else:
-                f = {f"label.{matchop}": taskarg}
+                f = {f"label__{matchop}": taskarg}
             matches = taskfilter(f)
             if matches:
                 taskupdate(matches)
@@ -752,7 +764,7 @@ def _taskget(*args, **kwargs):
         # for description, label, project try substring, then regex
         ftasks = set()
         for filt in [
-            field + clause for clause in ['.has']
+            field + clause for clause in ['__has']
             for field in ['description', 'label', 'project']
         ]:
             fftasks = taskfilter({filt: taskarg})
@@ -908,7 +920,7 @@ if __name__ == "__main__":
     FailMask = enum('', failures, start=FAILBASE)
     FAILUUID = failuuid(FailMask(FAILBASE).name)
 
-    taskw = TaskWarrior(marshal=True)
+    taskw = TaskWarrior().tasks
     timew = TimeWarrior()
 
     try: main()
