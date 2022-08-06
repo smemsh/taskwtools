@@ -168,8 +168,8 @@ def _taskone(*args, **kwargs):
 #
 
 def __taskfql(task, labelonly=False):
-    prj = task['project']
-    label = task['label']
+    prj = task.get('project')
+    label = task.get('label')
     if not prj or not label: return # taskadd or nonconforming
     if labelonly: return label
     return f"{prj.replace('.', '/')}/{label}"
