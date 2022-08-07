@@ -45,7 +45,7 @@ from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
 from subprocess import check_output
 
-from tasklib import TaskWarrior
+from tasklib import TaskWarrior, Task
 from timew import TimeWarrior
 from timew.exceptions import TimeWarriorError
 
@@ -203,7 +203,8 @@ def _timewtags(task):
     tags = []
 
     if isinstance(task, str): fql = task
-    elif isinstance(task, dict): fql = __taskfql(task)
+    elif isinstance(task, dict) or isinstance(task, Task):
+        fql = __taskfql(task)
     else: bomb("unsupported type for _timewtags() arg")
 
     if fql: fqlsegs = fql.split('/')
