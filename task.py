@@ -65,6 +65,10 @@ def dprint(*args, **kwargs):
 def exe(cmd):
     return check_output(cmd.split()).splitlines()
 
+def getitem(obj, member):
+    try: return obj[member]
+    except KeyError: return None
+
 #
 
 def addopt(p, flagchar, longopt, help=None, /, **kwargs):
@@ -160,7 +164,7 @@ def _taskone(*args, **kwargs):
     abort = kwargs.get('abort', True)
     success, match = __taskone(*args, **kwargs)
     if not success and abort:
-        m = match['uuid']
+        m = getitem(match, 'uuid')
         if m: print(m)
         sys.exit(EXIT_FAILURE)
     return match
@@ -168,8 +172,8 @@ def _taskone(*args, **kwargs):
 #
 
 def __taskfql(task, labelonly=False):
-    prj = task.get('project')
-    label = task.get('label')
+    prj = getitem(task, 'project')
+    label = getitem(task, 'label')
     if not prj or not label: return # taskadd or nonconforming
     if labelonly: return label
     return f"{prj.replace('.', '/')}/{label}"
