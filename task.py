@@ -218,8 +218,9 @@ def _timewtags(task):
     for i in range(1, nsegs + 1):
         tags.append('/'.join(fqlsegs[0:i]) + ('/' if i < nsegs else ''))
 
-    if 'tags' in task:
-        tags.extend([f"+{t}" for t in task['tags']])
+    tasktags = getitem(task, 'tags')
+    if (tasktags):
+        tags.extend([f"+{t}" for t in tasktags])
 
     return tags
 
@@ -243,8 +244,8 @@ def taskdo(*args):
 #
 def _taskdo(task):
 
-    if 'end' in task: bomb("cannot proceed on ended task")
-    if 'start' not in task: bomb("do initial start in taskwarrior")
+    if task['end']: bomb("cannot proceed on ended task")
+    if task['start']: bomb("do initial start in taskwarrior")
 
     # we must do our own _tasknow() even if the task we got came
     # from noargs _taskget() (which calls _tasknow()) since we
