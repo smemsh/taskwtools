@@ -244,8 +244,8 @@ def taskdo(*args):
 #
 def _taskdo(task):
 
-    if task['end']: bomb("cannot proceed on ended task")
-    if task['start']: bomb("do initial start in taskwarrior")
+    if getitem(task, 'end'): bomb("cannot proceed on ended task")
+    if not getitem(task, 'start'): bomb("do initial start in taskwarrior")
 
     # we must do our own _tasknow() even if the task we got came
     # from noargs _taskget() (which calls _tasknow()) since we
