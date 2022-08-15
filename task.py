@@ -411,7 +411,7 @@ def taskweek(*args): taskday(*args, '7')
 def taskmonth(*args): taskday(*args, '30')
 def taskday(*args):
 
-    def get_status(fql):
+    def select_with_status(fql):
         statmap = {
             'completed': '-',
             'started': '', # pseudo-status we inject for started
@@ -433,29 +433,23 @@ def taskday(*args):
                 retchar = statmap[taskstat]
             else: taskstat = 'unknown'
         else: taskstat = 'virtual' # likely a timew-only tag
-        retchar = statmap[taskstat]
-
-        return status, retchar if args.status else ''
+        return status, statmap[taskstat]
 
     # selectfn
     def fql_among_tags(task, statuses):
-
         selected = list(filter(isfql, task['tags']))
         if len(selected) != 1:
             bomb("selected more than one fql tag for task")
         fql = selected[0]
-
-        status, stchar = get_status(fql)
+        status, stchar = select_with_status(fql)
         if status not in statuses: fql = None
-        else: fql += stchar
-
-        return fql
+        return fql, stchar
 
     # selectfn
     def label_from_tags(task, statuses):
-        fql = fql_among_tags(task, statuses)
+        fql, stchar = fql_among_tags(task, statuses)
         if fql: fql = fql.split('/')[-1]
-        return fql
+        return fql, stchar
 
     argp = mkargs()
     addflag(argp, 'f', 'fql', 'show fully qualified labels')
@@ -479,12 +473,17 @@ def taskday(*args):
     ago = datetime.now() - timedelta(days=int(ndays))
     tasks = timew.export(start_time=ago)
 
-    selected = [selectfn(task, statuses) for task in tasks] # by status
-    filtered = list(filter(bool, selected)) # filter None, ie non-matches
-    outputs = list(dict.fromkeys(reversed(filtered)))
+    # create list of (fql, stchr) pairs, filtering None fqls
+    selected = [selectfn(task, statuses) for task in tasks]
+    filtered = list(filter(lambda f: f[0], selected))
+    outputs = list(dict.fromkeys(reversed(filtered))) # deduplicate
 
-    if outputs and not tasks[-1].get('end') and args.status:
-        outputs[0] = f"*{outputs[0]}"
+    if args.status:
+        outputs = [''.join(o) for o in outputs]
+        if outputs and not tasks[-1].get('end'):
+            outputs[0] = '*' + outputs[0]
+    else:
+        outputs = [o[0] for o in outputs]
 
     print(('\n' if args.column else '\x20').join(outputs))
 
