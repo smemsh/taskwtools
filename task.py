@@ -417,6 +417,8 @@ def taskday(*args):
             'started': '', # pseudo-status we inject for started
             'pending': '+', # real status we use for not yet started
             'deleted': '!',
+            'virtual': '^', # tasks in timew but not taskw
+            'unknown': '?',
         }
         status = None
         success, task = __taskone(fql, idonly=True, held=args.held)
@@ -429,8 +431,9 @@ def taskday(*args):
                     if taskstart: taskstat = 'started' # synthetic status
                 status = taskstat
                 retchar = statmap[taskstat]
-            else: retchar = '?'
-        else: retchar = '^' # likely a timew-only tag
+            else: taskstat = 'unknown'
+        else: taskstat = 'virtual' # likely a timew-only tag
+        retchar = statmap[taskstat]
 
         return status, retchar if args.status else ''
 
