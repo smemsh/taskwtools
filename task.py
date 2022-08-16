@@ -411,15 +411,17 @@ def taskweek(*args): taskday(*args, '7')
 def taskmonth(*args): taskday(*args, '30')
 def taskday(*args):
 
+    statmap = {
+        'completed': '-',
+        'started': '', # pseudo-status we inject for started
+        'pending': '+', # real status we use for not yet started
+        'deleted': '!',
+        'virtual': '^', # tasks in timew but not taskw
+        'unknown': '?',
+    }
+    charmap = {v: k for k, v in statmap.items()}
+
     def select_with_status(fql):
-        statmap = {
-            'completed': '-',
-            'started': '', # pseudo-status we inject for started
-            'pending': '+', # real status we use for not yet started
-            'deleted': '!',
-            'virtual': '^', # tasks in timew but not taskw
-            'unknown': '?',
-        }
         status = None
         success, task = __taskone(fql, idonly=True, held=args.held)
         if success:
@@ -475,13 +477,15 @@ def taskday(*args):
 
     # create list of (fql, stchr) pairs, filtering None fqls
     selected = [selectfn(task, statuses) for task in tasks]
+    curchar = selected[-1][1] # stash status of current task
     filtered = list(filter(lambda f: f[0], selected))
     outputs = list(dict.fromkeys(reversed(filtered))) # deduplicate
 
     if args.status:
         outputs = [''.join(o) for o in outputs]
         if outputs and not tasks[-1].get('end'):
-            outputs[0] = '*' + outputs[0]
+            achar = '%' if charmap[curchar] == "virtual" else '*'
+            outputs[0] = f"{achar}{outputs[0]}"
     else:
         outputs = [o[0] for o in outputs]
 
