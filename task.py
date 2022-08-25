@@ -380,7 +380,7 @@ def tasknotes(*args):
     for task in tasks:
         output = ""
         desc = task['description']
-        notes = task['annotations']
+        notes = map(str, task['annotations'])
         label = task['label']
         project = task['project']
         fqlabel = f"/{project.replace('.', '/')}/{label}\n"
