@@ -907,7 +907,12 @@ if __name__ == "__main__":
     if sys.hexversion < 0x03090000:
         bomb("minimum python 3.9")
 
-    if select([sys.stdin], [], [], 0)[0]:
+    invname = basename(sys.argv[0])
+    replaced = invname.replace('-', '_').replace('.', '_')
+    triggered = invname != replaced # ie for on-modify
+    invname = replaced
+
+    if triggered and select([sys.stdin], [], [], 0)[0]:
         # save stdin if given, pdb needs stdio fds itself
         inlines = sys.stdin.readlines()
         try: sys.stdin = open('/dev/tty')
@@ -919,8 +924,6 @@ if __name__ == "__main__":
         from pprint import pp
         err('debug: enabled')
 
-    invname = basename(sys.argv[0])
-    invname = invname.replace('-', '_').replace('.', '_') # for triggers
     argslast = list()
     argns = Namespace()
     args = sys.argv[1:]
