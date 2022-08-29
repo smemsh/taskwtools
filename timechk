@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+tty -s && interactive=1 || interactive=0
+print_counter () { ((interactive)) && printf "${1:?}\r" >&2; }
+loops=0
+
+# fql, when looked up, matches tags for the entry
+#
+timew export \
+| jq -r $'.[].tags | join("\x20")' \
+| sort -u \
+| grep -v -e ^time/ \
+| (
+	while read line
+	do
+		fql=($(fmt -1 <<< "$line" | sort -u | grep -v -e ^\\+ -e /$))
+
+		if ((${#fql[@]} != 1))
+		then echo "bad line: '$line'" >&2; false; exit; fi
+
+		if [[ $fql =~ [^[:alnum:]-/] ]]
+		then echo "bad fql: '$line'" >&2; false; exit; fi
+
+		sorted1=($(fmt -1 <<< "$line" | sort -u))
+		sorted2=($(timewtags --exact $fql | fmt -1 | sort -u))
+		sorted1="${sorted1[*]}"
+		sorted2="${sorted2[*]}"
+
+		if [[ $sorted1 == $sorted2 ]]
+		then print_counter $loops
+		else echo $loops: $fql "sorted1:'$sorted1' sorted2:'$sorted2'"
+		fi
+
+		let loops++
+	done
+
+	if ((interactive))
+	then for ((i = 0; i < 8; i ++))
+	do printf "%c" $'\x20'; done; fi
+)
+
+# all intervals are tagged
+timew export | jq -r '.[] | select(.tags | length == 0)'
+
+# intervals with only one tag all reside in the time/ namespace
+timew export | jq -r '.[] |
+	select(.tags | length == 1) |
+	select(.tags[0] | startswith("time/") | not)'
