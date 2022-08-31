@@ -228,6 +228,8 @@ def timewtags(*args):
     kwargs = {
         'idonly': True,
         'zero': False,
+        'held': True,
+        'unheld': True,
     }
     task = _taskone(*args, **kwargs)
     print("\x20".join(_timewtags(task)))
@@ -426,8 +428,9 @@ def taskday(*args):
     charmap = {v: k for k, v in statmap.items()}
 
     def select_with_status(fql):
+        h = args.held
         status = None
-        success, task = __taskone(fql, idonly=True, held=args.held)
+        success, task = __taskone(fql, idonly=True, held=h, unheld=(not h))
         if success:
             taskstat = task['status']
             taskstart = task['start']
@@ -615,8 +618,12 @@ def _taskget(*args, **kwargs):
 
     def taskfilter(filterdict):
         nonlocal held
+        nonlocal unheld
+        if held and not unheld: f = {'wait__after': 'now'}
+        elif unheld and not held: f = {'wait__none': ''}
+        else: f = {} # either none or both doesn't refine
+        filterdict.update(f)
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
-        filterdict.update({'wait__after': 'now'} if held else {'wait__none': ''})
         filtered = taskw.filter(**filterdict)
         #filtered = [f._data for f in filtered]
         #filtered = [UUIDHashableDict(d) for d in filtered]
@@ -685,6 +692,8 @@ def _taskget(*args, **kwargs):
         # ^^^ if no args, we will just tasknow(), so skip extra checks
 
     held = fromargs('held', False, kwargs)
+    unheld = fromargs('unheld', True, kwargs)
+
     zero = fromargs('zero', False, args)
     exact = fromargs('exact', False, args)
     idstrings = fromargs('idstrings', False, args)
