@@ -230,6 +230,7 @@ def timewtags(*args):
         'zero': False,
         'held': True,
         'unheld': True,
+        'exact': True,
     }
     task = _taskone(*args, **kwargs)
     print("\x20".join(_timewtags(task)))
@@ -695,7 +696,7 @@ def _taskget(*args, **kwargs):
     unheld = fromargs('unheld', True, kwargs)
 
     zero = fromargs('zero', False, args)
-    exact = fromargs('exact', False, args)
+    exact = fromargs('exact', False, kwargs, args)
     idstrings = fromargs('idstrings', False, args)
 
     taskargs = []
