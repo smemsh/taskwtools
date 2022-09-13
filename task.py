@@ -618,8 +618,6 @@ def _taskget(*args, **kwargs):
             return hash(self['uuid'])
 
     def taskfilter(filterdict):
-        nonlocal held
-        nonlocal unheld
         if held and not unheld: f = {'wait__after': 'now'}
         elif unheld and not held: f = {'wait__none': ''}
         else: f = {} # either none or both doesn't refine
