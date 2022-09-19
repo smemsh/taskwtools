@@ -225,14 +225,7 @@ def _timewtags(task):
     return tags
 
 def timewtags(*args):
-    kwargs = {
-        'idonly': True,
-        'zero': False,
-        'held': True,
-        'unheld': True,
-        'exact': True,
-    }
-    task = _taskone(*args, **kwargs)
+    task = _taskone(*args, idonly=True, zero=False, exact=True)
     print("\x20".join(_timewtags(task)))
 
 #
@@ -690,7 +683,7 @@ def _taskget(*args, **kwargs):
         else fromargs('idonly', False, args, kwargs)
         # ^^^ if no args, we will just tasknow(), so skip extra checks
 
-    held = fromargs('held', False, kwargs)
+    held = fromargs('held', True, kwargs)
     unheld = fromargs('unheld', True, kwargs)
 
     zero = fromargs('zero', False, args)
