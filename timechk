@@ -4,7 +4,7 @@ tty -s && interactive=1 || interactive=0
 print_counter () { ((interactive)) && printf "${1:?}\r" >&2; }
 loops=0
 
-# fql, when looked up, matches tags for the entry
+# fqls extracted from unique interval tag sets look up to the same tags
 #
 timew export \
 | jq -r $'.[].tags | join("\x20")' \
@@ -21,14 +21,14 @@ timew export \
 		if [[ $fql =~ [^[:alnum:]-/] ]]
 		then echo "bad fql: '$line'" >&2; false; exit; fi
 
-		sorted1=($(fmt -1 <<< "$line" | sort -u))
-		sorted2=($(timewtags --exact $fql | fmt -1 | sort -u))
-		sorted1="${sorted1[*]}"
-		sorted2="${sorted2[*]}"
+		actual=($(fmt -1 <<< "$line" | sort -u))
+		theory=($(timewtags --exact $fql | fmt -1 | sort -u))
+		actual="${actual[*]}"
+		theory="${theory[*]}"
 
-		if [[ $sorted1 == $sorted2 ]]
+		if [[ $actual == $theory ]]
 		then print_counter $loops
-		else echo $loops: $fql "sorted1:'$sorted1' sorted2:'$sorted2'"
+		else echo $loops: $fql "actual:'$actual' theory:'$theory'"
 		fi
 
 		let loops++
