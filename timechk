@@ -3,6 +3,7 @@
 tty -s && interactive=1 || interactive=0
 print_counter () { ((interactive)) && printf "${1:?}\r" >&2; }
 loops=0
+errors=0
 
 # fqls extracted from unique interval tag sets look up to the same tags
 #
@@ -28,7 +29,9 @@ timew export \
 
 		if [[ $actual == $theory ]]
 		then print_counter $loops
-		else echo $loops: $fql "actual:'$actual' theory:'$theory'"
+		else
+			let errors++
+			echo $loops: $fql "actual:'$actual' theory:'$theory'"
 		fi
 
 		let loops++
@@ -40,9 +43,13 @@ timew export \
 )
 
 # all intervals are tagged
-timew export | jq -r '.[] | select(.tags | length == 0)'
+timew export | jq -er '.[] | select(.tags | length == 0)' && let errors++
 
 # intervals with only one tag all reside in the time/ namespace
-timew export | jq -r '.[] |
+timew export | jq -er '.[] |
 	select(.tags | length == 1) |
-	select(.tags[0] | startswith("time/") | not)'
+	select(.tags[0] | startswith("time/") | not)
+' && let errors++
+
+# usually from cron so output is more relevant, but give accurate status also
+((errors == 0))
