@@ -612,7 +612,7 @@ def _taskget(*args, **kwargs):
 
     def taskfilter(filterdict):
         if held and not unheld: f = {'wait__after': 'now'}
-        elif unheld and not held: f = {'wait__none': ''}
+        elif unheld and not held: f = {'wait__none': ''} # diff than -WAITING
         else: f = {} # either none or both doesn't refine
         filterdict.update(f)
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
