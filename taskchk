@@ -68,6 +68,11 @@ check_desclens ()
 	task status:pending export |
 	jq -r '.[] | .uuid, .description' |
 	awk '{uuid = $0; getline; if (length > 78) print uuid, length}'
+
+check_done_waiting ()
+{
+	task wait.before:now export |
+	jq -ej $'.[] | "\(.uuid) wait \(.wait)\n"'
 }
 
 ###
