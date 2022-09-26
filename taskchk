@@ -67,12 +67,21 @@ check_desclens ()
 {
 	task status:pending export |
 	jq -r '.[] | .uuid, .description' |
-	awk '{uuid = $0; getline; if (length > 78) print uuid, length}'
+	awk '{
+		uuid = $0
+		getline
+		if (length > 78) {
+			print uuid, "len", length
+			retcode = 1
+		}
+	} END { exit retcode }'
+}
 
 check_done_waiting ()
 {
 	task wait.before:now export |
 	jq -ej $'.[] | "\(.uuid) wait \(.wait)\n"'
+	return $(($? == 0))
 }
 
 ###
@@ -83,7 +92,7 @@ main ()
 	do $check || : $((errors++)); done
 
 	if ((errors))
-	then echo "errors found in task database" >&2; false; exit; fi
+	then echo "$errors error checks failed" >&2; false; exit; fi
 }
 
 main "$@"
