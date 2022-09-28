@@ -695,7 +695,7 @@ def _taskget(*args, **kwargs):
         else fromargs('idonly', False, args, kwargs)
         # ^^^ if no args, we will just tasknow(), so skip extra checks
 
-    held = fromargs('held', True, kwargs)
+    held = fromargs('held', False, kwargs)
     zero = fromargs('zero', False, args)
     exact = fromargs('exact', False, kwargs, args)
     idstrings = fromargs('idstrings', False, args)
