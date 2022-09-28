@@ -418,24 +418,34 @@ def taskday(*args):
         'deleted': '!',
         'virtual': '^', # tasks in timew but not taskw
         'unknown': '?',
+        'waiting': '&',
+        'waited': '#',
     }
     charmap = {v: k for k, v in statmap.items()}
 
     def select_with_status(fql):
-        h = args.held
         status = None
-        success, task = __taskone(fql, idonly=True, held=h, unheld=(not h))
+        success, task = __taskone(fql, idonly=True, held=args.held)
         if success:
-            taskstat = task['status']
-            taskstart = task['start']
-            if not taskstat: bomb("no status: ", task, sep='\n')
+            waitend = getitem(task, 'wait')
+            if waitend:
+                if waitend < datetime.now(waitend.tzinfo):
+                    taskstat = 'waited'
+                else: taskstat = 'waiting'
+            else:
+                taskstat = task['status']
+                taskstart = task['start']
+            if not taskstat:
+                bomb("no status: ", task, sep='\n')
             if taskstat in statmap:
-                if taskstat == 'pending':
-                    if taskstart: taskstat = 'started' # synthetic status
-                status = taskstat
-                retchar = statmap[taskstat]
-            else: taskstat = 'unknown'
-        else: taskstat = 'virtual' # likely a timew-only tag
+                if taskstat == 'pending' and taskstart:
+                    taskstat = 'started'
+            else:
+                taskstat = 'unknown'
+        else:
+            taskstat = 'virtual' # likely a timew-only tag
+        status = taskstat
+        retchar = statmap[taskstat]
         return status, statmap[taskstat]
 
     # selectfn
@@ -467,10 +477,15 @@ def taskday(*args):
 
     selectfn = fql_among_tags if args.fql else label_from_tags
 
-    statuses = set(['pending', 'started'])
-    if args.alltasks: args.timetasks = True; args.done = True
-    if args.timetasks: statuses.update([None]) # timew-only task
-    if args.done: statuses.update(['completed'])
+    if args.held:
+        statuses = set(['waiting', 'waited'])
+        if args.alltasks or args.timetasks:
+            bomb("held tasks should be selected alone")
+    else:
+        statuses = set(['pending', 'started'])
+        if args.alltasks: args.timetasks = True; args.done = True
+        if args.timetasks: statuses.update([None]) # timew-only task
+        if args.done: statuses.update(['completed'])
 
     ndays = args.ndays if args.ndays is not None else 1
     ago = datetime.now() - timedelta(days=int(ndays))
@@ -611,10 +626,7 @@ def _taskget(*args, **kwargs):
             return hash(self['uuid'])
 
     def taskfilter(filterdict):
-        if held and not unheld: f = {'wait__after': 'now'}
-        elif unheld and not held: f = {'wait__none': ''} # diff than -WAITING
-        else: f = {} # either none or both doesn't refine
-        filterdict.update(f)
+        if held: filterdict.update({'wait__after': 'now'})
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
         filtered = taskw.filter(**filterdict)
         #filtered = [f._data for f in filtered]
