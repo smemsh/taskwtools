@@ -584,7 +584,7 @@ def taskuuids(*args):
 
 def taskget(*args):
     tasks = _taskget(*args)
-    pp(tasks)
+    pp([t._data for t in tasks])
 
 def _taskget(*args, **kwargs):
 
