@@ -948,7 +948,7 @@ if __name__ == "__main__":
 
     FAILBASE = 124
     failures = ['NONE', 'WRONG', 'MULTI']
-    FailMask = enum('', failures, start=FAILBASE)
+    FailMask = enum('FailMask', failures, start=FAILBASE)
     FAILUUID = failuuid(FailMask(FAILBASE).name)
 
     taskw = TaskWarrior().tasks
