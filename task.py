@@ -425,7 +425,8 @@ def taskday(*args):
 
     def select_with_status(fql):
         status = None
-        success, task = __taskone(fql, idonly=True, held=args.held)
+        success, task = __taskone(fql, idonly=True, held=args.held,
+                                  blocked=args.blocked)
         if success:
             waitend = getitem(task, 'wait')
             if waitend:
@@ -470,6 +471,7 @@ def taskday(*args):
     addflag(argp, 'H', 'held', 'only match waiting tasks')
     addflag(argp, 's', 'status', 'show status characters')
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
+    addflag(argp, 'b', 'blocked', 'only show blocked, normally not shown')
     addflag(argp, 'T', 'alltasks', 'pending, completed and timew-only')
     addflag(argp, 't', 'timetasks', 'include timew-only tasks')
     addarg (argp, 'ndays', 'days of history (default 1)', nargs='?')
@@ -627,8 +629,11 @@ def _taskget(*args, **kwargs):
 
     def taskfilter(filterdict):
         if held: filterdict.update({'wait__after': 'now'})
+        if blocked == True: filterwords = ['+BLOCKED']
+        elif blocked == False: filterwords = ['-BLOCKED']
+        else: filterwords = [] # None
         filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
-        filtered = taskw.filter(**filterdict)
+        filtered = taskw.filter(*filterwords, **filterdict)
         #filtered = [f._data for f in filtered]
         #filtered = [UUIDHashableDict(d) for d in filtered]
         return filtered
@@ -696,6 +701,8 @@ def _taskget(*args, **kwargs):
         # ^^^ if no args, we will just tasknow(), so skip extra checks
 
     held = fromargs('held', False, kwargs)
+    blocked = fromargs('blocked', None, kwargs)
+
     zero = fromargs('zero', False, args)
     exact = fromargs('exact', False, kwargs, args)
     idstrings = fromargs('idstrings', False, args)
