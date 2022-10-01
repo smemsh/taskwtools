@@ -507,7 +507,8 @@ def taskday(*args):
     else:
         outputs = [o[0] for o in outputs]
 
-    print(('\n' if args.column else '\x20').join(outputs))
+    if outputs:
+        print(('\n' if args.column else '\x20').join(outputs))
 
 #
 
