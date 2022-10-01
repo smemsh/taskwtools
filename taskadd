@@ -140,7 +140,11 @@ parse_args ()
 	# last arg is (or all args after '--' are) the description
 	shift $((argn - 1))
 	setenv desc "$*"
-	((${#desc} < 20)) && warn "warning: short desc, quote or '--' ?"
+	if ((${#desc} < 20)); then
+		read -n1 -p "warning: short desc ${#desc}, proceed (y/N) ? "
+		if [[ ${REPLY:-n} != y ]]
+		then bomb "aborting without action"; fi
+	fi
 
 	# fully qualified task with project hierarchy and label
 	setenv fqtask \
