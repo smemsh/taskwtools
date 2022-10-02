@@ -84,6 +84,20 @@ check_done_waiting ()
 	return $(($? == 0))
 }
 
+check_blockers_waiting ()
+{
+	local waiter
+	local -a blockers=()
+	while read; do blockers+=("$REPLY"); done < <(
+		for waiter in $(task +WAITING export | jq -r '.[].uuid')
+		do task depends:$waiter export | jq -er ".[] |
+			\"$waiter holdblocks \\(.uuid)\\n\""; done)
+	if ((${#blockers[@]}))
+	then (IFS=$'\n'; echo "${blockers[*]}"); false
+	else true
+	fi
+}
+
 ###
 
 main ()
