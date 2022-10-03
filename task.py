@@ -402,7 +402,7 @@ def tasknotes(*args):
             output += colordesc
         outputs += [output]
 
-    print(("\n\n" if len(outputs) > 1 else "\n").join(outputs))
+    print("\n\n".join(outputs))
 
 #
 
