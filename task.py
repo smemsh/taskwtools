@@ -796,8 +796,9 @@ def _taskget(*args, **kwargs):
                 filters += [{f"project__{matchop}": project,
                              f"label__{matchop}": label}]
                 # fully/qualified
-                filters += [{f"project__{matchop}":
-                             taskarg.replace('/', '.')}]
+                if not exact:
+                    filters += [{f"project__{matchop}":
+                                taskarg.replace('/', '.')}]
             else:
                 # label
                 filters += [{f"label__{matchop}": taskarg}]
