@@ -639,6 +639,14 @@ def _taskget(*args, **kwargs):
         #filtered = [UUIDHashableDict(d) for d in filtered]
         return filtered
 
+    def runfilters(filters):
+        nonlocal matches
+        for f in filters:
+            matches = taskfilter(f)
+            if matches:
+                taskupdate(matches)
+                if not multi: return
+
     def taskupdate(matches):
         nonlocal firstmatch
         nonlocal tasks
@@ -777,19 +785,25 @@ def _taskget(*args, **kwargs):
 
         # label or fql
         if set(taskarg).issubset(f"{lowercase}{digits}-/"):
+
+            filters = []
             matchop = 'is' if exact else 'has'
             if '/' in taskarg:
+                # fully/qualified/label
                 segs = taskarg.split('/')
                 project = '.'.join(segs[0:-1])
                 label = segs[-1]
-                f = {f"project__{matchop}": project,
-                     f"label__{matchop}": label}
+                filters += [{f"project__{matchop}": project,
+                             f"label__{matchop}": label}]
+                # fully/qualified
+                filters += [{f"project__{matchop}":
+                             taskarg.replace('/', '.')}]
             else:
-                f = {f"label__{matchop}": taskarg}
-            matches = taskfilter(f)
-            if matches:
-                taskupdate(matches)
-                if not multi: break
+                # label
+                filters += [{f"label__{matchop}": taskarg}]
+
+            runfilters(filters)
+            if matches and not multi: break
 
         # don't look beyond fql, label, id, uuid if requested
         if idonly:
