@@ -409,6 +409,7 @@ def tasknotes(*args):
 def tasks(*args): taskweek(*args)
 def taskweek(*args): taskday(*args, '7')
 def taskmonth(*args): taskday(*args, '30')
+def taskyear(*args): taskday(*args, '365')
 def taskday(*args):
 
     statmap = {
