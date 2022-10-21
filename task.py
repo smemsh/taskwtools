@@ -474,7 +474,7 @@ def taskday(*args):
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'b', 'blocked', 'only show blocked, normally not shown')
     addflag(argp, 'T', 'alltasks', 'pending, completed and timew-only')
-    addflag(argp, 't', 'timetasks', 'include timew-only tasks')
+    addflag(argp, 'i', 'timetasks', 'include timew-only tasks')
     addarg (argp, 'ndays', 'days of history (default 1)', nargs='?')
     args = optparse('taskday', argp, args)
 
