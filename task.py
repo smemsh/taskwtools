@@ -40,7 +40,7 @@ from pprint import pp
 from select import select
 from string import digits, hexdigits, ascii_lowercase as lowercase
 from os.path import basename
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
 from subprocess import check_output
@@ -470,6 +470,7 @@ def taskday(*args):
     addflag(argp, 'f', 'fql', 'show fully qualified labels')
     addflag(argp, 'd', 'done', 'include completed tasks')
     addflag(argp, 'H', 'held', 'only match waiting tasks')
+    addflag(argp, 't', 'this', 'this-dwmy instead of 24h, 7d, 30d, 365d')
     addflag(argp, 's', 'status', 'show status characters')
     addflag(argp, '1', 'column', 'delimit by lines instead of spaces')
     addflag(argp, 'b', 'blocked', 'only show blocked, normally not shown')
@@ -490,9 +491,17 @@ def taskday(*args):
         if args.timetasks: statuses.update([None]) # timew-only task
         if args.done: statuses.update(['completed'])
 
-    ndays = args.ndays if args.ndays is not None else 1
-    ago = datetime.now() - timedelta(days=int(ndays))
-    tasks = timew.export(start_time=ago)
+    ndays = int(args.ndays if args.ndays is not None else '1')
+    if args.this:
+        now = datetime.now()
+        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        if   ndays <=   0: bomb("must be positive ndays")
+        if   ndays ==   7: start = today - timedelta(days=now.weekday())
+        elif ndays ==  30: start = today.replace(day=1)
+        elif ndays == 365: start = today.replace(month=1, day=1)
+        else: bomb("--this ndays must be aligned")
+    else: start = datetime.now() - timedelta(days=ndays)
+    tasks = timew.export(start_time=start)
 
     # create list of (fql, stchr) pairs, filtering None fqls
     selected = [selectfn(task, statuses) for task in tasks]
