@@ -410,6 +410,7 @@ def tasks(*args): taskweek(*args)
 def taskweek(*args): taskday(*args, '7')
 def taskmonth(*args): taskday(*args, '30')
 def taskyear(*args): taskday(*args, '365')
+def taskall(*args): taskday(*args, '0')
 def taskday(*args):
 
     statmap = {
@@ -492,7 +493,8 @@ def taskday(*args):
         if args.done: statuses.update(['completed'])
 
     ndays = int(args.ndays if args.ndays is not None else '1')
-    if args.this:
+    if ndays == 0: start = datetime.fromtimestamp(0, tz=timezone.utc)
+    elif args.this:
         now = datetime.now()
         today = now.replace(hour=0, minute=0, second=0, microsecond=0)
         if   ndays <=   0: bomb("must be positive ndays")
