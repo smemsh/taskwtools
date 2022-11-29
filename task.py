@@ -428,7 +428,7 @@ def taskday(*args):
     def select_with_status(fql):
         status = None
         success, task = __taskone(fql, idonly=True, held=args.held,
-                                  blocked=args.blocked)
+                                  blocked=args.blocked, exact=True)
         if success:
             waitend = getitem(task, 'wait')
             if waitend:
