@@ -142,8 +142,9 @@ parse_args ()
 	setenv desc "$*"
 	if ((${#desc} < 20)); then
 		read -n1 -p "warning: short desc ${#desc}, proceed (y/N) ? "
+		echo
 		if [[ ${REPLY:-n} != y ]]
-		then echo; bomb "aborting without action"; fi
+		then bomb "aborting without action"; fi
 	fi
 
 	# fully qualified task with project hierarchy and label
