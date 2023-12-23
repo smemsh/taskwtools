@@ -536,7 +536,7 @@ def taskstop(taskarg=None):
     else:
         print("already stopped")
 
-def _taskstop(task=None):
+def _taskstop(task=None, verbose=True):
 
     if task:
         # takes task arg when run from on-modify, but wont from
@@ -555,7 +555,8 @@ def _taskstop(task=None):
         if active and __taskfql(task) == fql:
             return timew.stop()
         else:
-            print("task already stopped or never started")
+            if verbose:
+                print("task already stopped or never started")
     else:
         return timew.stop()
 
@@ -920,7 +921,7 @@ def on_modify_timew(*args):
     elif 'start' in old:
 
         if 'end' in new and 'end' not in old:
-            _taskstop(new)
+            _taskstop(new, verbose=False)
 
         if 'end' not in new:
             print("disallowing pause, use timewarrior until 'done'")
