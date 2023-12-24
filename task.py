@@ -668,7 +668,7 @@ def _taskget(*args, **kwargs):
         # taskget search flow is the one we want anyways
         if firstmatch is None:
             # if an id-types match this will be a one-match list anyways
-            firstmatch = list(matches)[0] if matches else []
+            firstmatch = matches[0] if matches else []
         tasks.update(matches)
 
     def fromargs(name, default, *args):
