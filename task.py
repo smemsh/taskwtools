@@ -187,11 +187,11 @@ def _taskfqls(*args, **kwargs):
     if not tasks: return []
     else: return [__taskfql(t, **kwargs) for t in tasks]
 
-def taskfql(*args, **kwargs):
-    print(_taskfql(*args, **kwargs))
+def taskfql(*args):
+    print(_taskfql(*args))
 
-def taskfqls(*args, **kwargs):
-    for t in _taskfqls(*args, **kwargs):
+def taskfqls(*args):
+    for t in _taskfqls(*args):
         print(t or '')
 
 def tasklabels(*args):
