@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+"""
+better replacement for the few functions of 'taskopen' that we use
+
+  - taskopen: find urls in annotations, offers selection menu, spawns $BROWSER
+  - tasknote: displays the .rst file attached to task, or runs $EDITOR
+"""
+__url__     = 'https://github.com/smemsh/.task'
+__author__  = 'Scott Mcdermott <scott@smemsh.net>'
+__license__ = 'GPL-2.0'
+
+import argparse
+
+from sys import argv, stdin, stdout, stderr, exit
+from tty import setraw
+from json import loads, JSONDecodeError
+from string import digits, ascii_letters as letters
+from signal import SIGTSTP
+from shutil import which
+from termios import tcgetattr, tcsetattr, TCSADRAIN
+from textwrap import fill
+from subprocess import check_output, CalledProcessError
+
+from urllib.parse import urlparse
+from os.path import basename
+
+from os import (
+    getpid, kill,
+    spawnl, P_WAIT,
+    getenv, unsetenv,
+    EX_OK as EXIT_SUCCESS,
+    EX_SOFTWARE as EXIT_FAILURE,
+)
+
+###
+
+def err(*args, **kwargs):
+    print(*args, file=stderr, **kwargs)
+
+def bomb(*args, **kwargs):
+    err(*args, **kwargs)
+    exit(EXIT_FAILURE)
+
+def exe(cmd):
+    cmdargs = cmd.split()
+    cmd = cmdargs[0]
+    cmdargs[0] = which(cmd) or cmd
+    if not cmd: bomb(f"cannot find command {cmdargs[0]}")
+    return check_output(cmdargs).decode()
+
+def spawn(evar, default, arg):
+    app = getenv(evar, default)
+    cmd = which(app)
+    spawnl(P_WAIT, cmd, basename(app), arg)
+
+###
+
+# tmpl args
+def process_args():
+
+    global args
+
+    def addopt(p, flagchar, longopt, help=None, /, **kwargs):
+        options = list(("-%s --%s" % (flagchar, longopt)).split())
+        p.add_argument(*options, help=help, **kwargs)
+
+    def addarg(p, vname, vdesc, help=None, /, **kwargs):
+        p.add_argument(vname, metavar=vdesc, help=help, **kwargs)
+
+    def addflag(*args, **kwargs):
+        addopt(*args, action='store_true', **kwargs)
+
+    p = argparse.ArgumentParser(
+        prog            = invname,
+        description     = __doc__.strip(),
+        allow_abbrev    = False,
+        formatter_class = argparse.RawTextHelpFormatter,
+    )
+
+    addarg(p, 'task', 'taskid', 'unique lookup string for "taskuuid" command')
+    if invname == 'tasknote':
+        addflag(p, 'e', 'edit', 'open the tasknote in $EDITOR')
+
+    args, left = p.parse_known_args(args)
+    if len(left):
+        bomb("supply just one arg, should lookup to a unique task")
+
+    return args.task
+
+
+def get_task(task):
+
+    try:
+        uuids = exe(f"taskuuid {task}").split()
+        if len(uuids) != 1:
+            bomb("error getting a single uuid")
+        uuid = uuids[0]
+        task = exe(f"task {uuid} export")
+        task = loads(task)
+
+    except CalledProcessError: bomb("task lookup failed")
+    except (JSONDecodeError, ValueError): bomb("bad json decode")
+
+    return task[0]
+
+
+def tasknote(task):
+
+    global args
+
+    uuid = task['uuid']
+    notefile = f"{getenv('HOME')}/.task/notes/{uuid}.rst" # todo: rcfile
+
+    if args.edit:
+        spawn('EDITOR', 'vi', notefile)
+        # todo: if exists and didn't before, add uda
+    else:
+        try: f = open(notefile)
+        except FileNotFoundError: bomb(f"note {notefile} dne")
+        except PermissionError: bomb(f"note {notefile} not readable")
+        stdout.write(''.join(f.readlines()))
+
+
+def taskopen(task):
+
+    global pid
+
+    charmap = digits + letters
+    idxmap = {charmap[i]:i for i in range(len(charmap))}
+
+    def getchar():
+        fd = stdin.fileno()
+        tattrs = tcgetattr(fd)
+        setraw(fd)
+        c = stdin.buffer.raw.read(1).decode(stdin.encoding)
+        tcsetattr(fd, TCSADRAIN, tattrs)
+        return c
+
+    anns = [a['description'] for a in task['annotations']]
+
+    links = []
+    matchn = 0
+    for i in range(len(anns)):
+        ann = anns[i]
+        words = ann.split()
+        matched = False
+        for j in range(len(words)):
+            url = urlparse(words[j])
+            if url.scheme.startswith('http'):
+                url = url.geturl()
+                words[j] = f"({charmap[matchn]}) {url} <--"
+                links.append(url)
+                matchn += 1
+                matched = True
+        if matched:
+            fillargs = {
+                'subsequent_indent': 4 * "\x20",
+                'fix_sentence_endings': True,
+                'break_long_words': False,
+                'break_on_hyphens': False,
+                'width': 78,
+            }
+            print(fill("\x20".join(words), **fillargs))
+
+    if matchn:
+        if matchn == 1: matchrange = charmap[0]
+        else: matchrange = f"{charmap[0]}-{charmap[matchn-1]}"
+        while True:
+            print(f"\nselect url ({matchrange})? ", end='')
+            stdout.flush()
+            c = getchar(); print(c)
+            if   c == '\x03': bomb("interrupted")           # ETX,  ^c
+            elif c == '\x04': return                        # EOT,  ^d
+            elif c == '\x0a': idx = 0; break                # LF,   ^j
+            elif c == '\x0d': idx = 0; break                # CR,   enter
+            elif c == '\x1a': kill(pid, SIGTSTP); continue  # SUB,  ^z
+            elif c in charmap:
+                idx = idxmap[c]
+                if idx < matchn:
+                    break
+            else:
+                print(f"got char {hex(ord(c))}, try again")
+
+    url = links[idx]
+    print(f"opening {url} ...")
+    spawn('BROWSER', 'open', url)
+
+
+###
+
+def main():
+
+    if debug == 1: breakpoint()
+
+    task = process_args()
+    task = get_task(task)
+
+    try: subprogram = globals()[invname]
+    except (KeyError, TypeError):
+        bomb(f"unimplemented command '{invname}'")
+
+    return subprogram(task)
+
+###
+
+if __name__ == "__main__":
+
+    from sys import hexversion
+    if hexversion < 0x03090000:
+        bomb("minimum python 3.9")
+
+    from bdb import BdbQuit
+    from pprint import pp
+    debug = int(getenv('DEBUG') or 0)
+    if debug:
+        err('debug: enabled')
+        unsetenv('DEBUG') # otherwise forked children hang
+
+    invname = basename(argv[0])
+    args = argv[1:]
+    argc = len(args)
+    pid = getpid()
+
+    try: main()
+    except BdbQuit: bomb("debug: stop")
