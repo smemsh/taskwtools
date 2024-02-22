@@ -55,7 +55,6 @@ def spawn(evar, default, arg):
 
 ###
 
-# tmpl args
 def process_args():
 
     global args
