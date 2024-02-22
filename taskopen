@@ -97,6 +97,8 @@ def get_task(task):
         uuid = uuids[0]
         task = exe(f"task {uuid} export")
         task = loads(task)
+        if not len(task):
+            bomb("no matching task")
 
     except CalledProcessError: bomb("task lookup failed")
     except (JSONDecodeError, ValueError): bomb("bad json decode")
