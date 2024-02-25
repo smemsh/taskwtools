@@ -137,11 +137,13 @@ def taskopen(task):
         tcsetattr(fd, TCSADRAIN, tattrs)
         return c
 
-    anns = [a['description'] for a in task['annotations']]
+    anns = [a['description'] for a in task.get('annotations', [])]
+    nanns = len(anns)
 
     links = []
     matchn = 0
-    for i in range(len(anns)):
+
+    for i in range(nanns):
         ann = anns[i]
         words = ann.split()
         matched = False
@@ -182,10 +184,13 @@ def taskopen(task):
             else:
                 print(f"got char {hex(ord(c))}, try again")
 
-    url = links[idx]
-    print(f"opening {url} ...")
-    spawn('BROWSER', 'open', url)
+        url = links[idx]
+        print(f"opening {url} ...")
+        spawn('BROWSER', 'open', url)
 
+    else:
+        if nanns: print("no urls")
+        else: print("no annotations")
 
 ###
 
