@@ -16,6 +16,10 @@ printf -v now_d "%($fmt)T" $now_t
 t=${now_d:0:-${#1}}$1}
 
 # todo: should this have a newline? it's normally in a subshell with other
-# args on the command line, not used standalone
+# args on the command line, not used standalone, so no newline is
+# appropriate.  should we use tty(1)?  but that still wouldn't work
+# correctly in most usage scenarios which are backticks, not pipelines.
+# we could use $SHLVL but this would be incorrect in a wide variety of
+# situations...
 #
 printf ${t:0:4}-${t:4:2}-${t:6:2}T${t:8:2}:${t:10:2}:${t:12:2}
