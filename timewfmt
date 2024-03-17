@@ -1,17 +1,21 @@
 #!/usr/bin/env bash
 #
-# convert from a $HISTTIMEFORMAT to an iso8601 (less tz) time for taskw
+# convert from a yyyyddhhmmss to an iso8601 (less tz) time for timew
+#
+# any supplied substring is superimposed over rhs of current time, thus
+# comprising a partially-specified time that has its unspecified
+# remainder defaulted into by the current time.
+#
+
+if ! [[ $1 =~ [[:digit:]]{1,14} ]]
+then echo "invalid date given" >&2; false; exit; fi
+
+fmt=%Y%m%d%H%M%S
+now_t=${EPOCHSECONDS:?}
+printf -v now_d "%($fmt)T" $now_t
+t=${now_d:0:-${#1}}$1}
+
 # todo: should this have a newline? it's normally in a subshell with other
 # args on the command line, not used standalone
 #
-: ${1:?}
-case ${#1} in
-(14) t=$1;;
-(12) t=$(date +%Y); t=${t%??}$1;;
-(10) t=$(date +%Y)$1;;
- (8) t=$(date +%Y%m)$1;;
- (6) t=$(date +%Y%m%d)$1;;
- (4) t=$(date +%Y%m%d%H)$1;;
- (*) echo "need to supply at least minute and second" >&2; false; exit;;
-esac
 printf ${t:0:4}-${t:4:2}-${t:6:2}T${t:8:2}:${t:10:2}:${t:12:2}
