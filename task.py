@@ -43,6 +43,7 @@ from os.path import basename
 from datetime import datetime, timedelta, timezone
 from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
+from operator import itemgetter
 from subprocess import check_output
 
 from tasklib import TaskWarrior, Task
@@ -843,7 +844,10 @@ def _taskget(*args, **kwargs):
         if taskn > 1 and not multi:
             # first match typically best if one result requested
             tasks = [firstmatch]
-        items = tasks
+        else:
+            # make sure output is deterministic
+            items = list(tasks)
+            items.sort(key=itemgetter('modified'), reverse=True)
 
     return cache_insert(taskkey, items)
 
