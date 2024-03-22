@@ -660,9 +660,9 @@ def _taskget(*args, **kwargs):
     def taskupdate(matches):
         nonlocal firstmatch
         nonlocal tasks
-        # save the first match because if we got --one we will be
+        # save the first match: if we got --one we will be
         # printing it, and often the first one found following
-        # taskget search flow is the one we want anyways
+        # taskget search flow is the one we want
         if firstmatch is None:
             firstmatch = matches[0] if matches else []
         tasks.update(matches)
