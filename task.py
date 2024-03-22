@@ -21,7 +21,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
 
 deps:
   - https://github.com/GothenburgBitFactory/tasklib with patch #117 and #119
-  - timew python library with patches 9-13
+  - https://pypi.org/project/timew/
 
 """
 __url__     = 'https://github.com/smemsh/.task/'
