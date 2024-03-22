@@ -325,7 +325,7 @@ def tasknow(*args):
             kwargs.update({f"use{fmt}": True})
 
     if usefmt:
-        print(_taskids(current, onlyone=True, **kwargs))
+        print(_taskids(current, firstonly=True, **kwargs))
     else:
         output = current
         if not usefmt and not args.fql:
@@ -564,22 +564,22 @@ def _taskstop(task=None, verbose=True):
 
 #
 
-def _taskids(*args, onlyone=False, useid=True, useuuid=False, idonly=False):
-    tasks = _taskget(*args, idonly=idonly, matchall=(not onlyone))
+def _taskids(*args, firstonly=False, useid=True, useuuid=False, idonly=False):
+    tasks = _taskget(*args, idonly=idonly, matchall=(not firstonly))
     taskids = [
         task['id']
         if task['id'] and not useuuid
         else task['uuid']
         for task in tasks]
     if taskids:
-        if onlyone: return taskids[0]
+        if firstonly: return taskids[0]
         else: return [str(t) for t in taskids]
     else:
         dummy = dummy_match(0)
-        return dummy if onlyone else [dummy]
+        return dummy if firstonly else [dummy]
 
 def _taskid(*args, **kwargs):
-    return _taskids(*args, onlyone=True, idonly=True, **kwargs)
+    return _taskids(*args, firstonly=True, idonly=True, **kwargs)
 
 def taskid(*args):
     print(_taskid(*args))
