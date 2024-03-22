@@ -20,7 +20,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - on-modify.timew: hook runs on all task mods (via symlink in hooks/)
 
 deps:
-  - tasklib python library with patch #117 and #119
+  - https://github.com/GothenburgBitFactory/tasklib with patch #117 and #119
   - timew python library with patches 9-13
 
 """
