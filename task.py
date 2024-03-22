@@ -160,10 +160,11 @@ def __taskone(*args, **kwargs):
         onetask = dummy_task(ntasks) if argns.zero else {}
     return success, onetask
 
+# exits if not exactly one matching task
 def _taskone(*args, **kwargs):
-    abort = kwargs.get('abort', True)
     success, match = __taskone(*args, **kwargs)
-    if not success and abort:
+    if not success:
+        # dummy or empty depending on 'zero' option
         m = getitem(match, 'uuid')
         if m: print(m)
         sys.exit(EXIT_FAILURE)
@@ -235,7 +236,7 @@ def timewtags(*args):
 #
 def taskdo(*args):
     # there's exactly one match if _taskone() returns
-    task = _taskone(*args, matchone=True, idonly=True, abort=True)
+    task = _taskone(*args, matchone=True, idonly=True)
     return _taskdo(task)
 
 # if called from the modify hook (only other entrance besides taskdo()),
@@ -563,11 +564,7 @@ def _taskstop(task=None, verbose=True):
 #
 
 def _taskids(*args, onlyone=False, useid=True, useuuid=False, idonly=False):
-
-    matchall = False if onlyone else True
-    abort = False if onlyone else True
-
-    tasks = _taskget(*args, idonly=idonly, matchall=matchall, abort=abort)
+    tasks = _taskget(*args, idonly=idonly, matchall=(not onlyone))
     taskids = [
         task['id']
         if task['id'] and not useuuid
