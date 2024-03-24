@@ -564,22 +564,18 @@ def _taskstop(task=None, verbose=True):
 
 #
 
-def _taskids(*args, firstonly=False, useid=True, useuuid=False, idonly=False):
-    tasks = _taskget(*args, idonly=idonly, matchall=(not firstonly))
+def _taskids(*args, useid=True, useuuid=False, idonly=False, **kwargs):
+    tasks = _taskget(*args, idonly=idonly, **kwargs)
     taskids = [
         task['id']
         if task['id'] and not useuuid
         else task['uuid']
         for task in tasks]
-    if taskids:
-        if firstonly: return taskids[0]
-        else: return [str(t) for t in taskids]
-    else:
-        dummy = dummy_match(0)
-        return dummy if firstonly else [dummy]
+    if taskids: return [str(t) for t in taskids]
+    else: return [dummy_match(0)]
 
 def _taskid(*args, **kwargs):
-    return _taskids(*args, firstonly=True, idonly=True, **kwargs)
+    return _taskids(*args, matchone=True, idonly=True, **kwargs)[0]
 
 def taskid(*args):
     print(_taskid(*args))
