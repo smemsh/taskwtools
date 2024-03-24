@@ -313,7 +313,7 @@ def tasknow(*args):
     current, active = _tasknow()
 
     # if user specified an output format (besides fql, the default), we
-    # just print the requested format only, by jumping to _taskids()
+    # just print the requested format only, by jumping to _taskid()
     # and using kwargs in the call to specify requested output format
     #
     usefmt = False
@@ -325,7 +325,7 @@ def tasknow(*args):
             kwargs.update({f"use{fmt}": True})
 
     if usefmt:
-        print(_taskids(current, firstonly=True, **kwargs))
+        print(_taskid(current, idonly=True, exact=True, **kwargs))
     else:
         output = current
         if not usefmt and not args.fql:
