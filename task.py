@@ -7,6 +7,7 @@ taskwarrior, timewarrior wrapper utilities for task and time management
   - taskids: print multiple matching ids from taskget algorithm
   - taskuuid: print exactly one matching ids from taskget or fail
   - taskuuids: print multiple matching uuids from taskget algorithm
+  - taskone: print a matching task uuid and fail if more than one match
   - taskget: search tasks as ids, uuids, labels or from descs, and print
   - tasknow: show last started task and whether it's active
   - taskday: show labels of tasks from last 24 hours
@@ -170,6 +171,9 @@ def _taskone(*args, **kwargs):
         if m: print(m)
         sys.exit(EXIT_FAILURE)
     return match
+
+def taskone(*args):
+    print(_taskone(*args)['uuid'])
 
 #
 
