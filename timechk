@@ -19,7 +19,7 @@ timew export \
 		if ((${#fql[@]} != 1))
 		then echo "bad line: '$line'" >&2; false; exit; fi
 
-		if [[ $fql =~ [^[:alnum:]-/] ]]
+		if [[ $fql =~ [^[:alnum:]/-] ]]
 		then echo "bad fql: '$line'" >&2; false; exit; fi
 
 		actual=($(fmt -1 <<< "$line" | sort -u))
