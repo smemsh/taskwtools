@@ -31,7 +31,7 @@ assoc_sane ()
 		false; return; fi
 
 	# only alphanumerics and dashes allowed
-	if [[ $1 =~ [^[:alnum:]-/] ]]; then
+	if [[ $1 =~ [^[:alnum:]/-] ]]; then
 		false; return; fi
 }
 
