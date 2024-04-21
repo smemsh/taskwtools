@@ -66,7 +66,7 @@ assoc_split_project ()
 
 task_assoc_exists ()
 {
-	[[ $(task $fqtask _ids) ]]
+	[[ $(task $fqtask _ids) || $(task $prjtask _ids) ]]
 }
 
 # we like tasks to fit 80 characters including the label
@@ -148,9 +148,9 @@ parse_args ()
 	fi
 
 	# fully qualified task with project hierarchy and label
-	setenv fqtask \
-		"project:$(IFS=.; printf "${projects[*]}") " \
-		"label:$label"
+	prjstring=$(IFS=.; printf "${projects[*]}")
+	setenv fqtask "project:$prjstring label:$label"
+	setenv prjtask "project:$prjstring.$label"
 
 	# allow injection of additional command line args from user-set
 	# persistent environment variable
