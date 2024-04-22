@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+taskrecent ()
+{
+	local desc="false"
+
+	local opts # flag bits
+	local current timechar timethis
+
+	declare fql=$((1<<1))
+	declare proj=$((1<<2))
+	declare label=$((1<<4))
+
+	flag    () { (((opts & $1) == $1)); }
+	flagstr () { flag $1 && printf true || printf false; }
+
+	# 1/2
+	eval set -- $(getopt -n "${0##*/}" \
+		-o fpdlh -l fql,proj,label,desc,help -- "$@")
+
+	# 2/2
+	while true; do case $1 in
+	(-f|--fql) let "opts |= $fql"; shift;;
+	(-p|--proj) let "opts |= $proj"; shift;;
+	(-l|--label) let "opts |= $label"; shift;;
+	(-d|--desc) desc=true; shift;;
+	(-h|--help) echo "read script for usage" >&2; false; return;;
+	(--) shift; break;;
+	(*) echo "bad usage" >&2; false; return;;
+	esac; done
+
+	if ! (((opts & (opts - 1)) == 0))
+	then echo "fql/project/label exclude each other" >&2; false; return; fi
+
+	if ! ((opts)) # default display type if user didn't specify
+	then opts=$label; fi
+
+	timewstr=$(timew export @1 | jq -r '
+		if .[].end then "=" else "*" end
+		+ (.[].tags | map(select(
+			.[0:1] != "+" and .[-1:] != "/")) | first)
+	')
+	timechar=${timewstr:0:1}
+	timefql=${timewstr:1}
+
+	task export \
+	| jq -r \
+		--arg timefql "$timefql" \
+		--arg timechar "$timechar" \
+		--argjson cutoff $(date -d $(task calc now - ${1:-24h}) +%s) \
+		--argjson showdesc $desc \
+		--argjson showfql `flagstr $fql` \
+		--argjson showproj `flagstr $proj` \
+		--argjson showlabel `flagstr $label` \
+		'
+		sort_by(.modified) |
+		reverse |
+		.[] |
+		select(.modified | gsub(
+			"(?<yy>\\d{4})(?<mo>\\d{2})(?<dd>\\d{2})T"
+			+ "(?<hh>\\d{2})(?<mm>\\d{2})(?<ss>\\d{2})Z"
+			; "\(.yy)-\(.mo)-\(.dd)T"
+			+ "\(.hh):\(.mm):\(.ss)Z"
+			) | fromdateiso8601 > $cutoff
+		) |
+		"\(.label)" as $lbl |
+		"\(.project | gsub("\\."; "/"))" as $prj |
+		($prj + "/" + $lbl) as $fql |
+		(
+			if (.status == "completed")
+			then "/"
+			elif ($fql == $timefql)
+			then $timechar
+			elif (.start != null)
+			then "\\"
+			else "-"
+			end
+		) as $statchar |
+		"\($statchar) "
+		+ if $showlabel
+		  then $lbl
+		  elif $showproj
+		  then $lbl + "\t" + $prj + "/"
+		  elif $showfql
+		  then $fql
+		  else ""
+		  end
+		+ if $showdesc then "\t\(.description)" else "" end
+	' \
+	| awk -F $'\t' '{
+		for (i = 1; i <= NF; i++) printf("%s\t", $i)
+		print("\n")
+	}' \
+	| sed s,'\t$',, \
+	| column -s $'\t' -t \
+	;
+}
+
+invname=${0##*/}
+declare -F $invname &>/dev/null || bomb "no such invocation"
+$invname "$@"
