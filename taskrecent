@@ -93,6 +93,7 @@ taskrecent ()
 	}' \
 	| sed s,'\t$',, \
 	| column -s $'\t' -t \
+	| less -XSEF \
 	;
 }
 
