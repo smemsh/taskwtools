@@ -1,5 +1,79 @@
 #!/usr/bin/env bash
 
+timerecent ()
+{
+	timewstr=$(timew export @1 | jq -r '
+		if .[].end then "=" else "*" end
+		+ (.[].tags | map(select(
+			.[0:1] != "+" and .[-1:] != "/")) | first)
+	')
+
+	timechar=${timewstr:0:1}
+	timefql=${timewstr:1}
+
+	join -j2 -a1 --nocheck-order \
+	<(timew export \
+	| jq -r '
+		map(.tags[]) |
+		map(select(endswith("/") | not)) |
+		map(select(startswith("+") | not)) |
+		reverse |
+		.[]
+	' \
+	| awk '!seen[$0]++' \
+	| tac \
+	| awk '{print(NR, $0)}' \
+	| sort -k 2 \
+	) \
+	<(task export \
+	| jq -r \
+		--arg timefql "$timefql" \
+		--arg timechar "$timechar" \
+		'
+		.[] |
+		select(.status == "completed" or .start != null) |
+		"\(.label)" as $lbl |
+		"\(.project | gsub("\\."; "/"))" as $prj |
+		($prj + "/" + $lbl) as $fql |
+		(
+			if (.status == "completed")
+			then "/"
+			elif ($fql == $timefql)
+			then $timechar
+			else "\\"
+			end
+		) as $statchar |
+		"\($statchar) "
+		+ $fql
+		+ "\t\(.description)"
+		' \
+	| sort -k 2,2 \
+	) \
+	| sort -nk 2,2 \
+	| sed 's,\x20,\t,; s,\x20,\t,; s,\x20,\t,' \
+	| awk -v FS='\t' -v OFS='\t' '
+	  {
+		char = $3; fql = $1; desc = $4
+		split(fql, fqelem, "/", fqseps)
+		fqseps[length(fqseps)] = "\t"
+		tosplit = ""
+		for (i in fqelem) {
+			s = sprintf("%s%s", fqelem[i], fqseps[i])
+			tosplit = tosplit s
+		}
+		split(tosplit, prjlabel, "\t")
+		project = prjlabel[1]
+		label = prjlabel[2]
+		print char, label, project, desc
+	  }' \
+	| tac \
+	| column -s $'\t' -t \
+	| head -n ${1:-30} \
+	| sed -r 's,^(.)\x20\x20,\1\x20,' \
+	| less -XSEF \
+	;
+}
+
 taskrecent ()
 {
 	local desc="false"
