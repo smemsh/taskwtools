@@ -2,17 +2,16 @@
 
 lessflags=-XSEF
 
+timewstr=$(timew export @1 | jq -r '
+	if .[].end then "=" else "*" end
+	+ (.[].tags | map(select(
+		.[0:1] != "+" and .[-1:] != "/")) | first)
+')
+timechar=${timewstr:0:1}
+timefql=${timewstr:1}
+
 timerecent ()
 {
-	timewstr=$(timew export @1 | jq -r '
-		if .[].end then "=" else "*" end
-		+ (.[].tags | map(select(
-			.[0:1] != "+" and .[-1:] != "/")) | first)
-	')
-
-	timechar=${timewstr:0:1}
-	timefql=${timewstr:1}
-
 	join -j2 -a1 --nocheck-order \
 	<(timew export \
 	| jq -r '
@@ -110,14 +109,6 @@ taskrecent ()
 
 	if ! ((opts)) # default display type if user didn't specify
 	then opts=$label; fi
-
-	timewstr=$(timew export @1 | jq -r '
-		if .[].end then "=" else "*" end
-		+ (.[].tags | map(select(
-			.[0:1] != "+" and .[-1:] != "/")) | first)
-	')
-	timechar=${timewstr:0:1}
-	timefql=${timewstr:1}
 
 	task export \
 	| jq -r \
