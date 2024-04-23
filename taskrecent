@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+lessflags=-XSEF
+
 timerecent ()
 {
 	timewstr=$(timew export @1 | jq -r '
@@ -70,7 +72,7 @@ timerecent ()
 	| column -s $'\t' -t \
 	| head -n ${1:-30} \
 	| sed -r 's,^(.)\x20\x20,\1\x20,' \
-	| less -XSEF \
+	| less $lessflags \
 	;
 }
 
@@ -167,7 +169,7 @@ taskrecent ()
 	}' \
 	| sed s,'\t$',, \
 	| column -s $'\t' -t \
-	| less -XSEF \
+	| less $lessflags \
 	;
 }
 
