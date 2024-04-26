@@ -825,7 +825,7 @@ def _taskget(*args, **kwargs):
         ftasks = list()
         for filt in [
             field + clause for clause in ['__has']
-            for field in ['description', 'label', 'project']
+            for field in ['label', 'project', 'description']
         ]:
             fftasks = taskfilter({filt: taskarg})
             if fftasks:
