@@ -821,15 +821,15 @@ def _taskget(*args, **kwargs):
             if multi: continue
             else: break
 
-        # for description, label, project try substring, then regex
-        ftasks = set()
+        # in text fields try substring, then regex
+        ftasks = list()
         for filt in [
             field + clause for clause in ['__has']
             for field in ['description', 'label', 'project']
         ]:
             fftasks = taskfilter({filt: taskarg})
             if fftasks:
-                ftasks.update(fftasks)
+                ftasks.extend(fftasks)
                 if not multi: break
         taskupdate(ftasks)
 
