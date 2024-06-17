@@ -196,8 +196,8 @@ def _taskfqls(*args, **kwargs):
 def taskfql(*args):
     print(_taskfql(*args))
 
-def taskfqls(*args):
-    for t in _taskfqls(*args):
+def taskfqls(*args, **kwargs):
+    for t in _taskfqls(*args, **kwargs):
         print(t or '')
 
 def tasklabels(*args):
