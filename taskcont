@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+#
+# taskcont, timecont, tasklast, timelast
+#   resume the last or second to last recorded task or time interval
+#
+# desc:
+#   - starts the last worked task in timewarrior database
+#   - if 'task' then given timew interval must also be in taskw db
+#   - if 'time' then time/ prefix will match (ie, no taskw task)
+#   - if 'cont' then start the last worked task
+#   - if 'last' then start the task before that
+#
+# scott@smemsh.net
+# https://github.com/smemsh/.task/
+# http://spdx.org/licenses/GPL-2.0
+#
+
+taskcont () { resume_task; }
+timecont () { resume_task; }
+tasklast () { resume_task; }
+timelast () { resume_task; }
+
+resume_task ()
+{
+	local candidate lastcand interval
+
+	fql_of_interval ()
+	{
+		printf $(
+			timew export \
+			| jq -r ".[] | select(.id == ${1:?}) | .tags[]" \
+			| grep -v -e ^+ -e /$ \
+			| paste -sd,
+		)
+	}
+
+	interval=1
+	while true
+	do
+		candidate=$(fql_of_interval $interval)
+		let interval++
+
+		if [[ $cmdprefix == "task" ]]
+		then if [[ ${candidate:0:5} == "time/" ]]; then
+			continue; fi; fi
+
+		if [[ $cmdsuffix == "cont" ]]; then
+			break; fi
+
+		if [[ $lastcand ]]
+		then [[ $candidate == $lastcand ]] && continue || break; fi
+
+		if ! [[ $candidate ]]
+		then echo "cannot find last fql" >&2; false; return; fi
+
+		lastcand=$candidate
+	done
+
+	# after the loop, we are one past the target
+	let interval--
+
+	if ((interval == 1))
+	then timew continue # aborts if @1 is an open interval
+	else timew continue @$interval # succeeds whether @1 open or closed
+	fi
+}
+
+main ()
+{
+	cd "$startdir" || exit
+
+	cmdprefix=${invname:0:4}
+	cmdsuffix=${invname:(-4)}
+
+	if [[ $(declare -F $invname) ]]
+	then $invname "$@"
+	else echo "unimplemented command '$invname'" >&2; fi
+}
+
+startdir=$HOME
+invname=${0##*/}
+invdir=${0%/*}
+
+main "$@"
