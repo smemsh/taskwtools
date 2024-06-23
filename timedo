@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+(($# > 1)) && { echo "zero or one arg" >&2; false; exit; }
+(($# == 0)) && set -- todo
+timew start time/${1:?}
