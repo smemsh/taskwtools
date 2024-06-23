@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# tasktmp, timetmp
+#   makes a stub timewarrior (or taskwarrior and timewarrior) task
+#
+
+bomb    () { echo "$@, aborting" >&2; exit 1; }
+timetmp () { timew start time/tmp$uuidpfx; }
+tasktmp () { if taskn=$(taskadd task/tmp$uuidpfx $uuid)
+             then task $taskn start || bomb "taskadd failed"; fi; }
+main ()
+{
+	uuid=`uuid`
+	uuidpfx=${uuid%%-*}
+	cd
+
+	if [[ $(declare -F $invname) ]]
+	then $invname "$@"
+	else bomb "unimplemented command '$invname'"; fi
+}
+
+invname=${0##*/}
+invdir=${0%/*}
+
+main "$@"
