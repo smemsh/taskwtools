@@ -603,6 +603,7 @@ def taskget(*args):
 def _taskget(*args, **kwargs):
 
     global getcache
+    global exitcode
 
     ran = False
     tasks = set()
@@ -742,6 +743,7 @@ def _taskget(*args, **kwargs):
 
     cacheval = cache_get(taskkey)
     if cacheval is not None:
+        exitcode = EXIT_SUCCESS
         return cacheval
 
     if not taskargs:
@@ -838,6 +840,7 @@ def _taskget(*args, **kwargs):
 
     taskn = len(tasks)
     if taskn == 0:
+        exitcode = EXIT_FAILURE
         if zero: items = [dummy_task(0)]
         else: items = []
     else:
@@ -949,7 +952,11 @@ def main():
         # todo: for some reason exit code doesn't work? always zero.
         # is it because we're already in exception handler?
         ret = EXIT_FAILURE
-    sys.exit(ret or EXIT_SUCCESS)
+
+    if ret is None:
+        ret = globals().get('exitcode', EXIT_SUCCESS)
+
+    sys.exit(ret)
 
 ###
 
@@ -989,6 +996,8 @@ if __name__ == "__main__":
 
     taskw = TaskWarrior().tasks
     timew = TimeWarrior()
+
+    exitcode = EXIT_SUCCESS
 
     try: main()
     except BdbQuit: bomb("debug: stop")
