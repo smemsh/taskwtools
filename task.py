@@ -31,8 +31,8 @@ __license__ = 'GPL-2.0'
 
 import sys
 
+from os import getenv
 from re import search
-from os import getenv, EX_OK as EXIT_SUCCESS, EX_SOFTWARE as EXIT_FAILURE
 from copy import copy
 from uuid import UUID as uuid
 from enum import IntEnum as enum
@@ -51,6 +51,11 @@ from tasklib import TaskWarrior, Task
 from timew import TimeWarrior
 from timew.exceptions import TimeWarriorError
 
+from os import (
+    EX_OK as EXIT_SUCCESS,
+    EX_SOFTWARE as EXIT_FAILURE,
+    EX_UNAVAILABLE as EXIT_NORESULTS,
+)
 ###
 
 def err(*args, **kwargs):
@@ -840,7 +845,7 @@ def _taskget(*args, **kwargs):
 
     taskn = len(tasks)
     if taskn == 0:
-        exitcode = EXIT_FAILURE
+        exitcode = EXIT_NORESULTS
         if zero: items = [dummy_task(0)]
         else: items = []
     else:
