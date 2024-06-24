@@ -54,7 +54,7 @@ timerecent ()
 	| sed 's,\x20,\t,; s,\x20,\t,; s,\x20,\t,' \
 	| awk -v FS='\t' -v OFS='\t' '
 	  {
-		char = $3; fql = $1; desc = $4
+		char = ($3 ? $3 : "%"); fql = $1; desc = $4
 		split(fql, fqelem, "/", fqseps)
 		fqseps[length(fqseps)] = "\t"
 		tosplit = ""
