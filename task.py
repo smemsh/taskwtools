@@ -294,9 +294,8 @@ def _tasknow():
     cachevals = ['fql', 'active']
 
     if not nowcache:
-        timedata = timew.export()
         try:
-            curtask = next(filter(lambda task: task['id'] == 1, timedata))
+            curtask = timew.export(ids=[1])[0]
             fql = next(filter(isfql, curtask.get('tags')))
         except:
             bomb("task @1 must exist and have an fql tag")
