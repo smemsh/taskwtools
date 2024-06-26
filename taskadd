@@ -116,6 +116,7 @@ parse_args ()
 		case ${!i} in
 		(-e|--edit) let addfile++;;
 		(-s|--start) let dostart++;;
+		(*) break;;
 		esac
 	else break; fi; done
 	shift $((--i))
