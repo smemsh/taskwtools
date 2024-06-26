@@ -109,12 +109,13 @@ sanitize_args ()
 parse_args ()
 {
 	local argn i
-	declare -g addfile
+	declare -g addfile dostart
 
 	for ((i = 1; i <= $#; i++))
 	do if [[ ${!i:0:1} == '-' ]]; then
 		case ${!i} in
 		(-e) let addfile++;;
+		(-s) let dostart++;;
 		esac
 	else break; fi; done
 	shift $((--i))
@@ -210,6 +211,8 @@ main ()
 
 	# display task id to user so they can use it to further manipulate
 	task $uuid _unique id
+
+	((dostart)) && task $uuid start
 
 	# XXX TODO
 	#
