@@ -59,7 +59,15 @@ resume_task ()
 	# after the loop, we are one past the target
 	let interval--
 
-	if ((interval == 1))
+	# when used non-interactively, it's probably rptaskline, which
+	# already compares before/after tasklines and shows delta.  we
+	# don't want failure on no-change because rptaskline reports
+	# failure, and timecont on already open labels is idempotent, so
+	# no failure per se.  shown delta will make clear that state did
+	# not change.  interactively, this should fail however, so it's
+	# not confusing when a new interval seems to have been made
+	#
+	if ((interval == 1)) && tty -s
 	then timew continue # aborts if @1 is an open interval
 	else timew continue @$interval # succeeds whether @1 open or closed
 	fi
