@@ -204,7 +204,7 @@ main ()
 
 	# edit the attached .rst file via taskopen if cli arg '-e' given
 	if ((addfile))
-	then task $uuid annotate -- file:; taskopen $uuid; fi
+	then task $uuid annotate -- file:; taskopen -e $uuid; fi
 
 	# add any urls given before description as annotations
 	for ((i = 0; i < ${#urls[@]}; i++))
