@@ -20,6 +20,6 @@ done
 
 argc=${#args[@]}
 ((argc > 1)) && bomb "only zero or one fql, and timew :hints allowed"
-((argc == 0)) && set -- todo
+((argc == 0)) && args=(todo)
 
 timew start $args ${hints[@]}
