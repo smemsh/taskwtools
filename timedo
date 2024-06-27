@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+#
+# timedo
+#   start timew task "time/$1", default "time/todo"
+#
+# scott@smemsh.net
+# https://github.com/smemsh/.task/
+# https://spdx.org/licenses/GPL-2.0
+#
 
 (($# > 1)) && { echo "zero or one arg" >&2; false; exit; }
 (($# == 0)) && set -- todo
