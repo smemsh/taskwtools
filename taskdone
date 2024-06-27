@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# completes the current task, if it's a real task with an fql
+# keeps clock running on time/todo
+#
+
+bomb () { echo "taskdone: $@" >&2; false; exit; }
+
+tasknow="$(tasknow)"            || bomb "failed tasknow"
+taskfql="$(taskfql)"            || bomb "failed taskfql"
+taskuuid="$(taskuuid)"          || bomb "failed taskuuid"
+
+[[ $tasknow =~ "^time/" ]]      && bomb "cannot complete 'time/' pseudo-tasks"
+[[ $tasknow =~ started$ ]]      || bomb "current task not in 'started' state"
+[[ $taskuuid ]]                 || bomb "cannot look up current task uuid"
+[[ $taskfql ]]                  || bomb "current task fails task lookup as fql"
+uuid -d "$taskuuid" &>/dev/null || bomb "current task uuid is malformed"
+
+task $taskuuid done             || bomb "could not 'done' task $taskuuid"
+timedo :fill                    || bomb "failed timedo after task completion"
