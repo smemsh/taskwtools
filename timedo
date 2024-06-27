@@ -8,6 +8,8 @@
 # https://spdx.org/licenses/GPL-2.0
 #
 
-(($# > 1)) && { echo "zero or one arg" >&2; false; exit; }
+bomb () { echo "${0##*/}: ${@}" >&2; false; exit; }
+
+(($# > 1)) && bomb "zero or one fql"
 (($# == 0)) && set -- todo
 timew start time/${1:?}
