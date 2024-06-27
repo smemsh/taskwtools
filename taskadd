@@ -210,10 +210,8 @@ main ()
 	for ((i = 0; i < ${#urls[@]}; i++))
 	do task $uuid annotate -- "${urls[i]}"; done
 
-	# display task id to user so they can use it to further manipulate
-	task $uuid _unique id
-
-	((dostart)) && task $uuid start
+	# either --start or show id to user so they can further manipulate
+	((dostart)) && task $uuid start || task $uuid _unique id
 
 	# XXX TODO
 	#
