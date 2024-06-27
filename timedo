@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # timedo
-#   start timew task "time/$1", default "time/todo"
+#   start timew task "time/$1", with optional :hints, default "time/todo"
 #
 # scott@smemsh.net
 # https://github.com/smemsh/.task/
@@ -10,6 +10,16 @@
 
 bomb () { echo "${0##*/}: ${@}" >&2; false; exit; }
 
-(($# > 1)) && bomb "zero or one fql"
-(($# == 0)) && set -- todo
-timew start time/${1:?}
+declare -a hints args
+for ((i = 1; i <= $#; i++)); do
+	if [[ $arg =~ "^:" ]]
+	then hints+=($arg); shift
+	else args+=(time/$arg)
+	fi
+done
+
+argc=${#args[@]}
+((argc > 1)) && bomb "only zero or one fql, and timew :hints allowed"
+((argc == 0)) && set -- todo
+
+timew start $args ${hints[@]}
