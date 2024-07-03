@@ -34,7 +34,6 @@ if hexversion < 0x030900f0: exit("minpython: %s" % hexversion)
 
 from sys import argv, stdin, stdout, stderr
 
-from os import getenv
 from re import search
 from copy import copy
 from uuid import UUID as uuid
@@ -43,7 +42,6 @@ from json import loads as jloads, dumps as jdumps
 from pprint import pp
 from select import select
 from string import digits, hexdigits, ascii_lowercase as lowercase
-from os.path import basename
 from datetime import datetime, timedelta, timezone
 from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
@@ -54,7 +52,10 @@ from tasklib import TaskWarrior, Task
 from timew import TimeWarrior
 from timew.exceptions import TimeWarriorError
 
+from os.path import basename
 from os import (
+    getenv, isatty,
+    close as osclose,
     EX_OK as EXIT_SUCCESS,
     EX_SOFTWARE as EXIT_FAILURE,
     EX_UNAVAILABLE as EXIT_NORESULTS,
@@ -948,11 +949,14 @@ def on_modify_timew(*args):
 
 def main():
 
-    if debug == 1: breakpoint()
+    if debug == 1:
+        breakpoint()
 
     try: subprogram = globals()[invname]
     except (KeyError, TypeError):
-        bomb(f"unimplemented command '{invname}'")
+        from inspect import trace
+        if len(trace()) == 1: bomb("unimplemented")
+        else: raise
 
     try: ret = subprogram(*args)
     except BrokenPipeError:
@@ -974,15 +978,18 @@ if __name__ == "__main__":
     triggered = invname != replaced # ie for on-modify
     invname = replaced
 
-    if triggered and select([stdin], [], [], 0)[0]:
-        # save stdin if given, pdb needs stdio fds itself
+    stdinfd = stdin.fileno()
+    if triggered and not isatty(stdinfd) and select([stdin], [], [])[0]:
+        # save stdin, pdb needs stdio fds itself
         inlines = stdin.readlines()
+        osclose(stdinfd) # cpython bug 73582
         try: stdin = open('/dev/tty')
         except: pass # no ctty, but then pdb would not be in use
 
     from bdb import BdbQuit
     debug = int(getenv('DEBUG') or 0)
     if debug:
+        import pdb
         from pprint import pp
         err('debug: enabled')
 
@@ -1005,3 +1012,15 @@ if __name__ == "__main__":
 
     try: main()
     except BdbQuit: bomb("debug: stop")
+    except SystemExit: raise
+    except KeyboardInterrupt: bomb("interrupted")
+    except:
+        print_exc(file=stderr)
+        if debug: pdb.post_mortem()
+    finally: # cpython bug 55589
+        try: stdout.flush()
+        finally:
+            try: stdout.close()
+            finally:
+                try: stderr.flush()
+                finally: stderr.close()
