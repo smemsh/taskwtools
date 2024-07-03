@@ -29,7 +29,10 @@ __url__     = 'https://github.com/smemsh/.task/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 
-import sys
+from sys import exit, hexversion
+if hexversion < 0x030900f0: exit("minpython: %s" % hexversion)
+
+from sys import argv, stdin, stdout, stderr
 
 from os import getenv
 from re import search
@@ -59,11 +62,11 @@ from os import (
 ###
 
 def err(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
+    print(*args, file=stderr, **kwargs)
 
 def bomb(*args, **kwargs):
     err(*args, **kwargs)
-    sys.exit(EXIT_FAILURE)
+    exit(EXIT_FAILURE)
 
 def dprint(*args, **kwargs):
     if not debug: return
@@ -174,7 +177,7 @@ def _taskone(*args, **kwargs):
         # dummy or empty depending on 'zero' option
         m = getitem(match, 'uuid')
         if m: print(m)
-        sys.exit(EXIT_FAILURE)
+        exit(EXIT_FAILURE)
     return match
 
 def taskone(*args):
@@ -354,7 +357,7 @@ def tasknotes(*args):
 
     headchar = '='
     outputs = []
-    interactive = sys.stdout.isatty()
+    interactive = stdout.isatty()
 
     colordict = {
         'YELLOW':   "93",
@@ -932,7 +935,7 @@ def on_modify_timew(*args):
 
         if 'end' not in new:
             print("disallowing pause, use timewarrior until 'done'")
-            sys.exit(EXIT_FAILURE)
+            exit(EXIT_FAILURE)
 
     if set(_timewtags(old)) != set(_timewtags(new)):
         if old.get('label'): # skip new taskadd with no label yet
@@ -960,24 +963,21 @@ def main():
     if ret is None:
         ret = globals().get('exitcode', EXIT_SUCCESS)
 
-    sys.exit(ret)
+    exit(ret)
 
 ###
 
 if __name__ == "__main__":
 
-    if sys.hexversion < 0x03090000:
-        bomb("minimum python 3.9")
-
-    invname = basename(sys.argv[0])
+    invname = basename(argv[0])
     replaced = invname.replace('-', '_').replace('.', '_')
     triggered = invname != replaced # ie for on-modify
     invname = replaced
 
-    if triggered and select([sys.stdin], [], [], 0)[0]:
+    if triggered and select([stdin], [], [], 0)[0]:
         # save stdin if given, pdb needs stdio fds itself
-        inlines = sys.stdin.readlines()
-        try: sys.stdin = open('/dev/tty')
+        inlines = stdin.readlines()
+        try: stdin = open('/dev/tty')
         except: pass # no ctty, but then pdb would not be in use
 
     from bdb import BdbQuit
@@ -988,7 +988,7 @@ if __name__ == "__main__":
 
     argslast = list()
     argns = Namespace()
-    args = sys.argv[1:]
+    args = argv[1:]
 
     getcache = {}
     nowcache = {}
