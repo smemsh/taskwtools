@@ -146,6 +146,11 @@ def isfailuuid(arg):
     if type(arg) is not uuid: bomb("isfailuuid")
     return arg.int & FAILUUID.int == FAILUUID.int
 
+def taskdummy():
+    global exitcode
+    print(dummy_match(0))
+    exitcode = EXIT_NORESULTS
+
 def dummy_match(n):
     if n == 0: dummy = str(failuuid('NONE'))
     elif n > 1: dummy = str(failuuid('MULTI'))
