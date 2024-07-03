@@ -5,9 +5,12 @@
 # https://spdx.org/licenses/GPL-2.0
 #
 
+bomb () { echo "$@" >&2; false; exit; }
+
 taskl ()
 {
 	local taskid=${1:?}
 	shift
+	(($#)) && bomb "only one arg allowed"
 	task $(taskid $taskid) "$@"
 }
