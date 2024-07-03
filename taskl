@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+taskl ()
+{
+	local taskid=$1
+	shift
+	task $(taskid $taskid) "$@"
+}
