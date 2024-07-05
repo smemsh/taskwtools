@@ -787,7 +787,7 @@ def _taskget(*args, **kwargs):
                 else: break
         except ValueError: pass
 
-        # taskuuid
+        # taskuuid-long
         try:
             idkey = 'uuid'
             arg = uuid(taskarg)
@@ -797,8 +797,8 @@ def _taskget(*args, **kwargs):
                 else: break
         except ValueError: pass
 
-        # taskuuid-initial
-        if set(taskarg).issubset(f"{hexdigits}-"):
+        # taskuuid-short
+        if len(taskarg) >= 8 and set(taskarg).issubset(f"{hexdigits}-"):
             idkey = 'uuid'
             arg = taskarg
             loopagain = update_matches(idkey, arg)
