@@ -762,6 +762,10 @@ def _taskget(*args, **kwargs):
         t, _ = _tasknow()
         taskargs = [t]
 
+    ##
+
+    matches = None
+
     for taskarg in taskargs:
 
         # more taskargs, but we already matched and no more were requested
@@ -780,7 +784,6 @@ def _taskget(*args, **kwargs):
         try:
             idkey = 'id'
             arg = int(taskarg)
-            matches = taskfilter({idkey: arg})
             loopagain = update_matches(idkey, arg)
             if loopagain is not None:
                 if loopagain: continue
