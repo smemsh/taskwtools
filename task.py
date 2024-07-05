@@ -294,9 +294,7 @@ def isfql(s):
     fqlre = f"(({labelre}/)+)({labelre})$"
     return bool(search(fqlre, s))
 
-# no way to know tags of @1 besides export all and filter for id
-# number 1; should add this capability to timewarrior itself
-#
+
 def _tasknow():
 
     global nowcache # only run once, return cached value thereafter
