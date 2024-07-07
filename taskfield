@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# taskfield
+#   display contents of task $1 field $2, directly from its json export record
+#
+# scott@smemsh.net
+# https://github.com/smemsh/.task
+# https://spdx.org/licenses/GPL-2.0
+#
+
+(($# == 2)) || { echo "wrong args" >&2; false; return; }
+task $(taskid -x $1) export \
+| jq -r ".[].${2:?}"
