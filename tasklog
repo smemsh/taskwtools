@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+#
+# tasklog
+#   displays changes since birth for the given task
+#
+# scott@smemsh.net
+# https://github.com/smemsh/taskwtools/
+# https://spdx.org/licenses/GPL-2.0
+#
 
 `type -P task` \
 rc._forcecolor=0 \
