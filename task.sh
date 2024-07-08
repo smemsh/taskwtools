@@ -266,6 +266,7 @@ timewk ()
 	local week
 	case ${#1} in
 	(2) week=2022-W$1;;
+#	(2) week=`date +%Y`-W$1;;
 	(4) week=20${1:0:2}-W${1:2:2};;
 	(6) week=${1:0:4}-W${1:4:2};;
 	(*) echo "$FUNCNAME: bad usage" >&2; false; return;;
