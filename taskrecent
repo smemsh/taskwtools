@@ -1,4 +1,15 @@
 #!/usr/bin/env bash
+#
+# timerecent
+#   display the recent number of timew entries
+#
+# taskrecent
+#   display all entries with modtime within given duration before now
+#
+# scott@smemsh.net
+# https://github.com/smemsh/taskwtools/
+# https://spdx.org/licenses/GPL-2.0
+#
 
 lessflags=-XSEF
 
