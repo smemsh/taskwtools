@@ -1,18 +1,1 @@
-#!/usr/bin/env bash
-#
-# taskundo, timeundo
-#   runs "task undo" or "timew undo" for use in one-arg command scripts
-#
-
-timeundo () { timew undo; }
-taskundo () { task undo; }
-
-main ()
-{
-	if [[ $(declare -F $invname) ]]
-	then $invname "$@"
-	else bomb "unimplemented command '$invname'"; fi
-}
-
-invname=${0##*/}
-main "$@"
+task.sh

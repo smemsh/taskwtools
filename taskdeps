@@ -1,8 +1,1 @@
-#!/bin/bash
-#
-# needed because taskwarrior 'depends:', is actually a string
-# field containing comma-delimited uuids, see #2193, and note
-# that #2569 may change the type of this field
-
-t=${1:?}; shift
-task depends:$(task $t _uuid) "$@"
+task.sh

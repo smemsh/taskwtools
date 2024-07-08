@@ -134,6 +134,24 @@ taskdel ()
 	task rc.hooks=0 "$@" purge
 }
 
+tasktmp ()
+{
+	local uuid=`uuid`
+	local uuidpfx=${uuid%%-*}
+	local taskn
+
+	if taskn=$(taskadd task/tmp$uuidpfx $uuid)
+	then task $taskn start || bomb "taskadd failed"; fi
+}
+
+# display contents of task $1 field $2, directly from its json export record
+taskfield ()
+{
+	(($# == 2)) || bomb "wrong args"
+	task $(taskid -x $1) export \
+	| jq -r ".[].${2:?}"
+}
+
 fqlfmt ()
 {
 	awk -F / '{
@@ -150,6 +168,54 @@ taskrestart ()
 	#taskdo $t # <-- see task e3400a1c, keeping commented out for now
 }
 
+# needed because taskwarrior 'depends:', is actually a string
+# field containing comma-delimited uuids, see #2193, and note
+# that #2569 may change the type of this field
+#
+taskdeps ()
+{
+	local t=${1:?}; shift
+	task depends:$(task $t _uuid) "$@"
+}
+
+# completes the current task, if it's a real task with an fql
+# keeps clock running on time/todo
+#
+taskdone ()
+{
+	local tasknow="$(tasknow)"  || bomb "failed tasknow"
+	local taskfql=$(taskfql)    || bomb "failed taskfql"
+	local taskuuid=$(taskuuid)  || bomb "failed taskuuid"
+
+	[[ $tasknow =~ "^time/" ]]  && bomb "cannot complete time/ pseudo-tasks"
+	[[ $tasknow =~ started$ ]]  || bomb "current task not in 'started' state"
+	[[ $taskuuid ]]             || bomb "cannot look up current task uuid"
+	[[ $taskfql ]]              || bomb "current task fails lookup as fql"
+	uuid -d "$taskuuid" \
+	    &>/dev/null             || bomb "current task uuid is malformed"
+
+	task $taskuuid done         || bomb "could not 'done' task $taskuuid"
+	timedo :fill                || bomb "failed timedo after task completion"
+}
+
+# taskl
+#   run 'task' with rest of args on the unique task that looks up from $1
+#
+# desc
+#   - run 'task <uuid>' with uuid obtained from 'taskuuid' lookup on $1
+#   - uuid is guaranteed to be unique match for the lookup arg (via 'taskone')
+#   - uses dummy id if multiple or no matches, so 'task' will fail
+#
+taskl ()
+{
+	task $(taskone -nz ${1:?}) "${@:2}"
+}
+
+taskundo ()
+{
+	task undo
+}
+
 ### timewarrior
 
 timefill ()
@@ -158,6 +224,26 @@ timefill ()
 	(($# == 1)) || { bomb "bad argn"; }
 	[[ $1 =~ ^@[[:digit:]]+$ ]] || { bomb "malformed"; }
 	timew move $1 $(timew get dom.tracked.${1#@}.start) :fill
+}
+
+# start timew task "time/$1", with optional :hints, default "time/todo"
+timedo ()
+{
+	local arg argc
+	declare -a hints args
+	for ((i = 1; i <= $#; i++)); do
+		arg=${!i}
+		if [[ $arg =~ ^: ]]
+		then hints+=($arg)
+		else args+=(time/$arg)
+		fi
+	done
+
+	argc=${#args[@]}
+	((argc > 1)) && bomb "only zero or one fql, and timew :hints allowed"
+	((argc == 0)) && args=(time/todo)
+
+	timew start $args ${hints[@]}
 }
 
 timeredo ()
@@ -185,6 +271,13 @@ timeredo ()
 		if ! timew tag @$ival "$@"
 		then bomb "tag failed"; fi
 	done
+}
+
+timetmp ()
+{
+	local uuid=`uuid`
+	local uuidpfx=${uuid%%-*}
+	timew start time/tmp$uuidpfx
 }
 
 # todo: do this in totals.py instead, making a new report.py,
@@ -286,6 +379,48 @@ timevals ()
 	for ((i = 0; i < ${#ivals[@]}; i++))
 	do printf $'@%u\x20' ${ivals[i]}; done
 	if ((i)); then echo; fi
+}
+
+# convert from a yyyyddhhmmss to an iso8601 (less tz) time for timew
+#
+# any supplied substring is superimposed over rhs of current time, thus
+# comprising a partially-specified time that has its unspecified
+# remainder defaulted into by the current time.  if superimposed time is
+# calculated to be later than the invocation time, the superimposition
+# is recalculated over a time 24 hours prior to invocation.
+#
+timewfmt ()
+{
+
+	if ! [[ $1 =~ [[:digit:]]{1,14} ]]
+	then bomb "invalid date given"; fi
+
+	local fmt=%Y%m%d%H%M%S
+	local now_t=${EPOCHSECONDS:?}
+	local yester_t=$((now_t - 86400))
+	local t
+
+	printf -v now_d "%($fmt)T" $now_t
+	printf -v yester_d "%($fmt)T" $yester_t
+
+	rhsimpose () { printf -v t ${2:0:-${#1}}$1; }
+	rhsimpose $1 $now_d
+	if ((t > now_d))
+	then rhsimpose $1 $yester_d; fi
+
+	# todo: should this have a newline? it's normally in a subshell
+	# with other args on the command line, not used standalone, so
+	# no newline is appropriate.  should we use tty(1)?  but that
+	# still wouldn't work correctly in most usage scenarios which
+	# are backticks, not pipelines.  we could use $SHLVL but this
+	# would be incorrect in a wide variety of situations...
+	#
+	printf ${t:0:4}-${t:4:2}-${t:6:2}T${t:8:2}:${t:10:2}:${t:12:2}
+}
+
+timeundo ()
+{
+	timew undo
 }
 
 ###

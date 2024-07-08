@@ -1,15 +1,1 @@
-#!/usr/bin/env bash
-#
-# taskl
-#   run 'task' with rest of args on the unique task that looks up from $1
-#
-# desc
-#   - run 'task <uuid>' with uuid obtained from 'taskuuid' lookup on $1
-#   - uuid is guaranteed to be unique match for the lookup arg (via 'taskone')
-#   - uses dummy id if multiple or no matches, so 'task' will fail
-#
-# scott@smemsh.net
-# https://github.com/smemsh/.task/
-# https://spdx.org/licenses/GPL-2.0
-#
-task $(taskone -nz ${1:?}) "${@:2}"
+task.sh
