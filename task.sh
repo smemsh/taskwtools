@@ -8,6 +8,8 @@
 # https://spdx.org/licenses/GPL-2.0
 #
 
+bomb () { echo "${FUNCNAME[1]}: ${*}, aborting" >&2; false; exit; }
+
 # work around always defaulting to 80 columns when piping
 # note: ${COLUMNS:-80} not needed, blank value is default (which is 80)
 # todo: implement env var expansion in taskwarrior
@@ -51,7 +53,7 @@ taskcur ()
 	local name=${tasknow[0]}
 
 	if [[ $status != 'started' ]]; then
-		echo "current task $name not engaged, aborting" >&2
+		bomb "current task $name not engaged, aborting"
 		false; return; fi
 
 	task $(taskid -xn $name) "$@"
@@ -95,13 +97,13 @@ taskgrep  ()
 	esac; done
 
 	if ! (($#))
-	then echo "must supply one or more patterns" >&2; false; return; fi
+	then bomb "must supply one or more patterns"; fi
 
 	if ((outuuid && outjson))
-	then echo "uuid/json outputs mutually exclusive" >&2; false; return; fi
+	then bomb "uuid/json outputs mutually exclusive"; fi
 
 	if ((outuuid || outjson)) && [[ $report == "all" ]]
-	then echo "all report excludes json/uuid format" >&2; false; return; fi
+	then bomb "all report excludes json/uuid format"; fi
 
 	if ! ((nofiles)); then
 		for pattern; do patexprs+=(-e "$pattern"); done
@@ -153,8 +155,8 @@ taskrestart ()
 timefill ()
 {
 	(($# == 0)) && set -- @1
-	(($# == 1)) || { echo "bad argn" >&2; false; return; }
-	[[ $1 =~ ^@[[:digit:]]+$ ]] || { echo "malformed" >&2; false; return; }
+	(($# == 1)) || { bomb "bad argn"; }
+	[[ $1 =~ ^@[[:digit:]]+$ ]] || { bomb "malformed"; }
 	timew move $1 $(timew get dom.tracked.${1#@}.start) :fill
 }
 
@@ -167,9 +169,7 @@ timeredo ()
 	n=${#ivals[@]}
 	if ((n == 0 || $# == 0)); then
 		echo "$FUNCNAME: overwrite tags for given intervals" >&2
-		echo " usage: $FUNCNAME [@interval]... [tag]..." >&2
-		false
-		return
+		bomb " usage: $FUNCNAME [@interval]... [tag]..."
 	fi
 
 	for ((i = 0; i < n; i++)); do
@@ -180,10 +180,10 @@ timeredo ()
 				jq -r '.tags[]'
 			))
 			if ! timew untag @$ival "${olds[@]}"
-			then echo "untag failed" >&2; false; return; fi
+			then bomb "untag failed"; fi
 		fi
 		if ! timew tag @$ival "$@"
-		then echo "tag failed" >&2; false; return; fi
+		then bomb "tag failed"; fi
 	done
 }
 
@@ -269,7 +269,7 @@ timewk ()
 #	(2) week=`date +%Y`-W$1;;
 	(4) week=20${1:0:2}-W${1:2:2};;
 	(6) week=${1:0:4}-W${1:4:2};;
-	(*) echo "$FUNCNAME: bad usage" >&2; false; return;;
+	(*) bomb "bad usage";;
 	esac
 	task calc $week
 }
@@ -295,7 +295,7 @@ main ()
 {
 	if [[ $(declare -F $invname) ]]
 	then $invname "$@"
-	else echo "unimplemented command '$invname'" >&2; fi
+	else bomb "unimplemented command '$invname'"; fi
 }
 
 invname=${0##*/}
