@@ -221,8 +221,8 @@ taskundo ()
 timefill ()
 {
 	(($# == 0)) && set -- @1
-	(($# == 1)) || { bomb "bad argn"; }
-	[[ $1 =~ ^@[[:digit:]]+$ ]] || { bomb "malformed"; }
+	(($# == 1)) || bomb "bad argn"
+	[[ $1 =~ ^@[[:digit:]]+$ ]] || bomb "malformed"
 	timew move $1 $(timew get dom.tracked.${1#@}.start) :fill
 }
 
