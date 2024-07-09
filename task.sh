@@ -291,14 +291,9 @@ timestat ()
 timesum ()
 {
 	timestat "$@" \
-	| awk '
-	BEGIN {r = 1}
-	NF == 1 && $1 ~ /^[[:digit:]:]+$/ {
-		print $1
-		r = 0
-	}
-	END {exit r}
-	' || echo 0:00:00
+	| tac \
+	| awk 'BEGIN {r = 1} NF == 1 {r = 0; print $1; exit} END {exit r}' \
+	|| echo 0:00:00
 }
 
 timecur ()
