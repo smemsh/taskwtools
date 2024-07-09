@@ -303,6 +303,39 @@ timecur ()
 		$(timewfmt $(now))
 }
 
+# how long we have been doing a contiguous timew session (of however
+# many intervals).  first, gets N where N is interval number going back
+# that was first discontiguous with previous intervals (nonzero
+# inter-interval duration).  then sums interval durations going back
+# that many intervals
+#
+timeopen ()
+{
+	local endi iinterval ii_start ii_end duration
+
+	# max intervals back to look for an inter-interval time > 1s
+	local endmax=99
+
+	for ((endi = 1; endi < endmax; endi++)); do
+		iinterval=($(timew get \
+			dom.tracked.$((endi+1)).end \
+			dom.tracked.$endi.start))
+		ii_start=${iinterval[0]}
+		ii_end=${iinterval[1]}
+		duration=$(task calc $ii_end - $ii_start)
+		[[ $duration == PT[01]S ]] || break
+	done
+
+	((endi == endmax)) &&
+		bomb "reached max $endmax inter-intervals audited for nonzero"
+
+	task calc $(
+		eval timew get dom.tracked.{1..$endi}.duration \
+		| fmt -1 \
+		| paste -sd+
+	)
+}
+
 timesince ()
 {
 	local duration=${1:?}
