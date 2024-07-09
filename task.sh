@@ -10,41 +10,7 @@
 
 bomb () { echo "${FUNCNAME[1]}: ${*}, aborting" >&2; false; exit; }
 
-# work around always defaulting to 80 columns when piping
-# note: ${COLUMNS:-80} not needed, blank value is default (which is 80)
-# todo: implement env var expansion in taskwarrior
-# also: #991
-# note: called from other functions, hence we cache results
-#
-task ()
-{
-	local savedpath=$PATH
-	local newpath arg i
-	declare -g realexe argsdone
-
-	if ! [[ $realexe ]]
-	then PATH=$(
-		IFS=:
-		newpath=($PATH)
-		for ((i = 0; i < ${#newpath[@]}; i++))
-		do if [[ ${newpath[i]} == "$cmdpath" ]]
-		then unset 'newpath[i]'; break; fi; done
-		printf "${newpath[*]}"
-	)
-		realexe=$(type -P $FUNCNAME)
-		PATH=$savedpath
-	fi
-
-	if ! [[ $argsdone ]]
-	then
-		for arg; do if [[ $arg == '--' ]]; then break
-		elif [[ $arg == '--version' ]]
-		then $realexe --version; return; fi; done
-		let argsdone++
-	fi
-
-	$realexe rc.defaultwidth=$COLUMNS "$@"
-}
+### taskwarrior
 
 taskcur ()
 {
@@ -231,6 +197,7 @@ timedo ()
 {
 	local arg argc
 	declare -a hints args
+
 	for ((i = 1; i <= $#; i++)); do
 		arg=${!i}
 		if [[ $arg =~ ^: ]]
@@ -433,5 +400,4 @@ main ()
 }
 
 invname=${0##*/}
-cmdpath=${BASH_SOURCE%/*}
 main "$@"
