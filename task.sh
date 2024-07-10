@@ -312,6 +312,7 @@ timecur ()
 timeopen ()
 {
 	local endi iinterval ii_start ii_end duration
+	local opentime
 
 	# max intervals back to look for an inter-interval time > 1s
 	local endmax=99
@@ -329,11 +330,13 @@ timeopen ()
 	((endi == endmax)) &&
 		bomb "reached max $endmax inter-intervals audited for nonzero"
 
-	task calc $(
+	opentime=$(task calc $(
 		eval timew get dom.tracked.{1..$endi}.duration \
 		| fmt -1 \
-		| paste -sd+
-	)
+		| paste -sd+ \
+	))
+	printf $opentime
+	tty -s && echo
 }
 
 timesince ()
