@@ -335,6 +335,8 @@ timeopen ()
 		| fmt -1 \
 		| paste -sd+ \
 	))
+	opentime=${opentime#PT}
+	opentime=${opentime,,?}
 	printf $opentime
 	tty -s && echo
 }
