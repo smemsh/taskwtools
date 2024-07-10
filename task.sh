@@ -7,6 +7,7 @@
 # https://github.com/smemsh/.task/
 # https://spdx.org/licenses/GPL-2.0
 #
+f=~/.taskenv; test -r $f && source $f; unset f
 
 bomb () { echo "${FUNCNAME[1]}: ${*}, aborting" >&2; false; exit; }
 
