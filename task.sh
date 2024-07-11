@@ -34,7 +34,6 @@ taskgrep  ()
 {
 	local pattern nofiles outuuid outjson
 	local report=next
-	local filter=cat
 
 	local -a patexprs rstpaths noteuuids
 
@@ -82,10 +81,18 @@ taskgrep  ()
 	else noteuuids=()
 	fi
 
-	((outuuid)) && filter="jq -r '.[].uuid'"
-	((outjson)) && filter="jq -r ."
-	task $(taskids -za -- "$@" ${noteuuids[@]}) $report \
-	| eval "$filter"
+	notes=$(taskids -za -- "$@" ${noteuuids[@]})
+	if ((outuuid || outjson))
+	then
+		((outuuid)) && filter="jq -r '.[].uuid'"
+		((outjson)) && filter="jq -r ."
+		task $notes $report | eval "$filter"
+	else
+		# taskwarrior uses stdout to get rc.defaultwidth, so
+		# don't use pipe, even to 'cat' as we used to default
+		# for $filter and use same code for everyone
+		task $notes $report
+	fi
 }
 
 taskgc ()
