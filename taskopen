@@ -76,13 +76,17 @@ def process_args():
         formatter_class = argparse.RawTextHelpFormatter,
     )
 
-    addarg(p, 'task', 'taskid', 'unique lookup string for "taskuuid" command')
+    addarg(p, 'task', 'taskid',
+           'unique lookup string for "taskuuid" command',
+            nargs='?')
     if invname == 'tasknote':
         addflag(p, 'e', 'edit', 'open the tasknote in $EDITOR')
 
     args, left = p.parse_known_args(args)
     if len(left):
         bomb("supply just one arg, should lookup to a unique task")
+    if not args.task:
+        args.task = exe("tasknow").split()[0]
 
     return args.task
 
