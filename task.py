@@ -172,8 +172,8 @@ def __taskone(*args, **kwargs):
     if ntasks == 1:
         if not isfailuuid(onetask['uuid']):
             success = True # only possible success case
-    elif ntasks > 1:
-        onetask = dummy_task(ntasks) if argns.zero else {}
+    else:
+        onetask = dummy_task(ntasks)
     return success, onetask
 
 # exits if not exactly one matching task
