@@ -441,6 +441,15 @@ timewfmt ()
 	printf ${t:0:4}-${t:4:2}-${t:6:2}T${t:8:2}:${t:10:2}:${t:12:2}
 }
 
+timels ()
+{
+	timew export \
+	| jq -r $'.[].tags | join("\x20")' \
+	| sort \
+	| uniq \
+	| grep ^time/
+}
+
 timeundo ()
 {
 	timew undo
