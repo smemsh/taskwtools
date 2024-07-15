@@ -747,7 +747,7 @@ def _taskget(*args, **kwargs):
                 var.append(taskarg[1:]); break
         else: taskargs.append(taskarg)
 
-    for var, key in [(tags_yes, 'tags__word'), (tags_no, 'tags__noword')]:
+    for var, key in [(tags_yes, 'tags__has'), (tags_no, 'tags__hasnt')]:
         if var: tagfilters.update({key: ','.join(var)})
 
     taskkey = taskargs + list(tagfilters.items())
