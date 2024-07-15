@@ -814,7 +814,9 @@ def _taskget(*args, **kwargs):
 
             filters = []
             matchop = 'is' if exact else 'has'
-            if '/' in taskarg:
+            if taskarg == '/':
+                filters += [{"status__any": ''}]
+            elif '/' in taskarg:
                 # fully/qualified/label
                 segs = taskarg.split('/')
                 project = '.'.join(segs[0:-1])
