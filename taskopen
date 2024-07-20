@@ -221,7 +221,6 @@ if __name__ == "__main__":
 
     invname = basename(argv[0])
     args = argv[1:]
-    argc = len(args)
     pid = getpid()
 
     from bdb import BdbQuit
