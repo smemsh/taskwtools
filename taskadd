@@ -81,7 +81,7 @@ desc_sane ()
 		false; return; fi
 
 	if ((${#full} > maxchars)); then
-		warn "exceeds maxium chars (${#full}/$maxchars)"
+		warn "exceeds maximum chars (${#full}/$maxchars)"
 		false; return; fi
 }
 
