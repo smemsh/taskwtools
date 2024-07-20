@@ -82,7 +82,7 @@ def process_args():
 
     addarg(p, 'task', 'taskid',
            'unique lookup string for "taskuuid" command',
-            nargs='?')
+           nargs='?')
     if invname == 'tasknote':
         addflag(p, 'e', 'edit', 'open the tasknote in $EDITOR')
 
@@ -118,7 +118,7 @@ def tasknote(task):
     global args
 
     uuid = task['uuid']
-    notefile = f"{getenv('HOME')}/.task/notes/{uuid}.rst" # todo: rcfile
+    notefile = f"{getenv('HOME')}/.task/notes/{uuid}.rst"  # todo: rcfile
 
     if args.edit:
         spawn('EDITOR', 'vi', notefile)
@@ -135,7 +135,7 @@ def taskopen(task):
     global pid
 
     charmap = digits + letters
-    idxmap = {charmap[i]:i for i in range(len(charmap))}
+    idxmap = {charmap[i]: i for i in range(len(charmap))}
 
     def getchar():
         fd = stdin.fileno()
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         import pdb
         from pprint import pp
         err('debug: enabled')
-        unsetenv('DEBUG') # otherwise forked children hang
+        unsetenv('DEBUG')  # otherwise forked children hang
 
     try: main()
     except BdbQuit: bomb("debug: stop")
