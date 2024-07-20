@@ -656,7 +656,7 @@ def _taskget(*args, **kwargs):
         if blocked == True: filterwords = ['+BLOCKED']
         elif blocked == False: filterwords = ['-BLOCKED']
         else: filterwords = [] # None
-        filterdict.update(dict(list(tagfilters.items()))) # add tags to filter
+        filterwords += tags_yes + tags_no
         filtered = taskw.filter(*filterwords, **filterdict)
         #filtered = [f._data for f in filtered]
         #filtered = [UUIDHashableDict(d) for d in filtered]
@@ -744,13 +744,11 @@ def _taskget(*args, **kwargs):
     for taskarg in args.taskargs:
         for var, char in [(tags_yes, '+'), (tags_no, '-')]:
             if taskarg is not None and taskarg[0] == char:
-                var.append(taskarg[1:]); break
+                var.append(taskarg); break
         else: taskargs.append(taskarg)
 
-    for var, key in [(tags_yes, 'tags__has'), (tags_no, 'tags__hasnt')]:
-        if var: tagfilters.update({key: ','.join(var)})
-
-    taskkey = taskargs + list(tagfilters.items())
+    # todo: should consider args/flags as part of the key
+    taskkey = taskargs + tags_yes + tags_no
 
     cacheval = cache_get(taskkey)
     if cacheval is not None:
