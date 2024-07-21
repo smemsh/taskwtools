@@ -36,6 +36,11 @@ from os import (
     EX_SOFTWARE as EXIT_FAILURE,
 )
 
+# the urls are embedded in annotations.  following characters are
+# stripped from each end of a note's words before testing whether a url
+#
+STRIPCHARS='().?,;!'
+
 ###
 
 def err(*args, **kwargs):
@@ -156,7 +161,7 @@ def taskopen(task):
         words = ann.split()
         matched = False
         for j in range(len(words)):
-            url = urlparse(words[j])
+            url = urlparse(words[j].strip(STRIPCHARS))
             if url.scheme.startswith('http'):
                 url = url.geturl()
                 words[j] = f"({charmap[matchn]}) {url} <--"
