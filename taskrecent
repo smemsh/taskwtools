@@ -23,6 +23,12 @@ timefql=${timewstr:1}
 
 timerecent ()
 {
+	# hack to exclude finished tasks from output
+	if [[ $1 =~ (-o|--open) ]]
+	then excludepat='^/'; shift # exclude completed
+	else excludepat='^(?!x)x' # exclude nothing
+	fi
+
 	join -j2 -a1 --nocheck-order \
 	<(timew export \
 	| jq -r '
@@ -78,6 +84,7 @@ timerecent ()
 		label = prjlabel[2]
 		print char, label, project, desc
 	  }' \
+	| grep -vP "$excludepat" \
 	| tac \
 	| column -s $'\t' -t \
 	| head -n ${1:-30} \
