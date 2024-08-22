@@ -308,15 +308,17 @@ timeline ()
 {
 	local opentime=$(timeopen)
 	local weekago=$(task calc now - 1 week)
+	local ydate=$(task calc now - 1 day)
 
 	local q="Q$(date +%q) $(timesum :quarter)"; q=${q%:*}
 	local m="M$(date +%-m) $(timesum :month)"; m=${m%:*}
 	local l="W$(date -d $weekago +%-V) $(timesum :lastweek)"; l=${l%:*}
 	local y="Y$(date +%y) $(timesum :year)"; y=${y%:*}
 	local w="W$(date +%V) $(timesum :week)"; w=${w%:*}
-	local d="D$(date +%-d) $(timesum :day)"; d=${d%:*}
+	local d="D$(date -d $ydate +%-d) $(timesum :yesterday)"; yd=${d%:*}
+	local d="D$(date +%-d) $(timesum :day)"; td=${d%:*}
 
-	echo "$y / $q / $m / $l / $w / $d / $opentime"
+	echo "$y / $q / $m / $l / $w / $yd / $td / $opentime"
 }
 
 timecur ()
