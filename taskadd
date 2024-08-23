@@ -66,7 +66,7 @@ assoc_split_project ()
 
 task_assoc_exists ()
 {
-	[[ $(task $fqtask _ids) || $(task $prjtask _ids) ]]
+	[[ $(task $fqtask _uuids) || $(task $prjtask _uuids) ]]
 }
 
 # we like tasks to fit 80 characters including the label
