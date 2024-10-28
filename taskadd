@@ -11,7 +11,7 @@
 #   $TASKPRJ: default prj
 #   args matching ^https?:// will be added as annotations
 #
-# http://smemsh.net/src/taskassoc/
+# https://github.com/smemsh/taskwtools/
 # http://spdx.org/licenses/GPL-2.0
 # scott@smemsh.net
 #
