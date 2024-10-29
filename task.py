@@ -46,6 +46,7 @@ from datetime import datetime, timedelta, timezone
 from textwrap import fill
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace, SUPPRESS
 from operator import itemgetter
+from traceback import print_exc
 from subprocess import check_output
 
 from tasklib import TaskWarrior, Task
