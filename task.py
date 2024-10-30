@@ -208,8 +208,8 @@ def _taskfqls(*args, **kwargs):
     if not tasks: return []
     else: return [__taskfql(t, **kwargs) for t in tasks]
 
-def taskfql(*args):
-    print(_taskfql(*args))
+def taskfql(*args, **kwargs):
+    print(_taskfql(*args, **kwargs))
 
 def taskfqls(*args, **kwargs):
     for t in _taskfqls(*args, **kwargs):
