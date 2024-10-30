@@ -221,33 +221,6 @@ timedo ()
 	timew start $args ${hints[@]}
 }
 
-timeredo ()
-{
-	local n i ival
-	local -a ivals olds
-
-	while [[ $1 =~ ^@ ]]; do ivals+=($1); shift; done
-	n=${#ivals[@]}
-	if ((n == 0 || $# == 0)); then
-		echo "$FUNCNAME: overwrite tags for given intervals" >&2
-		bomb " usage: $FUNCNAME [@interval]... [tag]..."
-	fi
-
-	for ((i = 0; i < n; i++)); do
-		ival=${ivals[i]#@}
-		if (($(timew get dom.tracked.$ival.tag.count))); then
-			olds=($(
-				timew get dom.tracked.$ival.json |
-				jq -r '.tags[]'
-			))
-			if ! timew untag @$ival "${olds[@]}"
-			then bomb "untag failed"; fi
-		fi
-		if ! timew tag @$ival "$@"
-		then bomb "tag failed"; fi
-	done
-}
-
 timetmp ()
 {
 	local uuid=`uuid`
