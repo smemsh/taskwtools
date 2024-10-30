@@ -339,14 +339,6 @@ timeopen ()
 	tty -s && echo
 }
 
-timesince ()
-{
-	local duration=${1:?}
-	local start="$(task calc "${2:-"(now - $duration)"}")"
-	local end="$(task calc "$start" + "$duration")"
-	echo "$start" - "$end"
-}
-
 timein ()
 {
 	task calc now + "$@"
