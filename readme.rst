@@ -214,6 +214,7 @@ taskgc          task.sh     run taskwarrior garbage collection
 taskundo        task.sh     undo the previous taskwarrior operation
 timeundo        task.sh     timew undo
 timefill        task.sh     move arg/current interval's start to last end
+taskn           task.sh     run 'task' with hooks disabled, passing all args
 =============== =========== ==================================================
 
 
@@ -295,6 +296,7 @@ On-modify Hook
 changes in label and project to timew, and other things like safety,
 preventing duplicates, etc
 
+To run without the hook, use ``taskn`` to invoke.
 
 
 Tasklib

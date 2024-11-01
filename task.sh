@@ -26,6 +26,11 @@ taskcur ()
 	task $(taskid -xn $name) "$@"
 }
 
+taskn ()
+{
+	task rc.hooks=0 "$@"
+}
+
 # look in more fields that have text via taskget, and also in notes
 taskgrepu () { taskgrep -u "$@"; }
 taskgrepx () { taskgrep -x "$@"; }
