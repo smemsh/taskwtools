@@ -21,6 +21,12 @@ Tested versions:
 :jq: 1.7.1
 :tasklib: https://github.com/smemsh/tasklib/ 83619b1 (with PRs 117, 119)
 
+| scott@smemsh.net
+| https://github.com/smemsh/taskwtools/
+| https://spdx.org/licenses/GPL-2.0
+
+____
+
 .. contents::
 
 .. _Taskwarrior: https://github.com/GothenburgBitFactory/taskwarrior
