@@ -286,6 +286,7 @@ timerecent      taskrecent  taskrecent but by timew modtime, not task metadata
 timesum         task.sh     calculates time tracked since arg or :all
 timestat        task.sh     timew summary for the args or :all
 taskreport      task.sh     print unique fqls/times during given time range
+taskprjs        task.sh     show unique full project hierarchies, dot seps
 =============== =========== ==================================================
 
 

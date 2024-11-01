@@ -31,6 +31,11 @@ taskn ()
 	task rc.hooks=0 "$@"
 }
 
+taskprjs ()
+{
+	task _unique project
+}
+
 # look in more fields that have text via taskget, and also in notes
 taskgrepu () { taskgrep -u "$@"; }
 taskgrepx () { taskgrep -x "$@"; }
