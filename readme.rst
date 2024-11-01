@@ -216,6 +216,7 @@ taskundo        task.sh     undo the previous taskwarrior operation
 timeundo        task.sh     timew undo
 timefill        task.sh     move arg/current interval's start to last end
 taskn           task.sh     run 'task' with hooks disabled, passing all args
+taskann         task.sh     give the args as an annotation for current task
 =============== =========== ==================================================
 
 

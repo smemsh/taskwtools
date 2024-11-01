@@ -36,6 +36,11 @@ taskprjs ()
 	task _unique project
 }
 
+taskann ()
+{
+	taskcur annotate -- "$@"
+}
+
 # look in more fields that have text via taskget, and also in notes
 taskgrepu () { taskgrep -u "$@"; }
 taskgrepx () { taskgrep -x "$@"; }
