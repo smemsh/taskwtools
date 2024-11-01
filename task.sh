@@ -200,6 +200,11 @@ taskundo ()
 	task undo
 }
 
+taskredo ()
+{
+	timew move @1 `date -Iseconds`
+}
+
 ### timewarrior
 
 timefill ()

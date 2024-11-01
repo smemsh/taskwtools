@@ -206,6 +206,7 @@ taskcont        taskcont    start the last task excluding time/
 taskstop        task.py     stop the current timew tracking
 taskdone        task.sh     complete given/current task, start time/todo
 taskrestart     task.sh     change task back to pending with new start
+taskredo        task.sh     re-begin current interval right now
 tasktmp         task.sh     make task and start: /task/tmp<random>
 timetmp         task.sh     timew start /time/tmp<random>
 taskget         task.py     show taskget resolution for the given tasks
