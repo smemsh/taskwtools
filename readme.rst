@@ -202,6 +202,7 @@ timedo          task.sh     start non-taskw interval named time/${1:-todo}
 tasklast        taskcont    start the one before last task excluding time/
 timelast        taskcont    start the one before last task including time/
 timecont        taskcont    start the last task including time/
+cont            taskcont    timecont alias
 taskcont        taskcont    start the last task excluding time/
 taskstop        task.py     stop the current timew tracking
 taskdone        task.sh     complete given/current task, start time/todo

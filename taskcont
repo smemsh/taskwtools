@@ -89,4 +89,6 @@ startdir=$HOME
 invname=${0##*/}
 invdir=${0%/*}
 
+[[ $invname == cont ]] && invname=timecont
+
 main "$@"
