@@ -170,6 +170,7 @@ generally show the available flags and/or syntax.  The main ones are:
 :taskget:   matches task using taskget algorithm and pretty-prints
 :taskcont:  continues the last task, excluding `Timewarrior pseudo-tasks`_
 :timecont:  continues the last task, including any in `time/`
+:taskdone:  mark the task as completed
 
 The first time a task is started, *taskwarrior* must be used, e.g.::
 
