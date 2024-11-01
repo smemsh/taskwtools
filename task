@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# task wrapper
+#   works around always defaulting to 80 columns when piping, by always
+#   invoking with rc.defaultwidth=$COLUMNS
+#
+# note: cannot be invoked through a symlink!
+# todo: implement env var expansion in taskwarrior
+# also: taskwarrior issue 991
+#
+# scott@smemsh.net
+# https://github.com/smemsh/taskwtools/
+# https://spdx.org/licenses/GPL-2.0
+#
+##############################################################################
+
+if [[ $TASKWRAP ]]
+then echo "breaking out of infinite invocation loop" >&2; false; exit
+else export TASKWRAP=1
+fi
+
+# find the real path by removing our own dir from PATH and then
+# looking up the executable again.  this only works correctly if we're
+# not a symlink, which is the case for us normally, being installed by
+# our own installx utility.
+#
+savedpath=$PATH
+cmdpath=${BASH_SOURCE%/*}
+PATH=$(
+	IFS=:
+	newpath=($PATH)
+	for ((i = 0; i < ${#newpath[@]}; i++))
+	do if [[ ${newpath[i]} == $cmdpath ]]
+	then unset 'newpath[i]'; break; fi; done
+	printf "${newpath[*]}"
+)
+realexe=$(type -P ${0##*/})
+PATH=$savedpath
+
+task ()
+{
+	for arg; do if [[ $arg == '--' ]]; then break
+	elif [[ $arg == '--version' ]]
+	then $realexe --version; exit; fi; done
+
+	# ${COLUMNS:-80} not needed, blank value is default (which is 80)
+	$realexe rc.defaultwidth=$COLUMNS "$@"
+}
+
+task "$@"
