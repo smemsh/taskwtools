@@ -411,10 +411,12 @@ timewfmt ()
 timels ()
 {
 	timew export \
-	| jq -r $'.[].tags | join("\x20")' \
+	| jq -r '[.[].tags] | flatten | .[]' \
+	| grep ^time/ \
 	| sort \
-	| uniq \
-	| grep ^time/
+	| uniq -c \
+	| sort -nrk 1,2 \
+	;
 }
 
 timeundo ()
