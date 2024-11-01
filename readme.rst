@@ -164,7 +164,7 @@ Main Commands
 Using the ``--help`` flag when invoking a **taskwtools** command will
 generally show the available flags and/or syntax.  The main ones are:
 
-:taskadd:   add a task with label and short description
+:taskadd:   add task like ``fql +tags 'the desc'``, optional ``-s`` to start
 :taskdo:    starts clock on taskget-matching task (no args: last task)
 :taskstop:  stops clock on the currently tracked task
 :taskget:   matches task using taskget algorithm and pretty-prints
