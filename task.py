@@ -1029,6 +1029,7 @@ if __name__ == "__main__":
     except:
         print_exc(file=stderr)
         if debug: pdb.post_mortem()
+        else: bomb("aborting...")
     finally: # cpython bug 55589
         try: stdout.flush()
         finally:
