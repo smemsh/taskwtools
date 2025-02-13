@@ -273,11 +273,11 @@ taskinfo ()
 		}
 	}
 	/^ID/                    { print_values("id",         1) }
-	/^Description/           { print_values("descr",      1) }
-	/^Status/                { print_values("status",     1) }
+	/^Description/           { print_values("desc",       1) }
+	/^Status/                { print_values("stat",       1) }
 	/^Project/               { print_values("proj",       1) }
-	/^This task is blocking/ { print_values("blocks",     4, 1) }
-	/^This task blocked by/  { print_values("depends",    4, 1) }
+	/^This task is blocking/ { print_values("rdep",       4, 1) }
+	/^This task blocked by/  { print_values("dep",        4, 1) }
 	/^Entered/               { print_values("entry",      1) }
 	/^Start/                 { print_values("start",      1) }
 	/^End/                   { print_values("end",        1) }
