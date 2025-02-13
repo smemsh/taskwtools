@@ -248,6 +248,51 @@ timetmp ()
 	timew start time/tmp$uuidpfx
 }
 
+taskinfo ()
+{
+	taskn \
+		rc._forcecolor=0 \
+		rc.detection=0 \
+		rc.defaultwidth=0 \
+		"$@" \
+	| gawk '
+	function print_row(type, startval)
+	{
+		printf("%s\t", type)
+		for (i = startval; i <= NF; i++)
+			printf("%s\x20", $i)
+		printf("\n")
+	}
+	function print_values(type, wordcount, is_multiline)
+	{
+		print_row(type, wordcount + 1)
+		if (!is_multiline) next
+		while (getline) {
+			if ($0 !~ /^[[:space:]]/) break
+			print_row(type, 1)
+		}
+	}
+	/^ID/                    { print_values("id",         1) }
+	/^Description/           { print_values("descr",      1) }
+	/^Status/                { print_values("status",     1) }
+	/^Project/               { print_values("proj",       1) }
+	/^This task is blocking/ { print_values("blocks",     4, 1) }
+	/^This task blocked by/  { print_values("depends",    4, 1) }
+	/^Entered/               { print_values("entry",      1) }
+	/^Start/                 { print_values("start",      1) }
+	/^End/                   { print_values("end",        1) }
+	/^Tags/                  { print_values("tags",       1) }
+	/^Virtual tags/          { print_values("vtags",      2) }
+	/^UUID/                  { print_values("uuid",       1) }
+	/^Urgency/               { print_values("urg",        1) }
+	/^Last modified/         { print_values("mtime",      2) }
+	/^Priority/              { print_values("pri",        1) }
+	/^[a-z]/                 { print_values($1,           1) }
+	' \
+	| tr -s $'\x20' \
+	;
+}
+
 # todo: do this in totals.py instead, making a new report.py,
 # adding tag counts and hierarchy counts
 #

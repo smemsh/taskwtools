@@ -237,6 +237,7 @@ taskfql         task.py     print current or uniquely matching task
 taskfqls        task.py     print all the matching fqls
 taskid          task.py     print best matching task
 taskids         task.py     print all matching tasks
+taskinfo        task.sh     print condensed fields from information command
 tasklabel       task.py     print label of best matching task
 tasklabels      task.py     print labels of all matching tasks
 taskline        task.py     print current fql, tracking status symbol, date
