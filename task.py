@@ -55,7 +55,7 @@ from timew.exceptions import TimeWarriorError
 
 from os.path import basename
 from os import (
-    getenv, isatty,
+    getenv, isatty, get_terminal_size,
     close as osclose,
     EX_OK as EXIT_SUCCESS,
     EX_SOFTWARE as EXIT_FAILURE,
@@ -366,7 +366,12 @@ def tasknotes(*args):
 
     headchar = '='
     outputs = []
-    interactive = stdin.isatty()
+
+    width = 80
+    if interactive := stdin.isatty():
+        try: width = get_terminal_size(stdin.fileno()).columns or width
+        except: pass
+    width -= 1
 
     colordict = {
         'YELLOW':   "93",
@@ -414,7 +419,7 @@ def tasknotes(*args):
             'break_on_hyphens': False,
             'break_long_words': False,
             'replace_whitespace': False,
-            'width': 79,
+            'width': width,
         }
         colordesc = f"{C.WHIGREY}{desc}{C.DEFAULT}"
         if notes:
