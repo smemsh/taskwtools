@@ -366,7 +366,7 @@ def tasknotes(*args):
 
     headchar = '='
     outputs = []
-    interactive = stdout.isatty()
+    interactive = stdin.isatty()
 
     colordict = {
         'YELLOW':   "93",
