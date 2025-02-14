@@ -111,6 +111,9 @@ def mkargs():
 # overriding earlier-specified attribute values with the same name
 # (TODO: wrong, actually later *new* ones can join, but overrides won't
 # occur, see comments when a Namespace is given as arg)
+# (UPDATE: from python 3.13 release notes: SimpleNamespace can now take a
+# single positional argument to initialise the namespace’s arguments. This
+# argument must either be a mapping or an iterable of key-value pairs)
 #
 def optparse(name, argp, *args):
 
@@ -128,6 +131,7 @@ def optparse(name, argp, *args):
         # there for any still-later arg parsing.  TODO this means first
         # use wins and the parsed flags will never be seen again by
         # later uses, which also means override isn't possible
+        # UPDATE: this may be possible now, see function comment UPDATE
         #
         nsarg = args[0]
         args = argslast
