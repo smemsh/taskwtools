@@ -369,8 +369,9 @@ def tasknotes(*args):
 
     width = 80
     if interactive := stdin.isatty():
-        try: width = get_terminal_size(stdin.fileno()).columns or width
+        try: cols = get_terminal_size(stdin.fileno()).columns or width
         except: pass
+        width = min(width, cols)
     width -= 1
 
     colordict = {
