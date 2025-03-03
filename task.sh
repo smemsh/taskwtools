@@ -183,7 +183,7 @@ taskdone ()
 	uuid -d "$taskuuid" \
 	    &>/dev/null             || bomb "current task uuid is malformed"
 
-	task $taskuuid done         || bomb "could not 'done' task $taskuuid"
+	task uuid:$taskuuid done    || bomb "could not 'done' task $taskuuid"
 	timedo :fill                || bomb "failed timedo after task completion"
 }
 
@@ -191,13 +191,13 @@ taskdone ()
 #   run 'task' with rest of args on the unique task that looks up from $1
 #
 # desc
-#   - run 'task <uuid>' with uuid obtained from 'taskuuid' lookup on $1
+#   - run 'task uuid:<uuid>' with uuid obtained from 'taskuuid' lookup on $1
 #   - uuid is guaranteed to be unique match for the lookup arg (via 'taskone')
 #   - uses dummy id if multiple or no matches, so 'task' will fail
 #
 taskl ()
 {
-	task $(taskone -nz ${1:?}) "${@:2}"
+	task uuid:$(taskone -nz ${1:?}) "${@:2}"
 }
 
 taskundo ()

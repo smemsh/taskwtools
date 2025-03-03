@@ -199,19 +199,19 @@ main ()
 
 	uuid=`task_new_stub` ||
 		bomb "failed stub create (uuid gen or task import failed)"
-	task $uuid modify $fqtask ${extra[@]} -- "$desc" ||
+	task uuid:$uuid modify $fqtask ${extra[@]} -- "$desc" ||
 		bomb "task attribute additions failed, residual: $uuid"
 
 	# edit the attached .rst file via taskopen if cli arg '-e' given
 	if ((addfile))
-	then task $uuid annotate -- file:; taskopen -e $uuid; fi
+	then task uuid:$uuid annotate -- file:; taskopen -e $uuid; fi
 
 	# add any urls given before description as annotations
 	for ((i = 0; i < ${#urls[@]}; i++))
-	do task $uuid annotate -- "${urls[i]}"; done
+	do task uuid:$uuid annotate -- "${urls[i]}"; done
 
 	# either --start or show id to user so they can further manipulate
-	((dostart)) && task $uuid start || task $uuid _unique id
+	((dostart)) && task uuid:$uuid start || task uuid:$uuid _unique id
 
 	# XXX TODO
 	#
