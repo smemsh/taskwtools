@@ -304,11 +304,14 @@ taskprjs        task.sh     show unique full project hierarchies, dot seps
 On-modify Hook
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**TODO**: document that the hook (in ``task.py``) handles propagating
-changes in label and project to timew, and other things like safety,
-preventing duplicates, etc
+The main python script, invoked as a hook (implemented in ``task.py``
+function ``on_modify_timew()``) handles propagating changes in label and
+project to timew, and other things like safety, preventing duplicates,
+etc.  To install::
 
-To run without the hook, use ``taskn`` to invoke.
+    ln -s /path/to/task.py ~/.task/hooks/on-modify.timew
+
+To run taskwarrior with hooks disabled, use ``taskn`` to invoke.
 
 
 Tasklib
