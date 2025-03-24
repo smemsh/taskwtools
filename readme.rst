@@ -286,6 +286,7 @@ fqlfmt          task.sh     print label, project hierarchy cols from fqls
 timewfmt        task.sh     completes partial YYYYDDMMHHMMSS as timew time
 tasknote        taskopen    display ~/.task/notes/<uuid.rst>, -e to edit
 taskopen        taskopen    scrape task notes/rst for urls and pick one
+task2to3        task2to3.py import tw2 undo.data into tw3, preserving history
 =============== =========== ==================================================
 
 report
