@@ -221,7 +221,8 @@ def load_tasks(tasks):
             which('faketime'),
             strftime("%Y-%m-%d %H:%M:%S", fakestamp),
             which(TASKCMD),
-            'import'
+            'rc.hooks=0',  # see TW issue 3314
+            'import',
         ]
         cmd(cmdv, input=taskjson, text=True, encoding='utf-8', stderr=STDOUT)
         print(f"{count}/{nrecords}", "\r", end='')
