@@ -15,7 +15,7 @@ that tool is required for functionality.
 
 Tested versions:
 
-:taskwarrior: 2.6.2
+:taskwarrior: 3.4.1
 :timewarrior: 1.7.1
 :python-timew: 0.2.0
 :jq: 1.7.1
