@@ -795,13 +795,16 @@ def _taskget(*args, **kwargs):
             arg = int(taskarg)
             beforelen = len(matches or [])
             loopagain = update_matches(idkey, arg)
+            matched = len(matches) > beforelen
             if loopagain is not None:
-                if beforelen == len(matches) and len(taskarg) >= 8:
-                    # probably a uuid that's all base10 digits
-                    pass
-                else:
+                if matched:
                     if loopagain: continue
                     else: break
+                else:
+                    # could be a uuid that's all base10 digits, or a substring
+                    # to match in text fields, etc, so we have to continue
+                    # searching...
+                    pass
         except ValueError: pass
 
         # taskuuid-long
