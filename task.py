@@ -590,7 +590,7 @@ def _taskstop(task=None, verbose=True):
 
 #
 
-def _taskids(*args, useid=True, useuuid=False, idonly=False, **kwargs):
+def _taskids(*args, useuuid=False, idonly=False, **kwargs):
     tasks = _taskget(*args, idonly=idonly, **kwargs)
     taskids = [
         task['id']
