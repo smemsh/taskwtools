@@ -250,6 +250,7 @@ timetmp ()
 
 taskinfo ()
 {
+	(($#)) || set -- `taskuuid`
 	taskn \
 		rc._forcecolor=0 \
 		rc.detection=0 \
