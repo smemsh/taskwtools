@@ -160,11 +160,12 @@ taskrestart ()
 # needed because taskwarrior 'depends:', is actually a string
 # field containing comma-delimited uuids, see #2193, and note
 # that #2569 may change the type of this field
+# see also task 2196992f-b810-4c23-9874-cb1e3ff0d7c7
 #
 taskdeps ()
 {
 	local t=${1:?}; shift
-	task depends:$(task $t _uuid) "$@"
+	task depends.has:$(task $t _uuid) "$@"
 }
 
 # completes the current task, if it's a real task with an fql
