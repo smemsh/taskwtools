@@ -165,7 +165,8 @@ taskrestart ()
 taskdeps ()
 {
 	local t=${1:?}; shift
-	task depends.has:$(task $t _uuid) "$@"
+	t=$(taskone -n $t) || bomb "dependee lookup failed"
+	task depends.has:$t "$@"
 }
 
 # completes the current task, if it's a real task with an fql
