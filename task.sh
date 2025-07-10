@@ -162,7 +162,7 @@ taskrestart ()
 # that #2569 may change the type of this field
 # see also task 2196992f-b810-4c23-9874-cb1e3ff0d7c7
 #
-taskdeps ()
+taskrdeps ()
 {
 	local t=${1:?}; shift
 	t=$(taskone -n $t) || bomb "dependee lookup failed"
