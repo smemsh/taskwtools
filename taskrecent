@@ -98,7 +98,7 @@ taskrecent ()
 	local desc="false"
 
 	local opts # flag bits
-	local current timechar timethis
+	local current timethis
 
 	declare fql=$((1<<1))
 	declare proj=$((1<<2))
