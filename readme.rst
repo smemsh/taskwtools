@@ -16,8 +16,8 @@ that tool is required for functionality.
 Tested versions:
 
 :taskwarrior: 3.4.1
-:timewarrior: 1.7.1
-:python-timew: 0.2.0
+:timewarrior: 1.8.0
+:python-timew: 0.3.0
 :jq: 1.7.1
 :tasklib: https://github.com/smemsh/tasklib/ 83619b1 (with PRs 117, 119)
 
