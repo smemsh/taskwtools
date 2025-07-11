@@ -38,8 +38,8 @@ Configuration
 
 At last the following taskwarrior config are assumed by the scripts::
 
-  data.location = ~/.task
   dateformat = YMD
+  data.location = ~/.task
   uda.label.type = string
   uda.label.label = label
 
