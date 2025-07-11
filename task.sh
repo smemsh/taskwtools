@@ -169,6 +169,16 @@ taskrdeps ()
 	task depends.has:$t "$@"
 }
 
+taskdeps()
+{
+	local deps
+	local t=${1:?}; shift
+	(($#)) || set -- all # default report to include completed
+	t=$(taskone -n $t) || bomb "depender lookup failed"
+	deps="$(task $t export | jq -r '.[].depends[]?')"
+	task ${deps:-$(taskdummy)} "$@"
+}
+
 # completes the current task, if it's a real task with an fql
 # keeps clock running on time/todo
 #

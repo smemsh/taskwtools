@@ -269,6 +269,7 @@ select
 
 =============== =========== ==================================================
 taskcur         task.sh     select the active task
+taskdeps        task.sh     select all dependencies of given task
 taskrdeps       task.sh     select all dependants of given task
 taskl           task.sh     select task with given unique label substring
 taskgrep        task.sh     search by taskget/rst grep, default report
