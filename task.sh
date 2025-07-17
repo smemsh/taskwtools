@@ -227,7 +227,8 @@ taskredo ()
 timefield ()
 {
 	(($# == 2)) || bomb "supply one interval and one field"
-	timew export $1 | jq -r '.[].'$2
+	[[ $2 == tags ]] && set -- $1 "$2[]?"
+	timew export $1 | jq -r ".[].$2"
 }
 
 timefill ()
