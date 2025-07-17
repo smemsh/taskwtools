@@ -224,6 +224,12 @@ taskredo ()
 
 ### timewarrior
 
+timefield ()
+{
+	(($# == 2)) || bomb "supply one interval and one field"
+	timew export $1 | jq -r '.[].'$2
+}
+
 timefill ()
 {
 	(($# == 0)) && set -- @1
