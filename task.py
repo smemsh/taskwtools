@@ -943,6 +943,9 @@ def on_modify_timew(*args):
 
     #
 
+    if '/' in new.get('project', []):
+        bomb("project should not have slashes, use dots for hierarchy")
+
     if 'start' in new:
 
         if 'start' not in old:
