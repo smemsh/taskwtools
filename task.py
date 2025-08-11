@@ -963,8 +963,7 @@ def on_modify_timew(*args):
             _taskstop(new, verbose=False)
 
         if 'end' not in new:
-            print("disallowing pause, use timewarrior until 'done'")
-            exit(EXIT_FAILURE)
+            bomb("disallowing pause, use timewarrior until 'done'")
 
     if set(_timewtags(old)) != set(_timewtags(new)):
         if old.get('label'): # skip new taskadd with no label yet
