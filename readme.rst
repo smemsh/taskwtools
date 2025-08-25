@@ -10,6 +10,12 @@ Mainly implemented in Python, with ``task.py`` implementing the bulk
 of commands and hooks.  Some auxiliary commands are implemented in
 bourne again syntax within ``task.sh``.
 
+There's also some integration with bash command line history stored in
+sqlite3 db with a tool to select histories for viewing based on
+Taskwarrior project/label names and Timewarrior date ranges, see
+``cmdhist`` script.  It requires some things in ``$PROMPT_COMMAND`` and
+is not generalized or modularized at the moment... *TODO*
+
 ``jq`` command scripts are sometimes embedded in the shell scripts, and
 that tool is required for functionality.
 
@@ -18,6 +24,7 @@ Tested versions:
 :taskwarrior: 3.4.1
 :timewarrior: 1.8.0
 :python-timew: 0.3.0
+:python-duckdb: 1.3.2 (for cmdhist only)
 :jq: 1.7.1
 :tasklib: https://github.com/smemsh/tasklib/ 83619b1 (with PRs 117, 119)
 
@@ -325,3 +332,33 @@ versions" above.
 
 (Actually what we use it for is pretty simple, we might just do this
 ourselves without tasklib in the near future.)
+
+
+Cmdhist
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There's also a script ``cmdhist`` that lets one select command line
+history to view, based on timew tags and/or date ranges, and eventually
+other interesting options.  This turns out to be fairly useful, even in
+its raw initial implementation without options (right now it accepts any
+timewarrior export options and displays all command line histories that
+were active for those exported intervals).
+
+how it works
+------------
+
+There's a sqlite3 db that gets inserts of all bash commands on the
+system and corresponding metadata like start, end time, return code,
+tty, etc.  The inserts are done transparently in ``$PROMPT_COMMAND``
+(see https://github.com/smemsh/.bashrc repo files ``init.d/history`` and
+``func.d/promptcmd``).  Then a python tool uses duckdb to slurp an
+export from timewarrior and join it with this command line history data.
+
+Future direction is to set this up on all my systems, use periodic
+sqlite3_rsync.c to make a master table with all my histories globally,
+able to select projects on any nodes being administered and know all
+commands done whilst working on a particular taskwtools FQL.
+
+Then later there is a dream of integrating this with a bash builtin that
+does live history query/manipulation with the usual control-r, uparrow,
+etc and shares a global history.  We'll see if we get that far... ;-)

@@ -1,0 +1,230 @@
+#!/usr/bin/env python3
+"""
+cmdhist
+  select bash history stored in sql tables, joined with taskwtools fqls
+
+desc:
+  - cli tool that selects matching records from sqlite3-stored bash history
+  - history stored via prompt_command() in .bash/init.d/{history,mkprompt}
+  - uses duckdb to join sqlite3 command line history tables with timew json data
+  - give args for "timew export" and only commands initiated therein are emitted
+
+args:
+  - timew interval ids OR (range/hints AND/OR tags)
+  - see timew-ranges(7), timew-tags(1), timew-hints(7)
+
+"""
+# todo:
+#   - at least host, tty, status, runtime, cputime, cmdname, cmdline
+#   - datetime.timedelta corresponds to duckdb INTERVAL type
+#   - uuid.UUID corresponds to duckdb UUID type
+#   - output formats, both canned and printf-style
+
+__url__     = 'https://github.com/smemsh/cmdhist/'
+__author__  = 'Scott Mcdermott <scott@smemsh.net>'
+__license__ = 'GPL-2.0'
+__devskel__ = '0.7.3'
+
+from sys import exit, hexversion
+if hexversion < 0x030900f0: exit("minpython: %s" % hexversion)
+
+import duckdb
+import argparse
+
+from sys import argv, stdout, stderr
+from shutil import which
+from tempfile import NamedTemporaryFile
+from subprocess import run
+
+from os.path import basename, dirname, isdir, exists, abspath
+from os import (
+    uname, getenv, unsetenv, access, chdir, R_OK,
+    EX_OK as EXIT_SUCCESS,
+    EX_SOFTWARE as EXIT_FAILURE,
+)
+
+HOME = getenv('HOME')
+LOGDIR = f"{HOME}/var/log"
+HOSTNAME = uname().nodename
+SQLDBPATH = f"{LOGDIR}/cmdhist.{HOSTNAME}.sqlite3"
+
+TIMEFMT_HIST = '%Y%m%d%H%M%S'
+TIMEFMT_TIMEW = '%Y%m%dT%H%M%SZ'
+
+###
+
+def err(*args, **kwargs):
+    print(*args, file=stderr, **kwargs)
+
+def bomb(*args, **kwargs):
+    err(*args, **kwargs)
+    exit(EXIT_FAILURE)
+
+###
+
+def process_args():
+
+    global args
+
+    def usagex(*args, **kwargs):
+        nonlocal p
+        p.print_help(file=stderr)
+        print(file=stderr)
+        bomb(*args, **kwargs)
+
+    # parse_args() gives escaped strings
+    def unesc(s):
+        if s is None: return
+        else: return s.encode('raw-unicode-escape').decode('unicode-escape')
+
+    def addopt(p, flagchar, longopt, help=None, /, **kwargs):
+        options = list(("-%s --%s" % (flagchar, longopt)).split())
+        p.add_argument(*options, help=help, **kwargs)
+
+    def addarg(p, vname, vdesc, help=None, /, **kwargs):
+        p.add_argument(vname, metavar=vdesc, help=help, **kwargs)
+
+    def addflag(*args, **kwargs):
+        addopt(*args, action='store_true', **kwargs)
+
+    def addopts(*args, **kwargs):
+        addopt(*args, action='store', **kwargs)
+
+    def addtogg(*args, **kwargs):
+        addopt(*args, action=argparse.BooleanOptionalAction, **kwargs)
+
+    def addnarg(*args, **kwargs):
+        addarg(*args, nargs='?', **kwargs)
+
+    def addargs(*args, **kwargs):
+        addarg(*args, nargs='*', **kwargs)
+
+    def hasopt(*options):
+        return any([getattr(args, a) for a in [*options]])
+
+    p = argparse.ArgumentParser(
+        prog            = invname,
+        description     = __doc__.strip(),
+        allow_abbrev    = False,
+        formatter_class = argparse.RawTextHelpFormatter,
+    )
+    addopt  (p, 'd', 'dbpath', 'absolute or relative sqlite3 database path')
+    addargs (p, 'twargs', '[id] | [range] [tag]')
+
+    args = p.parse_args(args)
+    dbpath = abspath(args.dbpath or SQLDBPATH)
+
+    return dbpath, args.twargs
+
+
+def check_sanity(dbpath):
+    if not access(dbpath, R_OK):
+        bomb(f"cannot read from database '{dbpath}'")
+
+###
+
+def cmdhist(dbfile, twargs):
+
+    db = duckdb.connect()
+
+    # todo: consider community shellfs plugin instead.  can also give
+    # io.StringIO(r.stdout), but then need fsspec, so we use a tmpfile
+    #
+    jsonfile = NamedTemporaryFile()
+    run([which('timew'), 'export'] + twargs, text=True, stdout=jsonfile)
+    timedata = db.read_json(jsonfile.name, timestamp_format=TIMEFMT_TIMEW)
+
+    db.execute(f"""
+        LOAD sqlite;
+        ATTACH DATABASE '{dbfile}' AS sqlitedb (TYPE sqlite);
+    """)
+    db.sql(f"""
+        CREATE TABLE cmdhist AS
+        SELECT
+            split(hostname, '.')[1] AS host,
+            strftime(
+                to_timestamp(start_time_t),
+                '{TIMEFMT_HIST}'
+            ) AS start,
+            ret::varchar AS status,
+            duration_secs::varchar AS secs,
+            ttynum::varchar AS ttyn,
+            split((
+                list_filter(
+                    timedata.tags,
+                    lambda tag:
+                        NOT starts_with(tag, '+')
+                        AND NOT ends_with(tag, '/')
+                )
+            )[1], '/')[-1] AS task,
+            command AS cmd,
+        FROM sqlitedb.command_lines AS cldata
+        INNER JOIN timedata
+        ON
+            cldata.start_time_t >= epoch(timedata.start)
+            AND cldata.start_time_t < epoch(timedata.end)
+        ORDER BY cldata.start_time_t
+        ;
+    """)
+    rows = db.table('cmdhist').fetchall()
+    for row in rows:
+        metafields = '\x20'.join(row[:-1])
+        cmdline = row[-1]
+        print('\t'.join([metafields, cmdline]))
+
+
+###
+
+def main():
+
+    if debug == 1:
+        breakpoint()
+
+    dbpath, twargs = process_args()
+    check_sanity(dbpath)
+
+    dbdir = dirname(dbpath)
+    dbfile = basename(dbpath)
+
+    try: chdir(dbdir)
+    except: bomb(f"cannot change directory to '{dbdir}'")
+
+    try: subprogram = globals()[invname]
+    except (KeyError, TypeError):
+        from inspect import trace
+        if len(trace()) == 1: bomb("unimplemented")
+        else: raise
+
+    return subprogram(dbfile, twargs)
+
+###
+
+if __name__ == "__main__":
+
+    invname = basename(argv[0])
+    args = argv[1:]
+
+    from bdb import BdbQuit
+    if debug := int(getenv('DEBUG') or 0):
+        import pdb
+        from pprint import pp
+        err('debug: enabled')
+        unsetenv('DEBUG')  # otherwise forked children hang
+
+    try: main()
+    except BdbQuit: bomb("debug: stop")
+    except SystemExit: raise
+    except KeyboardInterrupt: bomb("interrupted")
+    except:
+        from traceback import print_exc
+        print_exc(file=stderr)
+        if debug: pdb.post_mortem()
+        else: bomb("aborting...")
+    finally:  # cpython bug 55589
+        try: stdout.flush()
+        finally:
+            try: stdout.close()
+            finally:
+                try: stderr.flush()
+                except: pass
+                finally: stderr.close()
