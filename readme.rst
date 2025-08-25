@@ -51,6 +51,19 @@ At last the following taskwarrior config are assumed by the scripts::
   uda.label.label = label
 
 
+Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since there is only one known user (me), these scripts are installed
+with my https://github.com/smemsh/installx/ tool.  However, it's simple
+enough to copy the executable scripts and symlinks to your ``~/bin/``.
+
+The task/timewarrior config files used with it are in my
+https://github.com/smemsh/.task/ repo and installed with the
+``installrc`` tool from aforementioned ``installx`` project, but those
+aren't required aside from above referenced configuration details.
+
+
 Task Labels and FQLs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
