@@ -322,3 +322,6 @@ Tasklib
 The tasklib we use needs patches, but no response to my PRs in 2+ years,
 project is stalled or abandoned, so my forked tasklib is used, see "Tested
 versions" above.
+
+(Actually what we use it for is pretty simple, we might just do this
+ourselves without tasklib in the near future.)
