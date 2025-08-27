@@ -22,7 +22,7 @@ that tool is required for functionality.
 Tested versions:
 
 :taskwarrior: 3.4.1
-:timewarrior: 1.9.0
+:timewarrior: 1.9.1
 :python-timew: 0.3.0
 :python-duckdb: 1.3.2 (for cmdhist only)
 :jq: 1.7.1
