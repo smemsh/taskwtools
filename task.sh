@@ -3,8 +3,8 @@
 # task.sh
 #   taskwtools shell wrappers
 #
-# scott@smemsh.net
-# https://github.com/smemsh/.task/
+# Scott Mcdermott <scott@smemsh.net>
+# https://github.com/smemsh/taskwtools/
 # https://spdx.org/licenses/GPL-2.0
 #
 f=~/.taskenv; test -r $f && source $f; unset f

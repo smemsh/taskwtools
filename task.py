@@ -25,7 +25,7 @@ deps:
   - https://pypi.org/project/timew/
 
 """
-__url__     = 'https://github.com/smemsh/.task/'
+__url__     = 'https://github.com/smemsh/taskwtools/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 

@@ -5,7 +5,7 @@ better replacement for the few functions of 'taskopen' that we use
   - taskopen: find urls in annotations, offers selection menu, spawns $BROWSER
   - tasknote: displays the .rst file attached to task, or runs $EDITOR
 """
-__url__     = 'https://github.com/smemsh/.task'
+__url__     = 'https://github.com/smemsh/taskwtools/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
 
