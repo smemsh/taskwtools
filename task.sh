@@ -268,6 +268,12 @@ timetmp ()
 	timew start time/tmp$uuidpfx
 }
 
+timeids ()
+{
+	timew export "$@" \
+	| jq -r '"@\(.[].id)"'
+}
+
 taskinfo ()
 {
 	(($#)) || set -- `taskuuid`
