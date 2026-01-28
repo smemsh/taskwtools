@@ -471,6 +471,7 @@ timevals ()
 # calculated to be later than the invocation time, the superimposition
 # is recalculated over a time 24 hours prior to invocation.
 #
+tt () { timewfmt "$@"; }
 timewfmt ()
 {
 
