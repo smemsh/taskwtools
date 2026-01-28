@@ -448,21 +448,6 @@ timewk ()
 	task calc $week
 }
 
-timevals ()
-{
-	local -a ivals
-	local lookupfql=$(taskfql ${1:-$(taskfql)})
-	local i
-	[[ $lookupfql ]] || { false; return; }
-
-	for i in $(timew export $lookupfql | jq -r '.[].id')
-	do ivals+=($i); done
-
-	for ((i = 0; i < ${#ivals[@]}; i++))
-	do printf $'@%u\x20' ${ivals[i]}; done
-	if ((i)); then echo; fi
-}
-
 # convert from a yyyyddhhmmss to an iso8601 (less tz) time for timew
 #
 # any supplied substring is superimposed over rhs of current time, thus

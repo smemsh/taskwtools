@@ -272,8 +272,7 @@ timein          task.sh     print the timewfmt time at now + $@
 timeline        task.sh     print time spent in recent calendars
 timeopen        task.sh     print time tracked since clock last off
 timels          task.sh     print list of timew entries in time/ fqlspace
-timevals        task.sh     print all intervals that tracked given taskfql
-timeids         task.sh     print all intervals that match the given range
+timeids         task.sh     print all intervals that match the export spec
 timewk          task.sh     print the timew time given ISO week num begins
 timewtags       task.py     print the timew tags of current or given task
 taskday         task.py     print labels of tasks from last N[=1] days
