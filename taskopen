@@ -8,16 +8,17 @@ better replacement for the few functions of 'taskopen' that we use
 __url__     = 'https://github.com/smemsh/taskwtools/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
 __license__ = 'GPL-2.0'
+__devskel__ = '0.10.2'
 
 import argparse
 
 from sys import exit, hexversion
-if hexversion < 0x030900f0: exit("minpython: %s" % hexversion)
+if hexversion < 0x030a00f0: exit("minpython: %s" % hexversion)
 
+from os import getpid, kill, spawnl, P_WAIT, getenv, unsetenv
 from sys import argv, stdin, stdout, stderr
 from tty import setraw
 from json import loads, JSONDecodeError
-from string import digits, ascii_letters as letters
 from signal import SIGTSTP
 from shutil import which
 from termios import tcgetattr, tcsetattr, TCSADRAIN
@@ -25,16 +26,11 @@ from textwrap import fill
 from traceback import print_exc
 from subprocess import check_output, CalledProcessError
 
-from urllib.parse import urlparse
 from os.path import basename
+from urllib.parse import urlparse
 
-from os import (
-    getpid, kill,
-    spawnl, P_WAIT,
-    getenv, unsetenv,
-    EX_OK as EXIT_SUCCESS,
-    EX_SOFTWARE as EXIT_FAILURE,
-)
+from os import EX_SOFTWARE as EXIT_FAILURE
+from string import digits, ascii_letters as letters
 
 # the urls are embedded in annotations.  following characters are
 # stripped from each end of a note's words before testing whether a url
@@ -43,21 +39,20 @@ STRIPCHARS='().?,;!'
 
 ###
 
+def msg(*args, **kwargs):
+    print(*args, **kwargs)
+
 def err(*args, **kwargs):
-    print(*args, file=stderr, **kwargs)
+    msg(*args, file=stderr, **kwargs)
 
 def bomb(*args, **kwargs):
     err(*args, **kwargs)
     exit(EXIT_FAILURE)
 
-def exe(cmd):
-    cmdargs = cmd.split()
-    cmd = cmdargs[0]
-    cmdargs[0] = which(cmd) or cmd
-    if not cmd: bomb(f"cannot find command {cmdargs[0]}")
-    return check_output(cmdargs).decode()
+def exe(cmd, **kwargs):
+    return check_output(cmd.split(), text=True, **kwargs)
 
-def spawn(evar, default, arg):
+def envspawn(evar, default, arg):
     app = getenv(evar, default)
     cmd = which(app)
     spawnl(P_WAIT, cmd, basename(app), arg)
@@ -75,6 +70,9 @@ def process_args():
     def addarg(p, vname, vdesc, help=None, /, **kwargs):
         p.add_argument(vname, metavar=vdesc, help=help, **kwargs)
 
+    def addnarg(*args, **kwargs):
+        addarg(*args, nargs='?', **kwargs)
+
     def addflag(*args, **kwargs):
         addopt(*args, action='store_true', **kwargs)
 
@@ -85,9 +83,7 @@ def process_args():
         formatter_class = argparse.RawTextHelpFormatter,
     )
 
-    addarg(p, 'task', 'taskid',
-           'unique lookup string for "taskuuid" command',
-           nargs='?')
+    addnarg(p, 'task', 'taskid', 'unique lookup string for "taskuuid" command')
     if invname == 'tasknote':
         addflag(p, 'e', 'edit', 'open the tasknote in $EDITOR')
 
@@ -126,7 +122,7 @@ def tasknote(task):
     notefile = f"{getenv('HOME')}/.task/notes/{uuid}.rst"  # todo: rcfile
 
     if args.edit:
-        spawn('EDITOR', 'vi', notefile)
+        envspawn('EDITOR', 'vi', notefile)
         # todo: if exists and didn't before, add uda
     else:
         try: f = open(notefile)
@@ -199,7 +195,7 @@ def taskopen(task):
 
         url = links[idx]
         print(f"opening {url} ...")
-        spawn('BROWSER', 'open', url)
+        envspawn('BROWSER', 'open', url)
 
     else:
         if nanns: print("no urls")
@@ -209,14 +205,17 @@ def taskopen(task):
 
 def main():
 
-    if debug == 1: breakpoint()
+    if debug == 1:
+        breakpoint()
 
     task = process_args()
     task = get_task(task)
 
     try: subprogram = globals()[invname]
     except (KeyError, TypeError):
-        bomb(f"unimplemented command '{invname}'")
+        from inspect import trace
+        if len(trace()) == 1: bomb("unimplemented")
+        else: raise
 
     return subprogram(task)
 
@@ -240,13 +239,15 @@ if __name__ == "__main__":
     except SystemExit: raise
     except KeyboardInterrupt: bomb("interrupted")
     except:
+        from traceback import print_exc
         print_exc(file=stderr)
         if debug: pdb.post_mortem()
         else: bomb("aborting...")
-    finally: # cpython bug 55589
+    finally:  # cpython bug 55589
         try: stdout.flush()
         finally:
             try: stdout.close()
             finally:
                 try: stderr.flush()
+                except: pass
                 finally: stderr.close()
