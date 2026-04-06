@@ -3,7 +3,7 @@
 better replacement for the few functions of 'taskopen' that we use
 
   - taskopen: find urls in annotations, offers selection menu, spawns $BROWSER
-  - tasknote: displays the .rst file attached to task, or runs $EDITOR
+  - tasknote: output (or $EDITOR with '-e') task's .txt (.rst with '-r') file
 """
 __url__     = 'https://github.com/smemsh/taskwtools/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
@@ -85,6 +85,7 @@ def process_args():
     addnarg(p, 'task', 'taskid', 'unique lookup string for "taskuuid" command')
     if invname == 'tasknote':
         addflag(p, 'e', 'edit', 'open the tasknote in $EDITOR')
+        addflag(p, 'r', 'rst', 'use .rst file, instead of default .txt')
 
     args, left = p.parse_known_args(args)
     if len(left):
@@ -116,7 +117,9 @@ def get_task(task):
 def tasknote(task):
 
     uuid = task['uuid']
-    notefile = f"{getenv('HOME')}/.task/notes/{uuid}.rst"  # todo: rcfile
+    notebase = f"{getenv('HOME')}/.task/notes/{uuid}"  # todo: rcfile
+    notetype = 'rst' if args.rst else 'txt'  # todo: any extension?
+    notefile = f"{notebase}.{notetype}"
 
     if args.edit:
         envspawn('EDITOR', 'vi', notefile)

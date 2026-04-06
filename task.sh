@@ -61,7 +61,7 @@ taskgrep  ()
 		  -u output only matching task UUIDs
 		  -x output JSON export of matching tasks
 		  -a use 'all' report (matches include closed ones)
-		  -n do not look in rst notes of tasks for matching text
+		  -n do not look in txt/rst notes of tasks for matching text
 		%
 	}
 
@@ -88,12 +88,18 @@ taskgrep  ()
 
 	if ! ((nofiles)); then
 		for pattern; do patexprs+=(-e "$pattern"); done
-		rstpaths=($(grep -Els "${patexprs[@]}" ~/.task/notes/*.rst))
+		notepaths=($(
+			shopt -u failglob
+			grep -Els "${patexprs[@]}" ~/.task/notes/*.{rst,txt}
+		))
 	fi
 
-	if ((${#rstpaths[@]}))
-	then noteuuids=($(basename -s .rst ${rstpaths[@]}))
-	else noteuuids=()
+	if ((${#notepaths[@]}))
+	then
+		for ext in rst txt
+		do noteuuids=($(basename -s .$ext ${notepaths[@]})); done
+	else
+		noteuuids=()
 	fi
 
 	notes=$(taskids -za -- "$@" ${noteuuids[@]})
