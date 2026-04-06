@@ -3,7 +3,9 @@
 better replacement for the few functions of 'taskopen' that we use
 
   - taskopen: find urls in annotations, offers selection menu, spawns $BROWSER
-  - tasknote: output (or $EDITOR with '-e') task's .txt (.rst with '-r') file
+  - tasknote: output (or edit using $EDITOR with '-e') a task's note file
+      (reading: open according to -a/-f and -t/-r, if none found exit)
+      (writing: (-e), if none found, create following -a/-f and -t/-r)
 """
 __url__     = 'https://github.com/smemsh/taskwtools/'
 __author__  = 'Scott Mcdermott <scott@smemsh.net>'
@@ -15,7 +17,7 @@ import argparse
 from sys import exit, hexversion
 if hexversion < 0x030a00f0: exit("minpython: %s" % hexversion)
 
-from os import getpid, kill, spawnl, P_WAIT, getenv, unsetenv
+from os import getpid, kill, spawnl, P_WAIT, getenv, unsetenv, access, F_OK
 from sys import argv, stdin, stdout, stderr
 from tty import setraw
 from json import loads, JSONDecodeError
@@ -81,17 +83,32 @@ def process_args():
         allow_abbrev    = False,
         formatter_class = argparse.RawTextHelpFormatter,
     )
-
     addnarg(p, 'task', 'taskid', 'unique lookup string for "taskuuid" command')
     if invname == 'tasknote':
         addflag(p, 'e', 'edit', 'open the tasknote in $EDITOR')
-        addflag(p, 'r', 'rst', 'use .rst file, instead of default .txt')
+        addflag(p, 'r', 'rst', 'prefer or force .rst note')
+        addflag(p, 't', 'txt', 'prefer or force .txt note (default)')
+        addflag(p, 'a', 'auto', 'automatically use first found (default)')
+        addflag(p, 'f', 'force', 'do not use first found')
 
     args, left = p.parse_known_args(args)
     if len(left):
         bomb("supply just one arg, should lookup to a unique task")
     if not args.task:
         args.task = exe("tasknow").split()[0]
+
+    if invname == 'tasknote':
+        if args.rst or args.txt:
+            if args.rst and args.txt:
+                bomb("rst and txt are mutually exclusive")
+        else:
+            args.txt = True
+
+        if args.auto or args.force:
+            if args.auto and args.force:
+                bomb("force and auto are mutually exclusive")
+        else:
+            args.auto = True
 
     return args.task
 
@@ -117,9 +134,21 @@ def get_task(task):
 def tasknote(task):
 
     uuid = task['uuid']
+    notetypes = ['rst', 'txt'] if args.rst else ['txt', 'rst']
     notebase = f"{getenv('HOME')}/.task/notes/{uuid}"  # todo: rcfile
-    notetype = 'rst' if args.rst else 'txt'  # todo: any extension?
-    notefile = f"{notebase}.{notetype}"
+
+    notes = {}
+    for nt in notetypes:
+        notes[nt] = True if access(f"{notebase}.{nt}", F_OK) else False
+
+    notefile = ""
+    if args.auto:
+        for nt in notes.keys():
+            if notes[nt]:
+                notefile = f"{notebase}.{nt}"
+                break
+    if not notefile:
+        notefile = f"{notebase}.{notetypes[0]}"
 
     if args.edit:
         envspawn('EDITOR', 'vi', notefile)
