@@ -115,8 +115,6 @@ def get_task(task):
 
 def tasknote(task):
 
-    global args
-
     uuid = task['uuid']
     notefile = f"{getenv('HOME')}/.task/notes/{uuid}.rst"  # todo: rcfile
 
@@ -131,8 +129,6 @@ def tasknote(task):
 
 
 def taskopen(task):
-
-    global pid
 
     charmap = digits + letters
     idxmap = {charmap[i]: i for i in range(len(charmap))}
