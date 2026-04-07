@@ -246,6 +246,11 @@ timefill ()
 	timew move $1 $(timew get dom.tracked.${1#@}.start) :fill
 }
 
+timerename ()
+{
+	timew retag $(timew export ${1:?} | jq -r '"@\(.[].id)"') ${2:?}
+}
+
 # start timew task "time/$1", with optional :hints, default "time/todo"
 timedo ()
 {
