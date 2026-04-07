@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-better replacement for the few functions of 'taskopen' that we use
+simple replacement for the most useful functions from 'taskopen'
 
   - taskopen: find urls in annotations, offers selection menu, spawns $BROWSER
   - tasknote: output (or edit using $EDITOR with '-e') a task's note file
