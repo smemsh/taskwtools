@@ -310,8 +310,22 @@ taskinfo ()
 			print_row(type, 1)
 		}
 	}
+
+	# fields must be in appearance order!
+	# see file: from task 7e812e9b
+	#
 	/^ID/                    { print_values("id",         1) }
-	/^Description/           { print_values("desc",       1) }
+	/^Description/ {
+		desc = sprintf("%s\t", "desc")
+		for (i = 2; i <= NF; i++)
+			desc = sprintf("%s%s\x20", desc, $i)
+		while (getline) {
+			if ($0 ~ /^[[:space:]]/) notes++
+			else break
+		}
+		if (notes) printf ("%s [%u]\n", desc, notes)
+		else print desc
+	}
 	/^Status/                { print_values("stat",       1) }
 	/^Project/               { print_values("proj",       1) }
 	/^This task is blocking/ { print_values("rdep",       4, 1) }
@@ -327,6 +341,7 @@ taskinfo ()
 	/^Priority/              { print_values("pri",        1) }
 	/^[a-z]/                 { print_values($1,           1) }
 	' \
+	\
 	| tr -s $'\x20' \
 	;
 }
