@@ -36,7 +36,7 @@ from string import digits, ascii_letters as letters
 # the urls are embedded in annotations.  following characters are
 # stripped from each end of a note's words before testing whether a url
 #
-STRIPCHARS = '().?,;!'
+STRIPCHARS = "().?,;!'\""
 
 ###
 
