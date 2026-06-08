@@ -248,7 +248,7 @@ timefill ()
 
 timerename ()
 {
-	timew retag $(timew export ${1:?} | jq -r '"@\(.[].id)"') ${2:?}
+	timew retag $(timew export ${1:?} | jq -r '"@\(.[].id)"') ${@:2}
 }
 
 # start timew task "time/$1", with optional :hints, default "time/todo"
